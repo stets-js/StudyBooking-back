@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const moment = require('moment-timezone');
 
 const catchAsync = require('../utils/catchAsync');
-const User = require('../models/user.model');
+const { User } = require('../models/relation');
 
 const timeLeftTillMorning = () => {
 	const nowInKiev = moment().tz('Europe/Kiev');

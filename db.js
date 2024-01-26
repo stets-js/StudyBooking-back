@@ -7,15 +7,10 @@ sequelize
 	// .sync({ alter: true }) // for updating models
 	.authenticate() // just for auth to db
 	.then(() => {
-		console.log(
-			'Database connection has been established successfully.'
-		);
+		console.log('Database connection has been established successfully.');
 	})
 	.catch((error) => {
-		console.error(
-			'Unable to connect to the database:',
-			error
-		);
+		console.error('Unable to connect to the database:', error);
 	});
 
 module.exports = sequelize;

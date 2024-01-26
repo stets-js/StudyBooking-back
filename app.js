@@ -2,6 +2,8 @@ const express = require('express');
 const rateLimit = require('express-rate-limit');
 const morgan = require('morgan');
 const cors = require('cors');
+
+const createBasicRoles = require('./utils/createBasicRoles');
 const authRoutes = require('./routes/auth.route');
 
 const app = express();
@@ -14,8 +16,7 @@ if (process.env.NODE_ENV === 'development') {
 const limiter = rateLimit({
 	max: 10,
 	windowMs: 60 * 1000,
-	message:
-		'Too many requests from this IP, please try again later',
+	message: 'Too many requests from this IP, please try again later',
 });
 
 app.use(cors());
@@ -36,10 +37,9 @@ app.use('/api/lifecheck', (req, res, next) => {
 app.use('/api/auth', authRoutes);
 
 app.all('*', (req, res, next) => {
-	next(
-		`Can't find ${req.originalUrl} on this server :#`,
-		404
-	);
+	next(`Can't find ${req.originalUrl} on this server :#`, 404);
 });
+
+createBasicRoles();
 
 module.exports = app;
