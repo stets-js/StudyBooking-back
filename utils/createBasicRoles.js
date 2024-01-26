@@ -3,8 +3,14 @@ const { Role } = require('./../models/relation');
 const createRolesIfNotExists = async () => {
 	try {
 		const basicRoles = [
-			{ name: 'teacher', description: 'teacher role' },
-			{ name: 'administrator', description: 'Admin role' },
+			{
+				name: 'teacher',
+				// description: 'teacher role'
+			},
+			{
+				name: 'administrator',
+				// description: 'Admin role'
+			},
 		];
 
 		for (const role of basicRoles) {

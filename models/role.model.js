@@ -7,7 +7,7 @@ const Role = sequelize.define('Role', {
 		type: Sequelize.STRING(200),
 		allowNull: false,
 	},
-	description: { type: Sequelize.TEXT, allowNull: false },
+	// description: { type: Sequelize.TEXT, allowNull: false },
 });
 
 module.exports = Role;
