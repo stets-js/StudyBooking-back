@@ -78,7 +78,7 @@ exports.protect = catchAsync(async (req, res, next) => {
 	next();
 });
 
-exports.restrictTo = (...roles) => {
+exports.allowedTo = (...roles) => {
 	return (req, res, next) => {
 		if (!roles.includes(req.user.Role.name)) {
 			return next('You dont have permision :(');

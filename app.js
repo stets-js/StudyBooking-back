@@ -4,7 +4,9 @@ const morgan = require('morgan');
 const cors = require('cors');
 
 const createBasicRoles = require('./utils/createBasicRoles');
+
 const authRoutes = require('./routes/auth.route');
+const userRoutes = require('./routes/user.route');
 
 const app = express();
 
@@ -31,10 +33,9 @@ app.use('/api', limiter);
 app.use(express.static(`${__dirname}/public`));
 
 // routes
-app.use('/api/lifecheck', (req, res, next) => {
-	res.json({ message: 'I am alive!' });
-});
+
 app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 
 app.all('*', (req, res, next) => {
 	next(`Can't find ${req.originalUrl} on this server :#`, 404);
