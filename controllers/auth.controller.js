@@ -6,11 +6,7 @@ const User = require('../models/user.model');
 
 const timeLeftTillMorning = () => {
 	const nowInKiev = moment().tz('Europe/Kiev');
-	const expiryTime = nowInKiev
-		.clone()
-		.add(1, 'days')
-		.startOf('day')
-		.hour(8);
+	const expiryTime = nowInKiev.clone().add(1, 'days').startOf('day').hour(8);
 
 	return expiryTime.diff(nowInKiev, 'seconds');
 };
@@ -33,9 +29,7 @@ const createSendToken = (user, statusCode, res) => {
 	res.status(statusCode).json({
 		status: 'success',
 		token,
-		data: {
-			user,
-		},
+		user,
 	});
 };
 
@@ -47,9 +41,7 @@ exports.login = catchAsync(async (req, res) => {
 	});
 
 	if (!user || !(await user.verifyPassword(password)))
-		return res
-			.status(401)
-			.json({ message: 'Invalid credentials' });
+		return res.status(401).json({ message: 'Invalid credentials' });
 
 	createSendToken(user, 200, res);
 });
