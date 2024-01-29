@@ -1,17 +1,18 @@
-const User = require('../models/user.model');
 const catchAsync = require('./../utils/catchAsync');
 
 exports.deleteOne = Model =>
   catchAsync(async (req, res, next) => {
-    const document = await Model.deleteOne(req.params.id);
+    const document = await Model.destroy({where: {id: req.params.id}});
     if (!document) res.status(400).json({message: 'No document find with id ' + req.params.id});
     res.status(204).json();
   });
 
-exports.createOne = Model =>
+exports.createOne = (Model, options) =>
   catchAsync(async (req, res, next) => {
+    console.log(req.body, '!!!!!!!!!!!!!!!!!!!!');
     const document = await Model.create(req.body);
-
+    if (options.checkRole) {
+    }
     res.status(201).json({
       status: 'success',
       data: document
