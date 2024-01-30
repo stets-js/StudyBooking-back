@@ -7,9 +7,7 @@ const Course = sequelize.define('Course', {
     type: Sequelize.STRING(200),
     allowNull: false
   },
-  description: {
-    type: Sequelize.STRING(1000)
-  }
+  group_amount: {type: Sequelize.INTEGER, defaultValue: 0}
 });
 
 module.exports = Course;

@@ -4,7 +4,7 @@ const sequelize = new Sequelize(process.env.DATABASE_URL);
 
 sequelize
   //   .sync() // for adding new models
-  // .sync({ alter: true }) // for updating models
+  // .sync({alter: true}) // for updating models
   .authenticate() // just for auth to db
   .then(() => {
     console.log('Database connection has been established successfully.');
