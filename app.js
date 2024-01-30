@@ -8,7 +8,7 @@ const createBasicRoles = require('./utils/createBasicRoles');
 const authRoutes = require('./routes/auth.route');
 const userRoutes = require('./routes/user.route');
 const roleRoutes = require('./routes/role.route');
-
+const courseRoutes = require('./routes/course.route');
 const app = express();
 
 //development loging
@@ -38,6 +38,7 @@ app.use(express.static(`${__dirname}/public`));
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/roles', roleRoutes);
+app.use('/api/courses', courseRoutes);
 
 app.all('*', (req, res, next) => {
   next(`Can't find ${req.originalUrl} on this server :#`, 404);
