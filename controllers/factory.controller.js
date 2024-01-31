@@ -1,3 +1,4 @@
+const Role = require('../models/relation');
 const catchAsync = require('./../utils/catchAsync');
 
 exports.deleteOne = Model =>
@@ -33,7 +34,16 @@ exports.getOne = Model =>
 
 exports.getAll = Model =>
   catchAsync(async (req, res, next) => {
-    const document = await Model.findAll({});
+    let document;
+    if (req.query.role) {
+      document = await Model.findAll({
+        where: {
+          '$Role.name$': req.query.role
+        }
+      });
+    } else {
+      document = await Model.findAll({});
+    }
     res.json({
       status: 'success',
       results: document.length,
