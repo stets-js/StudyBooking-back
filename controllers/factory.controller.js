@@ -4,7 +4,8 @@ const catchAsync = require('./../utils/catchAsync');
 exports.deleteOne = Model =>
   catchAsync(async (req, res, next) => {
     const document = await Model.destroy({where: {id: req.params.id}});
-    if (!document) res.status(400).json({message: 'No document find with id ' + req.params.id});
+    if (!document)
+      return res.status(400).json({message: 'No document find with id ' + req.params.id});
     res.status(204).json();
   });
 
