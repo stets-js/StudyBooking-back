@@ -14,7 +14,7 @@ const timeLeftTillMorning = () => {
 
 const signToken = (user, timeTillMorning) => {
   return jwt.sign(
-    {id: user.id, user_name: user.name, role: user.Role.name},
+    {id: user.id, user_name: user.name, role: user.Role.name, roleId: user.Role.id},
     process.env.JWT_SECRET,
     {
       expiresIn: timeTillMorning
