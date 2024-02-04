@@ -2,7 +2,7 @@ const express = require('express');
 
 const userController = require('../controllers/user.controller');
 const authController = require('../controllers/auth.controller');
-
+const slotController = require('../controllers/slot.controller');
 const router = express.Router();
 
 router.use(authController.protect, authController.allowedTo('administrator'));
@@ -22,4 +22,10 @@ router
   .post(userController.addUserCourse)
   .delete(userController.deleteUserCourse);
 
+router.route('/:id/slots').get(slotController.getAllSlots).post(slotController.createUserSlot);
+
+router
+  .route('/:id/slots/:slot_id')
+  .patch(slotController.updateSlot)
+  .delete(slotController.deleteSlot);
 module.exports = router;

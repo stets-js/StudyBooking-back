@@ -36,15 +36,13 @@ exports.getOne = Model =>
 exports.getAll = Model =>
   catchAsync(async (req, res, next) => {
     let document;
-    if (req.query.role) {
-      document = await Model.findAll({
-        where: {
-          '$Role.name$': req.query.role
-        }
-      });
-    } else {
-      document = await Model.findAll({});
-    }
+    let whereClause = {};
+
+    if (req.query.role) whereClause['$Role.name$'] = req.query.role;
+    if (req.query.userId) whereClause[userId] = req.query.role;
+
+    document = await Model.findAll({where: whereClause});
+
     res.json({
       status: 'success',
       results: document.length,
