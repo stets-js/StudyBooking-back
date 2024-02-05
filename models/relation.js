@@ -10,8 +10,8 @@ Role.hasMany(User);
 
 const TeacherCourse = sequelize.define('TeacherCourse', {});
 
-Slot.hasMany(Appointment_Type, {foreignKey: 'slotId'});
-Appointment_Type.belongsTo(Slot, {foreignKey: 'slotId'});
+Slot.belongsTo(Appointment_Type, {foreignKey: 'appointmentTypeId'});
+Appointment_Type.hasMany(Slot, {foreignKey: 'appointmentTypeId'});
 
 User.hasMany(Slot, {foreignKey: 'userId'});
 Slot.belongsTo(User, {foreignKey: 'userId'});

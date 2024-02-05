@@ -25,7 +25,7 @@ router
 router.route('/:id/slots').get(slotController.getAllSlots).post(slotController.createUserSlot);
 
 router
-  .route('/:id/slots/:slot_id')
+  .route('/:id/slots/:slotId')
   .patch(slotController.updateSlot)
   .delete(slotController.deleteSlot);
 module.exports = router;

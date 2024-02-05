@@ -3,7 +3,11 @@ const catchAsync = require('./../utils/catchAsync');
 
 exports.deleteOne = Model =>
   catchAsync(async (req, res, next) => {
-    const document = await Model.destroy({where: {id: req.params.id}});
+    let id = req.params.id;
+    if (req.params.slotId) {
+      id = req.params.slotId;
+    }
+    const document = await Model.destroy({where: {id}});
     if (!document)
       return res.status(400).json({message: 'No document find with id ' + req.params.id});
     res.status(204).json();
@@ -12,8 +16,6 @@ exports.deleteOne = Model =>
 exports.createOne = (Model, options) =>
   catchAsync(async (req, res, next) => {
     const document = await Model.create(req.body);
-    if (options && options.checkRole) {
-    }
     res.status(201).json({
       status: 'success',
       data: document
@@ -52,7 +54,11 @@ exports.getAll = Model =>
 
 exports.updateOne = Model =>
   catchAsync(async (req, res, next) => {
-    const updatedDoc = await Model.update(req.body, {where: {id: req.params.id}});
+    let id = req.params.id;
+    if (req.params.slotId) {
+      id = req.params.slotId;
+    }
+    const updatedDoc = await Model.update(req.body, {where: {id}});
     res.json({
       data: updatedDoc
     });

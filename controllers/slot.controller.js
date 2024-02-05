@@ -13,10 +13,16 @@ exports.deleteSlot = factory.deleteOne(Slot);
 exports.updateSlot = factory.updateOne(Slot);
 
 exports.createUserSlot = catchAsync(async (req, res, next) => {
-  const document = await Model.create({userId: req.params.userId, data: req.body.data});
-
+  const document = await Slot.create({
+    userId: req.params.id,
+    data: req.body.data,
+    appointmentTypeId: req.body.appointmentTypeId
+  });
+  const createdDocument = await Slot.findOne({
+    where: {id: document.id}
+  });
   res.status(201).json({
     status: 'success',
-    data: document
+    data: createdDocument
   });
 });
