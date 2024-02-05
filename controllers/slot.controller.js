@@ -10,7 +10,7 @@ exports.createSlot = factory.createOne(Slot);
 
 exports.deleteSlot = factory.deleteOne(Slot);
 
-exports.updateSlot = factory.updateOne(Slot);
+exports.updateSlot = factory.updateOne(Slot, {slot: true});
 
 exports.createUserSlot = catchAsync(async (req, res, next) => {
   const document = await Slot.create({

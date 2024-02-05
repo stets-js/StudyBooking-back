@@ -52,13 +52,16 @@ exports.getAll = Model =>
     });
   });
 
-exports.updateOne = Model =>
+exports.updateOne = (Model, options) =>
   catchAsync(async (req, res, next) => {
     let id = req.params.id;
     if (req.params.slotId) {
       id = req.params.slotId;
     }
-    const updatedDoc = await Model.update(req.body, {where: {id}});
+    let updatedDoc = await Model.update(req.body, {where: {id}});
+    if (req.params.slotId) {
+      updatedDoc = await Model.findByPk(id);
+    }
     res.json({
       data: updatedDoc
     });
