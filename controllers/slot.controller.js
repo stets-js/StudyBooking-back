@@ -2,7 +2,7 @@ const {Slot} = require('../models/relation');
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./factory.controller');
 
-exports.getAllSlots = factory.getAll(Slot);
+exports.getAllSlots = factory.getAll(Slot, {slot: true});
 
 exports.getSlotById = factory.getOne(Slot);
 

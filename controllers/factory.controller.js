@@ -35,14 +35,16 @@ exports.getOne = Model =>
     });
   });
 
-exports.getAll = Model =>
+exports.getAll = (Model, options) =>
   catchAsync(async (req, res, next) => {
     let document;
     let whereClause = {};
 
     if (req.query.role) whereClause['$Role.name$'] = req.query.role;
     if (req.query.userId) whereClause[userId] = req.query.role;
-
+    if (options && options.slot) {
+      whereClause.userId = req.params.id;
+    }
     document = await Model.findAll({where: whereClause});
 
     res.json({
