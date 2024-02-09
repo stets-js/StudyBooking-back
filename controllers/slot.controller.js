@@ -16,13 +16,14 @@ exports.createUserSlot = catchAsync(async (req, res, next) => {
   const document = await Slot.create({
     userId: req.params.id,
     data: req.body.data,
-    appointmentTypeId: req.body.appointmentTypeId
+    appointmentTypeId: req.body.appointmentTypeId,
+    weekDay: req.body.weekDay,
+    time: req.body.time
   });
-  const createdDocument = await Slot.findOne({
-    where: {id: document.id}
-  });
+  await document.reload();
+
   res.status(201).json({
     status: 'success',
-    data: createdDocument
+    data: document
   });
 });

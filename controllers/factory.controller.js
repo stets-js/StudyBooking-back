@@ -42,7 +42,7 @@ exports.getAll = (Model, options) =>
 
     if (req.query.role) whereClause['$Role.name$'] = req.query.role;
     if (req.query.userId) whereClause[userId] = req.query.role;
-    if (options && options.slot) {
+    if (options && options.slot && req.params.id) {
       whereClause.userId = req.params.id;
     }
     document = await Model.findAll({where: whereClause});
@@ -60,6 +60,7 @@ exports.updateOne = (Model, options) =>
     if (req.params.slotId) {
       id = req.params.slotId;
     }
+    console.log(id);
     let updatedDoc = await Model.update(req.body, {where: {id}});
     if (req.params.slotId) {
       updatedDoc = await Model.findByPk(id);
