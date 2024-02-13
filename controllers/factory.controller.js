@@ -1,3 +1,4 @@
+const {Op} = require('sequelize');
 const Role = require('../models/relation');
 const catchAsync = require('./../utils/catchAsync');
 
@@ -42,9 +43,14 @@ exports.getAll = (Model, options) =>
 
     if (req.query.role) whereClause['$Role.name$'] = req.query.role;
     if (req.query.userId) whereClause[userId] = req.query.role;
+    if (req.body.userIds) {
+      whereClause.userId = {[Op.in]: req.body.userIds};
+      whereClause['$AppointmentType.name$'] = 'universal';
+    }
     if (options && options.slot && req.params.id) {
       whereClause.userId = req.params.id;
     }
+
     document = await Model.findAll({where: whereClause});
 
     res.json({

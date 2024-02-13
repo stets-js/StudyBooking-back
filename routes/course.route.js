@@ -12,4 +12,7 @@ router.use(authController.protect, authController.allowedTo('administrator'));
 
 router.post('/', courseController.createCourse);
 router.route('/:id').delete(courseController.deleteCourse).patch(courseController.updateCourse);
+
+router.get('/:id/users', courseController.getTeachersForCourse);
+
 module.exports = router;
