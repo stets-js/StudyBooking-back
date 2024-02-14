@@ -1,5 +1,5 @@
 const {Op} = require('sequelize');
-const Role = require('../models/relation');
+const {Role, User} = require('../models/relation');
 const catchAsync = require('./../utils/catchAsync');
 
 exports.deleteOne = Model =>
@@ -43,6 +43,7 @@ exports.getAll = (Model, options) =>
 
     if (req.query.role) whereClause['$Role.name$'] = req.query.role;
     if (req.query.userId) whereClause[userId] = req.query.role;
+    if (req.query.users) whereClause['$User.id$'] = {[Op.in]: JSON.parse(req.query.users)};
     if (req.body.userIds) {
       whereClause.userId = {[Op.in]: req.body.userIds};
       whereClause['$AppointmentType.name$'] = 'universal';
@@ -50,13 +51,16 @@ exports.getAll = (Model, options) =>
     if (options && options.slot && req.params.id) {
       whereClause.userId = req.params.id;
     }
-
-    document = await Model.findAll({where: whereClause});
+    document = await Model.findAll({
+      where: whereClause,
+      order: Model === User ? [['rating', 'DESC']] : []
+    });
 
     res.json({
       status: 'success',
       results: document.length,
-      data: document
+      data: document,
+      check: Model === User
     });
   });
 
