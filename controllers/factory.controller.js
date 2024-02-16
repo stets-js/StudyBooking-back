@@ -59,8 +59,7 @@ exports.getAll = (Model, options) =>
     res.json({
       status: 'success',
       results: document.length,
-      data: document,
-      check: Model === User
+      data: document
     });
   });
 
