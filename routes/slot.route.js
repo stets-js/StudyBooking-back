@@ -10,4 +10,10 @@ router
   .get(authController.protect, slotController.getAllSlots)
   .post(authController.protect, slotController.getAllSlots);
 
+router.patch(
+  '/bulk',
+  authController.protect,
+  // authController.allowedTo('administrator'),
+  slotController.bulkUpdate
+);
 module.exports = router;

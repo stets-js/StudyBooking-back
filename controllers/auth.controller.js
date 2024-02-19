@@ -73,7 +73,7 @@ exports.protect = catchAsync(async (req, res, next) => {
     return next('You are not logged in bro :(');
   }
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-  const freshUser = await User.findByPk(1, {});
+  const freshUser = await User.findByPk(decoded.id, {});
 
   if (!freshUser) return next('This user was deleted');
 

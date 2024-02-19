@@ -23,8 +23,8 @@ Course.belongsToMany(User, {through: TeacherCourse});
 Course.belongsTo(User, {as: 'teamLead', foreignKey: 'teamLeadId'});
 User.hasMany(Course, {foreignKey: 'teamLeadId'});
 
-User.hasMany(SubGroup);
-SubGroup.belongsTo(User);
+User.hasMany(SubGroup, {foreignKey: 'adminId'});
+SubGroup.belongsTo(User, {foreignKey: 'adminId'});
 
 Course.hasMany(SubGroup);
 SubGroup.belongsTo(Course);
