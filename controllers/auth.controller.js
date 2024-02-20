@@ -39,10 +39,10 @@ const createSendToken = (user, statusCode, res) => {
 };
 
 exports.login = catchAsync(async (req, res) => {
-  const {login, password} = req.body;
-
+  const {email, password} = req.body;
+  console.log(req.body);
   const user = await User.findOne({
-    where: {login}
+    where: {email}
   });
 
   if (!user || !(await user.verifyPassword(password)))
