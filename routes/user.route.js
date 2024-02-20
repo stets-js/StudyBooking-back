@@ -13,6 +13,7 @@ router
 
 router.route('/:id/slots').get(slotController.getAllSlots).post(slotController.createUserSlot);
 
+router.route('/available-teachers/:weekDay/:courseId').get(userController.getFreeUsers);
 router
   .route('/:id/slots/:slotId')
   .patch(slotController.updateSlot)

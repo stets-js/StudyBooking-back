@@ -1,4 +1,5 @@
-const {User, Course} = require('../models/relation');
+const {Op} = require('sequelize');
+const {User, Course, Slot, Appointment_Type, TeacherCourse} = require('../models/relation');
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./factory.controller');
 
@@ -59,4 +60,23 @@ exports.deleteUserCourse = catchAsync(async (req, res, next) => {
   await user.removeCourses(courses);
 
   res.status(204).json();
+});
+
+exports.getFreeUsers = catchAsync(async (req, res, next) => {
+  const course = await Course.findByPk(req.params.courseId);
+  const users = await course.getUsers({attributes: ['id']});
+  const usersId = users.map(el => el.id);
+  const availableSlots = await Slot.findAll({
+    where: {
+      weekDay: req.params.weekDay,
+      '$AppointmentType.name$': 'universal'
+    },
+    include: {
+      model: User,
+      where: {id: {[Op.in]: usersId}},
+      attributes: ['id', 'name']
+    },
+    attributes: ['time']
+  });
+  res.json({availableSlots});
 });
