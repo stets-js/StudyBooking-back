@@ -51,6 +51,22 @@ exports.getAll = (Model, options) =>
     if (options && options.slot && req.params.id) {
       whereClause.userId = req.params.id;
     }
+    if (req.query.startDate) {
+      whereClause.startDate = {
+        [Op.lte]: new Date(req.query.endDate)
+      };
+
+      whereClause.endDate = {
+        [Op.or]: [
+          {[Op.eq]: null},
+          // req.query.endDate
+          //   ? {
+          {[Op.gte]: new Date(req.query.startDate)}
+          //     }
+          //   : {}
+        ]
+      };
+    }
     document = await Model.findAll({
       where: whereClause,
       order: Model === User ? [['rating', 'DESC']] : []

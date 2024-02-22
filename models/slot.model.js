@@ -3,10 +3,6 @@ const Sequelize = require('sequelize');
 const sequelize = require('../db');
 
 const Slot = sequelize.define('Slot', {
-  data: {
-    type: Sequelize.DATE,
-    allowNull: false
-  },
   weekDay: {
     type: Sequelize.INTEGER,
     allowNull: false,
@@ -14,6 +10,13 @@ const Slot = sequelize.define('Slot', {
   },
   time: {
     type: Sequelize.STRING(10)
+  },
+  startDate: {
+    type: Sequelize.DATEONLY
+  },
+  endDate: {
+    type: Sequelize.DATEONLY,
+    defaultValue: null
   }
 });
 
