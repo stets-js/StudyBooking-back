@@ -14,19 +14,56 @@ exports.deleteSlot = factory.deleteOne(Slot);
 exports.updateSlot = factory.updateOne(Slot, {slot: true});
 
 exports.createUserSlot = catchAsync(async (req, res, next) => {
-  const document = await Slot.create({
-    userId: req.params.id,
-    appointmentTypeId: req.body.appointmentTypeId,
-    weekDay: req.body.weekDay,
-    startDate: req.body.startDate,
-    time: req.body.time
+  let endDate = req.body.endDate || null;
+  const prevSlot = await Slot.findOne({
+    where: {
+      userId: req.params.id,
+      appointmentTypeId: req.body.appointmentTypeId,
+      weekDay: req.body.weekDay,
+      time: req.body.time,
+      endDate: {
+        [Op.and]: [{[Op.gte]: req.body.prevWeekStart}, {[Op.lte]: req.body.prevWeekEnd}]
+      }
+    }
   });
-  await document.reload();
+  if (prevSlot) {
+    prevSlot.endDate = null;
+    const updatedPrevSlot = prevSlot.save();
+    return res.status(200).json({status: 'success', message: 'updated', data: updatedPrevSlot});
+  } else {
+    //find slots in future
+    const futureSlot = await Slot.findOne({
+      where: {
+        userId: req.params.id,
+        weekDay: req.body.weekDay,
+        time: req.body.time
+      }
+    });
+    if (futureSlot) {
+      if (futureSlot?.AppointmentType?.name === 'universal') {
+        futureSlot.startDate = req.body.startDate;
+        const doc = await futureSlot.save();
+        return res.status(200).json({message: 'success', message: 'updated future slot', doc});
+      } else {
+        endDate = addDays(futureSlot.startDate, -1);
+      }
+    }
+    const document = await Slot.create({
+      userId: req.params.id,
+      appointmentTypeId: req.body.appointmentTypeId,
+      weekDay: req.body.weekDay,
+      startDate: req.body.startDate,
+      endDate: endDate,
+      time: req.body.time
+    });
+    await document.reload();
 
-  res.status(201).json({
-    status: 'success',
-    data: document
-  });
+    res.status(201).json({
+      status: 'success',
+      data: document,
+      prevSlot
+    });
+  }
 });
 
 exports.bulkUpdate = catchAsync(async (req, res, next) => {
