@@ -2,14 +2,12 @@ const sequelize = require('../db');
 
 const User = require('./user.model');
 const Role = require('./role.model');
-const Course = require('./course.model');
+const {Course, TeacherCourse} = require('./course.model');
 const {Slot, Appointment_Type} = require('./slot.model');
 const SubGroup = require('./subgroup.model');
 
 User.belongsTo(Role);
 Role.hasMany(User);
-
-const TeacherCourse = sequelize.define('TeacherCourse', {});
 
 Slot.belongsTo(Appointment_Type, {foreignKey: 'appointmentTypeId'});
 Appointment_Type.hasMany(Slot, {foreignKey: 'appointmentTypeId'});
@@ -17,8 +15,18 @@ Appointment_Type.hasMany(Slot, {foreignKey: 'appointmentTypeId'});
 User.hasMany(Slot, {foreignKey: 'userId'});
 Slot.belongsTo(User, {foreignKey: 'userId'});
 
-User.belongsToMany(Course, {through: TeacherCourse});
-Course.belongsToMany(User, {through: TeacherCourse});
+User.belongsToMany(Course, {
+  through: TeacherCourse,
+  foreignKey: 'userId',
+  otherKey: 'courseId',
+  as: 'Courses'
+});
+
+Course.belongsToMany(User, {
+  through: TeacherCourse,
+  foreignKey: 'courseId',
+  otherKey: 'userId'
+});
 
 Course.belongsTo(User, {as: 'teamLead', foreignKey: 'teamLeadId'});
 User.hasMany(Course, {foreignKey: 'teamLeadId'});
@@ -54,4 +62,13 @@ Slot.beforeFind(async options => {
   });
 });
 
+// const associatedModels = TeacherCourse.associations;
+// console.group();
+// Object.values(associatedModels).forEach(association => {
+//   console.log(`Association name: ${association.associationType}`);
+//   console.log(`Associated model: ${association.target.name}`);
+//   console.log(`Foreign key: ${association.foreignKey}`);
+//   console.log(`----------------------`);
+// });
+// console.groupEnd();
 module.exports = {User, Role, Course, TeacherCourse, Slot, Appointment_Type, SubGroup};

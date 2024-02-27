@@ -9,5 +9,5 @@ const Course = sequelize.define('Course', {
   },
   group_amount: {type: Sequelize.INTEGER, defaultValue: 0}
 });
-
-module.exports = Course;
+const TeacherCourse = sequelize.define('TeacherCourse', {});
+module.exports = {Course, TeacherCourse};

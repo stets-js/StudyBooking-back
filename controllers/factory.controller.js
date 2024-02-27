@@ -1,6 +1,7 @@
-const {Op} = require('sequelize');
-const {Role, User} = require('../models/relation');
+const {Op, literal} = require('sequelize');
+const {User} = require('../models/relation');
 const catchAsync = require('./../utils/catchAsync');
+const sequelize = require('../db');
 
 exports.deleteOne = Model =>
   catchAsync(async (req, res, next) => {
@@ -40,9 +41,11 @@ exports.getAll = (Model, options) =>
   catchAsync(async (req, res, next) => {
     let document;
     let whereClause = {};
-    if (req.query.name) whereClause['name'] = req.query.name;
+
+    if (req.query.name) whereClause['name'] = {[Op.iLike]: `%${req.query.name}%`};
+
     if (req.query.role) whereClause['$Role.name$'] = req.query.role;
-    if (req.query.userId) whereClause[userId] = req.query.role;
+    if (req.query.userId) whereClause.userId = req.query.role;
     if (req.query.users) whereClause['$User.id$'] = {[Op.in]: JSON.parse(req.query.users)};
     if (req.body.userIds) {
       whereClause.userId = {[Op.in]: req.body.userIds};
@@ -66,6 +69,41 @@ exports.getAll = (Model, options) =>
           //   : {}
         ]
       };
+    }
+
+    if (req.query.teachersFilter && req.query.courses) {
+      console.log('here?');
+      // I am sorry, but i killed more than 3 hours trying to get users -> teachersCourses <- courses
+      // association, so its corner case with pure SQL
+      // Filtering by courses for teachers
+
+      const courseIdList = req.query.courses ? JSON.parse(req.query.courses) : [];
+      const userNameLike = req.query.name ? `%${req.query.name}%` : null;
+
+      const result = await sequelize.query(
+        `
+          SELECT "Users"."id", "Users"."name", "Users"."rating","Users"."email"
+          FROM "Users"
+          JOIN "TeacherCourses" ON "Users"."id" = "TeacherCourses"."userId"
+          JOIN "Courses" ON "TeacherCourses"."courseId" = "Courses"."id"
+          WHERE "Users"."RoleId" = 1
+            ${courseIdList.length > 0 ? 'AND "Courses"."id" IN (:courseIds)' : ''}
+            ${userNameLike ? 'AND "Users"."name" iLIKE :userName' : ''}
+          GROUP BY "Users"."id"
+          `,
+        {
+          replacements: {
+            courseIds: courseIdList,
+            courseCount: courseIdList.length,
+            userName: userNameLike
+          },
+          type: sequelize.QueryTypes.SELECT
+        }
+      );
+      return res.status(200).json({
+        message: 'success',
+        data: result
+      });
     }
     document = await Model.findAll({
       where: whereClause,
