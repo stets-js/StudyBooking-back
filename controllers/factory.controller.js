@@ -45,7 +45,7 @@ exports.getAll = (Model, options) =>
     if (req.query.name) whereClause['name'] = {[Op.iLike]: `%${req.query.name}%`};
 
     if (req.query.role) whereClause['$Role.name$'] = req.query.role;
-    if (req.query.userId) whereClause.userId = req.query.role;
+    if (req.query.userId) whereClause[userId] = req.query.role;
     if (req.query.users) whereClause['$User.id$'] = {[Op.in]: JSON.parse(req.query.users)};
     if (req.body.userIds) {
       whereClause.userId = {[Op.in]: req.body.userIds};
@@ -72,7 +72,6 @@ exports.getAll = (Model, options) =>
     }
 
     if (req.query.teachersFilter && req.query.courses) {
-      console.log('here?');
       // I am sorry, but i killed more than 3 hours trying to get users -> teachersCourses <- courses
       // association, so its corner case with pure SQL
       // Filtering by courses for teachers

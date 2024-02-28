@@ -37,7 +37,7 @@ SubGroup.belongsTo(User, {foreignKey: 'adminId'});
 Course.hasMany(SubGroup);
 SubGroup.belongsTo(Course);
 
-SubGroup.hasMany(Slot);
+SubGroup.hasMany(Slot, {onDelete: 'CASCADE'});
 Slot.belongsTo(SubGroup);
 
 User.beforeFind(async options => {

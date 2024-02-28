@@ -14,8 +14,8 @@ exports.updateCourse = factory.updateOne(Course);
 
 exports.getTeachersForCourse = catchAsync(async (req, res, next) => {
   const teachers = await TeacherCourse.findAll({
-    where: {CourseId: req.params.id},
-    attributes: ['UserId']
+    where: {courseId: req.params.id},
+    attributes: ['userId']
   });
-  res.status(200).json(teachers.map(record => record.UserId));
+  res.status(200).json(teachers.map(record => record.userId));
 });
