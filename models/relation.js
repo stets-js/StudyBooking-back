@@ -5,6 +5,7 @@ const Role = require('./role.model');
 const {Course, TeacherCourse} = require('./course.model');
 const {Slot, Appointment_Type} = require('./slot.model');
 const SubGroup = require('./subgroup.model');
+const Replacement = require('./replacement.model');
 
 User.belongsTo(Role);
 Role.hasMany(User);
@@ -40,6 +41,9 @@ SubGroup.belongsTo(Course);
 SubGroup.hasMany(Slot, {onDelete: 'CASCADE'});
 Slot.belongsTo(SubGroup);
 
+Replacement.hasMany(Slot, {onDelete: 'CASCADE'});
+Slot.belongsTo(Replacement);
+
 User.beforeFind(async options => {
   options.attributes = options.attributes || {};
   options.attributes.exclude = options.attributes.exclude || [];
@@ -62,13 +66,4 @@ Slot.beforeFind(async options => {
   });
 });
 
-// const associatedModels = TeacherCourse.associations;
-// console.group();
-// Object.values(associatedModels).forEach(association => {
-//   console.log(`Association name: ${association.associationType}`);
-//   console.log(`Associated model: ${association.target.name}`);
-//   console.log(`Foreign key: ${association.foreignKey}`);
-//   console.log(`----------------------`);
-// });
-// console.groupEnd();
-module.exports = {User, Role, Course, TeacherCourse, Slot, Appointment_Type, SubGroup};
+module.exports = {User, Role, Course, TeacherCourse, Slot, Appointment_Type, SubGroup, Replacement};

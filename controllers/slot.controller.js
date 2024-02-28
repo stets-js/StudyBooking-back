@@ -29,6 +29,7 @@ exports.createUserSlot = catchAsync(async (req, res, next) => {
   if (prevSlot) {
     prevSlot.endDate = null;
     const updatedPrevSlot = prevSlot.save();
+    await updatedPrevSlot.reload();
     return res.status(200).json({status: 'success', message: 'updated', data: updatedPrevSlot});
   } else {
     //find slots in future
@@ -43,6 +44,7 @@ exports.createUserSlot = catchAsync(async (req, res, next) => {
       if (futureSlot?.AppointmentType?.name === 'universal') {
         futureSlot.startDate = req.body.startDate;
         const doc = await futureSlot.save();
+        await doc.reload();
         return res.status(200).json({message: 'success', message: 'updated future slot', doc});
       } else {
         endDate = addDays(futureSlot.startDate, -1);
@@ -60,32 +62,30 @@ exports.createUserSlot = catchAsync(async (req, res, next) => {
 
     res.status(201).json({
       status: 'success',
-      data: document,
-      prevSlot
+      data: document
     });
   }
 });
 
 exports.bulkUpdate = catchAsync(async (req, res, next) => {
-  if (!req.body.subgroup || !req.body.appointmentTypeId) {
+  if (!req.body.appointmentTypeId) {
     return res.status(400).json({message: 'error not enough info'});
   }
   const universalId = await Appointment_Type.findOne({where: {name: 'universal'}});
-  const docs = await Slot.update(
-    {
-      SubGroupId: req.body.subgroup,
-      appointmentTypeId: req.body.appointmentTypeId,
-      startDate: req.body.startDate,
-      endDate: req.body.endDate
-    },
-    {
-      where: {
-        weekDay: req.body.weekDay,
-        time: {[Op.in]: req.body.time},
-        userId: req.body.userId
-      }
+  const bodyForUpdate = {
+    appointmentTypeId: req.body.appointmentTypeId,
+    startDate: req.body.startDate,
+    endDate: req.body.endDate
+  };
+  if (req.body.replacementId) bodyForUpdate.ReplacementId = req.body.replacementId;
+  else bodyForUpdate.SubGroupId = req.body.subgroupId;
+  const docs = await Slot.update(bodyForUpdate, {
+    where: {
+      weekDay: req.body.weekDay,
+      time: {[Op.in]: req.body.time},
+      userId: req.body.userId
     }
-  );
+  });
   const endDateConverted = new Date(req.body.endDate);
   const endDateIndex = endDateConverted.getDay() - 1;
   const newStartDate = addDays(endDateConverted, 7 - (endDateIndex - 1 < 0 ? 6 : endDateIndex - 1));

@@ -86,9 +86,14 @@ exports.getAll = (Model, options) =>
           JOIN "TeacherCourses" ON "Users"."id" = "TeacherCourses"."userId"
           JOIN "Courses" ON "TeacherCourses"."courseId" = "Courses"."id"
           WHERE "Users"."RoleId" = 1
-            ${courseIdList.length > 0 ? 'AND "Courses"."id" IN (:courseIds)' : ''}
+            ${
+              courseIdList.length > 0
+                ? 'AND ARRAY(SELECT "courseId" FROM "TeacherCourses" WHERE "userId" = "Users"."id") @> ARRAY[:courseIds]'
+                : ''
+            }
             ${userNameLike ? 'AND "Users"."name" iLIKE :userName' : ''}
           GROUP BY "Users"."id"
+          ORDER BY "Users"."rating" DESC
           `,
         {
           replacements: {
