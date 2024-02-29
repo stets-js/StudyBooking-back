@@ -44,6 +44,9 @@ Slot.belongsTo(SubGroup);
 Replacement.hasMany(Slot, {onDelete: 'CASCADE'});
 Slot.belongsTo(Replacement);
 
+Replacement.belongsTo(SubGroup);
+SubGroup.hasMany(Replacement, {onDelete: 'CASCADE'});
+
 User.beforeFind(async options => {
   options.attributes = options.attributes || {};
   options.attributes.exclude = options.attributes.exclude || [];
@@ -52,6 +55,17 @@ User.beforeFind(async options => {
   options.include.push({
     model: Role,
     attributes: ['id', 'name']
+  });
+});
+Replacement.beforeFind(async options => {
+  options.attributes = options.attributes || {};
+  options.attributes.exclude = options.attributes.exclude || [];
+
+  options.include = options.include || [];
+  options.include.push({
+    model: SubGroup,
+    attributes: ['id', 'name', 'description', 'adminId', 'CourseId'],
+    include: {model: User, attributes: ['id', 'name']}
   });
 });
 

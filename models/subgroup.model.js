@@ -18,6 +18,7 @@ const SubGroup = sequelize.define('SubGroup', {
     type: Sequelize.DATE,
     allowNull: false
   },
+  schedule: {type: Sequelize.TEXT, allowNull: false},
   description: {
     type: Sequelize.STRING
   }
