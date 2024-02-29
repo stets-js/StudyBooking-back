@@ -120,7 +120,8 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     });
     res.status(200).json({
       status: 'success',
-      message: 'Token sent to email!'
+      message: 'Token sent to email!',
+      email: user.email // debug only
     });
   } catch (error) {
     res.status(400).json({
