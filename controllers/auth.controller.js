@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const moment = require('moment-timezone');
 const {promisify} = require('util');
-
+const sendEmail = require('../utils/email');
 const catchAsync = require('../utils/catchAsync');
 const {User, Role} = require('../models/relation');
 
@@ -90,3 +90,57 @@ exports.allowedTo = (...roles) => {
     next();
   };
 };
+
+exports.forgotPassword = catchAsync(async (req, res, next) => {
+  //get user based on posted email
+  const user = await User.findOne({
+    where: {
+      email: req.body.email
+    }
+  });
+  if (!user) return res.status(404).json({message: 'cant find user with this email :('});
+
+  // generate random reset token
+  const resetToken = jwt.sign({email: req.body.email, id: user.id}, process.env.JWT_SECRET, {
+    expiresIn: '24d'
+  });
+
+  //send email
+
+  const resetURL = `${process.env.DEPLOYED_FRONT}/resetPassword/${resetToken}`;
+
+  const message = `Forgot password? Submit a patch request with youer new password and password confirm to: ${resetURL}`; // !!! WRITE SOMETHING MORE COOL
+  const html = `<a href=${resetURL}><button>Click here</button></a>`;
+  try {
+    await sendEmail({
+      email: user.email,
+      subject: 'Reset token (10 minutes)',
+      message,
+      html
+    });
+    res.status(200).json({
+      status: 'success',
+      message: 'Token sent to email!'
+    });
+  } catch (error) {
+    res.status(400).json({
+      message: 'something went wrong',
+      error
+    });
+  }
+});
+
+exports.resetPassword = catchAsync(async (req, res, next) => {
+  // get user based on token
+  const decoded = jwt.decode(req.params.token);
+
+  const user = await User.findByPk(decoded.id);
+  if (!user) {
+    res.status(400).json({message: 'Something wrong with token'});
+  }
+  // if token !expired, and is user, set new password
+  user.password = req.body.password;
+  await user.save();
+
+  createSendToken(user, 201, res);
+});

@@ -128,7 +128,9 @@ exports.updateOne = (Model, options) =>
       id = req.params.slotId;
     }
     console.log(id);
-    let updatedDoc = await Model.update(req.body, {where: {id}});
+    const body = req.body;
+    if (Model === User) delete body.password;
+    let updatedDoc = await Model.update(body, {where: {id}});
     if (req.params.slotId) {
       updatedDoc = await Model.findByPk(id);
     }
