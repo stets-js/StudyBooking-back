@@ -1,5 +1,5 @@
 const {Op, literal} = require('sequelize');
-const {User} = require('../models/relation');
+const {User, SubGroup} = require('../models/relation');
 const catchAsync = require('./../utils/catchAsync');
 const sequelize = require('../db');
 
@@ -18,6 +18,25 @@ exports.deleteOne = Model =>
 exports.createOne = (Model, options) =>
   catchAsync(async (req, res, next) => {
     const document = await Model.create(req.body);
+    if (Model === SubGroup) {
+      message = ```
+      Потік під назвою ${req.body.name} створено!
+      Дата початку ${req.body.startDate}, кінець потоку - ${req.body.endDate}.
+      Графік ${req.body.schedule}.
+      Посилання: ${req.body.link}.
+      Опис: ${req.body.description}.
+      ```;
+      try {
+        const user = await User.findByPk(req.body.userId);
+        if (user) {
+          await sendEmail({
+            email: user.email,
+            subject: 'У вас новий потік',
+            message
+          });
+        }
+      } catch (e) {}
+    }
     res.status(201).json({
       status: 'success',
       data: document
