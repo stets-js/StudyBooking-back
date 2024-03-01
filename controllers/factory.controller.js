@@ -11,6 +11,9 @@ exports.deleteOne = Model =>
       id = req.params.slotId;
     }
     const document = await Model.destroy({where: {id}});
+    if (Model === SubGroup) {
+      await Replacement.destroy({where: {SubGroupId: id}});
+    }
     if (!document)
       return res.status(400).json({message: 'No document find with id ' + req.params.id});
     res.status(204).json();
