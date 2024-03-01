@@ -19,7 +19,7 @@ const sendEmail = async options => {
     to: options.email,
     subject: options.subject,
     text: options.message,
-    html: `<h1>Forgot password?</h1>` + options.html
+    html: options.html ? `<h1>Forgot password?</h1>` + options.html : ''
   };
   // send the email
   await transporter.sendMail(mailOptions);
