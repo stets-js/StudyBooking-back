@@ -102,7 +102,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
 
   // generate random reset token
   const resetToken = jwt.sign({email: req.body.email, id: user.id}, process.env.JWT_SECRET, {
-    expiresIn: '24d'
+    expiresIn: '1d'
   });
 
   //send email
@@ -114,7 +114,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   try {
     await sendEmail({
       email: user.email,
-      subject: 'Reset token (10 minutes)',
+      subject: 'Reset token (24 hours)',
       message,
       html
     });
