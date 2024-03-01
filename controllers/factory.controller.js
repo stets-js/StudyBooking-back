@@ -1,9 +1,9 @@
 const {Op, literal} = require('sequelize');
-const {User, SubGroup} = require('../models/relation');
+const {User, SubGroup, Replacement} = require('../models/relation');
 const catchAsync = require('./../utils/catchAsync');
 const sequelize = require('../db');
 const sendEmail = require('../utils/email');
-const {format} = require('date-fns');
+const {format, sub} = require('date-fns');
 exports.deleteOne = Model =>
   catchAsync(async (req, res, next) => {
     let id = req.params.id;
@@ -19,25 +19,32 @@ exports.deleteOne = Model =>
 exports.createOne = (Model, options) =>
   catchAsync(async (req, res, next) => {
     const document = await Model.create(req.body);
-    let message = '';
-    if (Model === SubGroup) {
-      message = `Потік під назвою ${req.body.name} створено!\n
+    if (Model === SubGroup || Model === Replacement) {
+      let message = '';
+      let subject = '';
+      if (Model === SubGroup) {
+        message = `Потік під назвою ${req.body.name} створено!\n
       Дата початку ${format(req.body.startDate, 'yyyy-MM-dd')}, кінець потоку - ${format(
-        req.body.endDate,
-        'yyyy-MM-dd'
-      )}
+          req.body.endDate,
+          'yyyy-MM-dd'
+        )}
       }.\n
       Графік ${req.body.schedule}.\n
       Посилання: ${req.body.link}.\n
       Опис: ${req.body.description}.\n
      `;
+        subject = 'У Вас новий потік';
+      } else {
+        message = `Була назначена заміна, перевірте свій календар.\nПовідомленя до заміни: ${req.body.description}`;
+        subject = 'У Вас нова заміна';
+      }
       try {
         const user = await User.findByPk(req.body.userId);
         if (user) {
           message += user.email;
           await sendEmail({
             email: user.email,
-            subject: 'У вас новий потік',
+            subject,
             message
           });
         }
