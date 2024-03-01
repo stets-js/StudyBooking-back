@@ -1,5 +1,5 @@
 const {Op, literal} = require('sequelize');
-const {User, SubGroup, Replacement} = require('../models/relation');
+const {User, SubGroup, Replacement, Course} = require('../models/relation');
 const catchAsync = require('./../utils/catchAsync');
 const sequelize = require('../db');
 const sendEmail = require('../utils/email');
@@ -10,12 +10,15 @@ exports.deleteOne = Model =>
     if (req.params.slotId) {
       id = req.params.slotId;
     }
-    const document = await Model.destroy({where: {id}});
+    const document = await Model.findByPk(id);
+
     if (Model === SubGroup) {
+      await Course.increment({group_amount: -1}, {where: {id: document.CourseId}});
       await Replacement.destroy({where: {SubGroupId: id}});
     }
     if (!document)
       return res.status(400).json({message: 'No document find with id ' + req.params.id});
+    await document.destroy();
     res.status(204).json();
   });
 
@@ -37,6 +40,8 @@ exports.createOne = (Model, options) =>
       Опис: ${req.body.description}.\n
      `;
         subject = 'У Вас новий потік';
+
+        await Course.increment({group_amount: 1}, {where: {id: req.body.CourseId}});
       } else {
         message = `Була назначена заміна, перевірте свій календар.\nПовідомленя до заміни: ${req.body.description}`;
         subject = 'У Вас нова заміна';
