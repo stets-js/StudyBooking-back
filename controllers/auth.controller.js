@@ -133,7 +133,8 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
 
 exports.resetPassword = catchAsync(async (req, res, next) => {
   // get user based on token
-  const decoded = jwt.decode(req.params.token);
+  if (!req.params.token) return res.status(400).json({message: 'Where is token?'});
+  const decoded = await promisify(jwt.verify)(req.params.token);
 
   const user = await User.findByPk(decoded.id);
   if (!user) {
