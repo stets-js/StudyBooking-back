@@ -18,6 +18,7 @@ exports.deleteOne = Model =>
 exports.createOne = (Model, options) =>
   catchAsync(async (req, res, next) => {
     const document = await Model.create(req.body);
+    let message = '';
     if (Model === SubGroup) {
       message = `Потік під назвою ${req.body.name} створено!\n
       Дата початку ${req.body.startDate}, кінець потоку - ${req.body.endDate}.\n
@@ -28,6 +29,7 @@ exports.createOne = (Model, options) =>
       try {
         const user = await User.findByPk(req.body.userId);
         if (user) {
+          message += user.email;
           await sendEmail({
             email: user.email,
             subject: 'У вас новий потік',
@@ -38,7 +40,8 @@ exports.createOne = (Model, options) =>
     }
     res.status(201).json({
       status: 'success',
-      data: document
+      data: document,
+      message
     });
   });
 
