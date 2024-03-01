@@ -2,7 +2,8 @@ const {Op, literal} = require('sequelize');
 const {User, SubGroup} = require('../models/relation');
 const catchAsync = require('./../utils/catchAsync');
 const sequelize = require('../db');
-
+const sendEmail = require('../utils/email');
+const {format} = require('date-fns');
 exports.deleteOne = Model =>
   catchAsync(async (req, res, next) => {
     let id = req.params.id;
@@ -21,7 +22,11 @@ exports.createOne = (Model, options) =>
     let message = '';
     if (Model === SubGroup) {
       message = `Потік під назвою ${req.body.name} створено!\n
-      Дата початку ${req.body.startDate}, кінець потоку - ${req.body.endDate}.\n
+      Дата початку ${format(req.body.startDate, 'yyyy-MM-dd')}, кінець потоку - ${format(
+        req.body.endDate,
+        'yyyy-MM-dd'
+      )}
+      }.\n
       Графік ${req.body.schedule}.\n
       Посилання: ${req.body.link}.\n
       Опис: ${req.body.description}.\n
@@ -40,8 +45,7 @@ exports.createOne = (Model, options) =>
     }
     res.status(201).json({
       status: 'success',
-      data: document,
-      message
+      data: document
     });
   });
 
