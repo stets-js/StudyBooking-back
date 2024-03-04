@@ -8,7 +8,7 @@ router.post('/logout', authController.logout);
 router.get(
   '/roles-check',
   authController.protect,
-  authController.allowedTo('teacher'),
+  authController.allowedTo(['teacher']),
   (req, res, next) => {
     res.json({message: 'can do it!'});
   }

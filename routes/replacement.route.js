@@ -7,7 +7,7 @@ router.use(authController.protect);
 router.route('/').get(replacementController.getAllReplacements);
 router.route('/:id').get(replacementController.getReplacementById);
 
-router.use(authController.allowedTo('administrator', 'superAdmin'));
+router.use(authController.allowedTo(['administrator', 'superAdmin']));
 
 router.post('/', replacementController.createReplacement);
 router

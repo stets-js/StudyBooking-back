@@ -19,7 +19,7 @@ router
   .patch(slotController.updateSlot)
   .delete(slotController.deleteSlot);
 
-router.use(authController.allowedTo('administrator', 'superAdmin'));
+router.use(authController.allowedTo(['administrator', 'superAdmin']));
 
 router.route('/').get(userController.getAllUsers).post(userController.createUser);
 
