@@ -4,6 +4,7 @@ const catchAsync = require('./../utils/catchAsync');
 const sequelize = require('../db');
 const sendEmail = require('../utils/email');
 const {format, sub} = require('date-fns');
+
 exports.deleteOne = Model =>
   catchAsync(async (req, res, next) => {
     let id = req.params.id;
@@ -11,7 +12,11 @@ exports.deleteOne = Model =>
       id = req.params.slotId;
     }
     const document = await Model.findByPk(id);
-
+    if (Model === User) {
+      const roleLevel = ['superAdmin', 'administrator', 'teacher'];
+      if (roleLevel.indexOf(req.user.Role.name) > roleLevel.indexOf(document.Role.name))
+        return res.status(400).json({message: 'You dont have right to delete this user.'});
+    }
     if (Model === SubGroup) {
       await Course.increment({group_amount: -1}, {where: {id: document.CourseId}});
       await Replacement.destroy({where: {SubGroupId: id}});
