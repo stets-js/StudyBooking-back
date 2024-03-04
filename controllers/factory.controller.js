@@ -83,7 +83,7 @@ exports.getAll = (Model, options) =>
     let whereClause = {};
 
     if (req.query.name) whereClause['name'] = {[Op.iLike]: `%${req.query.name}%`};
-
+    if (req.query.CourseId) whereClause['CourseId'] = req.query.CourseId;
     if (req.query.role) whereClause['$Role.name$'] = req.query.role;
     if (req.query.userId) whereClause[userId] = req.query.role;
     if (req.query.users) whereClause['$User.id$'] = {[Op.in]: JSON.parse(req.query.users)};
