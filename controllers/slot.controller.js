@@ -45,7 +45,9 @@ exports.createUserSlot = catchAsync(async (req, res, next) => {
         futureSlot.startDate = req.body.startDate;
         const doc = await futureSlot.save();
 
-        return res.status(200).json({message: 'success', message: 'updated future slot', doc});
+        return res
+          .status(200)
+          .json({message: 'success', message: 'updated future slot', data: doc});
       } else {
         endDate = addDays(futureSlot.startDate, -1);
       }
