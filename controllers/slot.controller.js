@@ -29,7 +29,6 @@ exports.createUserSlot = catchAsync(async (req, res, next) => {
   if (prevSlot) {
     prevSlot.endDate = null;
     const updatedPrevSlot = prevSlot.save();
-    await updatedPrevSlot.reload();
     return res.status(200).json({status: 'success', message: 'updated', data: updatedPrevSlot});
   } else {
     //find slots in future
@@ -41,10 +40,11 @@ exports.createUserSlot = catchAsync(async (req, res, next) => {
       }
     });
     if (futureSlot) {
-      if (futureSlot?.AppointmentType?.name === 'universal') {
+      if (futureSlot.appointmentTypeId === req.body.appointmentTypeId) {
+        // if universal
         futureSlot.startDate = req.body.startDate;
         const doc = await futureSlot.save();
-        await doc.reload();
+
         return res.status(200).json({message: 'success', message: 'updated future slot', doc});
       } else {
         endDate = addDays(futureSlot.startDate, -1);
