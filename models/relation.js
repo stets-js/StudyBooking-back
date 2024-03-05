@@ -68,7 +68,20 @@ Replacement.beforeFind(async options => {
   options.include.push({
     model: SubGroup,
     attributes: ['id', 'name', 'description', 'adminId', 'CourseId'],
-    include: {model: User, attributes: ['id', 'name']}
+    include: [
+      {
+        model: User,
+        as: 'Admin',
+        attributes: ['name'],
+        foreignKey: 'adminId'
+      },
+      {
+        model: User,
+        as: 'Mentor',
+        attributes: ['name'],
+        foreignKey: 'mentorId'
+      }
+    ]
   });
 });
 
