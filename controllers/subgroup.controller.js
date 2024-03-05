@@ -12,7 +12,18 @@ exports.getSubGroupById = catchAsync(async (req, res, next) => {
         attributes: ['id', 'time', 'weekDay'],
         include: {model: Appointment_Type, attributes: ['name']}
       },
-      {model: User, attributes: ['name']}
+      {
+        model: User,
+        as: 'Admin',
+        attributes: ['name'],
+        foreignKey: 'adminId'
+      },
+      {
+        model: User,
+        as: 'Mentor',
+        attributes: ['name'],
+        foreignKey: 'mentorId'
+      }
     ],
     order: [
       [{model: Slot}, 'weekDay', 'ASC'],
