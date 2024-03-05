@@ -32,11 +32,11 @@ Course.belongsToMany(User, {
 Course.belongsTo(User, {as: 'teamLead', foreignKey: 'teamLeadId'});
 User.hasMany(Course, {foreignKey: 'teamLeadId'});
 
-User.hasMany(SubGroup, {foreignKey: 'adminId'});
-SubGroup.belongsTo(User, {foreignKey: 'adminId'});
+User.hasMany(SubGroup, {foreignKey: 'adminId', as: 'AdminSubGroups'});
+SubGroup.belongsTo(User, {foreignKey: 'adminId', as: 'Admin'});
 
-User.hasMany(SubGroup, {foreignKey: 'mentorId'});
-SubGroup.belongsTo(User, {foreignKey: 'mentorId'});
+User.hasMany(SubGroup, {foreignKey: 'mentorId', as: 'MentorSubGroups'});
+SubGroup.belongsTo(User, {foreignKey: 'mentorId', as: 'Mentor'});
 
 Course.hasMany(SubGroup);
 SubGroup.belongsTo(Course);
