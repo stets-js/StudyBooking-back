@@ -35,6 +35,9 @@ User.hasMany(Course, {foreignKey: 'teamLeadId'});
 User.hasMany(SubGroup, {foreignKey: 'adminId'});
 SubGroup.belongsTo(User, {foreignKey: 'adminId'});
 
+User.hasMany(SubGroup, {foreignKey: 'mentorId'});
+SubGroup.belongsTo(User, {foreignKey: 'mentorId'});
+
 Course.hasMany(SubGroup);
 SubGroup.belongsTo(Course);
 
