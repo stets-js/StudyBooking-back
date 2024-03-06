@@ -34,31 +34,32 @@ exports.createOne = (Model, options) =>
       let message = '';
       let subject = '';
       if (Model === SubGroup) {
-        message = `Потік під назвою ${req.body.name} створено!\n
-      Дата початку ${format(req.body.startDate, 'yyyy-MM-dd')}, кінець потоку - ${format(
+        message = `<div styles="font-family:"Poppins", sans-serif; font-size:20px;><h3>Потік під назвою ${
+          req.body.name
+        } створено!<h3>
+      <h4>Дата ${format(req.body.startDate, 'yyyy-MM-dd')}, - ${format(
           req.body.endDate,
           'yyyy-MM-dd'
-        )}
-      }.\n
-      Графік ${req.body.schedule}.\n
-      Посилання: ${req.body.link}.\n
-      Опис: ${req.body.description}.\n
+        )}</h4>
+      <div>Графік ${req.body.schedule}.<br>
+      Посилання: ${req.body.link}.<br>
+      Опис: ${req.body.description}.<br></div></div>
      `;
         subject = 'У Вас новий потік';
 
         await Course.increment({group_amount: 1}, {where: {id: req.body.CourseId}});
       } else {
-        message = `Була назначена заміна, перевірте свій календар.\nПовідомленя до заміни: ${req.body.description}`;
+        message = `<div styles="font-family:"Poppins", sans-serif; font-size:20px;><h2>Була назначена заміна, перевірте свій календар.</h2>
+        <h3>Повідомленя до заміни: ${req.body.description}</h3></div>`;
         subject = 'У Вас нова заміна';
       }
       try {
-        const user = await User.findByPk(req.body.userId);
+        const user = await User.findByPk(req.body.userId || req.body.mentorId);
         if (user) {
-          message += user.email;
           await sendEmail({
             email: user.email,
             subject,
-            message
+            html: message
           });
         }
       } catch (e) {}

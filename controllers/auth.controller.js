@@ -110,7 +110,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   const resetURL = `${process.env.DEPLOYED_FRONT}/resetPassword/${resetToken}`;
 
   const message = `Forgot password? Submit a patch request with youer new password and password confirm to: ${resetURL}`; // !!! WRITE SOMETHING MORE COOL
-  const html = `<a href=${resetURL}><button>Click here</button></a>`;
+  const html = `<h1>Forgot password?</h1><a href=${resetURL}><button>Click here</button></a>`;
   try {
     await sendEmail({
       email: user.email,
