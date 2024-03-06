@@ -36,7 +36,7 @@ User.hasMany(SubGroup, {foreignKey: 'adminId', as: 'AdminSubGroups'});
 SubGroup.belongsTo(User, {foreignKey: 'adminId', as: 'Admin'});
 
 User.hasMany(SubGroup, {foreignKey: 'mentorId', as: 'MentorSubGroups'});
-SubGroup.belongsTo(User, {foreignKey: 'mentorId', as: 'Mentor'});
+Replacement.belongsTo(User, {foreignKey: 'mentorId', as: 'Mentor'});
 
 Course.hasMany(SubGroup);
 SubGroup.belongsTo(Course);
@@ -66,6 +66,12 @@ Replacement.beforeFind(async options => {
 
   options.include = options.include || [];
   options.include.push({
+    model: User,
+    as: 'Mentor',
+    attributes: ['name'],
+    foreignKey: 'mentorId'
+  });
+  options.include.push({
     model: SubGroup,
     attributes: ['id', 'name', 'description', 'adminId', 'CourseId'],
     include: [
@@ -74,12 +80,6 @@ Replacement.beforeFind(async options => {
         as: 'Admin',
         attributes: ['name'],
         foreignKey: 'adminId'
-      },
-      {
-        model: User,
-        as: 'Mentor',
-        attributes: ['name'],
-        foreignKey: 'mentorId'
       }
     ]
   });

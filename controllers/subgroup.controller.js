@@ -17,12 +17,6 @@ exports.getSubGroupById = catchAsync(async (req, res, next) => {
         as: 'Admin',
         attributes: ['name'],
         foreignKey: 'adminId'
-      },
-      {
-        model: User,
-        as: 'Mentor',
-        attributes: ['name'],
-        foreignKey: 'mentorId'
       }
     ],
     order: [
