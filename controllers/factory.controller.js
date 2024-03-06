@@ -86,6 +86,10 @@ exports.getAll = (Model, options) =>
   catchAsync(async (req, res, next) => {
     let document;
     let whereClause = {};
+    // for available subGroup part
+    if (req.query.type) whereClause['SubGroupId'] = {[Op.ne]: null};
+    if (req.query.weekDay) whereClause['weekDay'] = req.query.weekDay;
+    if (req.query.endSubGroup) whereClause['endDate'] = {[Op.gte]: new Date(req.query.endSubGroup)};
 
     if (req.query.name) whereClause['name'] = {[Op.iLike]: `%${req.query.name}%`};
     if (req.query.CourseId) whereClause['CourseId'] = req.query.CourseId;
