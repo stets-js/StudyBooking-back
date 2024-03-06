@@ -25,8 +25,7 @@ exports.getSubGroupById = catchAsync(async (req, res, next) => {
     ]
   });
   if (!document) {
-    next(new AppError(`No document find with id ${req.params.id}`, 404));
-    return;
+    return res.status(404).json({message: `No document find with id ${req.params.id}`});
   }
   res.json({
     status: 'success',

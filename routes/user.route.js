@@ -31,4 +31,7 @@ router
 
 router.route('/:id/courses').get(userController.getUserCourses);
 
+router
+  .route('/:subGroupId/mentorsForReplacement')
+  .get(userController.getUsersForReplacementSubGroup);
 module.exports = router;

@@ -1,10 +1,9 @@
 const {Op, literal} = require('sequelize');
+const {format, sub} = require('date-fns');
 const {User, SubGroup, Replacement, Course} = require('../models/relation');
 const catchAsync = require('./../utils/catchAsync');
 const sequelize = require('../db');
 const sendEmail = require('../utils/email');
-const {format, sub} = require('date-fns');
-
 exports.deleteOne = Model =>
   catchAsync(async (req, res, next) => {
     let id = req.params.id;
@@ -74,8 +73,7 @@ exports.getOne = Model =>
   catchAsync(async (req, res, next) => {
     const document = await Model.findByPk(req.params.id);
     if (!document) {
-      next(new AppError(`No document find with id ${req.params.id}`, 404));
-      return;
+      return res.status(404).json({message: `No document find with id ${req.params.id}`});
     }
     res.json({
       status: 'success',
