@@ -80,6 +80,10 @@ Replacement.beforeFind(async options => {
         as: 'Admin',
         attributes: ['name'],
         foreignKey: 'adminId'
+      },
+      {
+        model: Course,
+        attributes: ['name', 'id']
       }
     ]
   });
