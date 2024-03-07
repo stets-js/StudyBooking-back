@@ -108,15 +108,45 @@ exports.getUsersForReplacementSubGroup = catchAsync(async (req, res, next) => {
       },
       {
         model: Slot,
+
         where: {
           weekDay: {[Op.in]: mentorCurrentSlots.map(slot => slot.weekDay)},
           time: {[Op.in]: mentorCurrentSlots.map(slot => slot.time)},
           startDate: {[Op.lte]: startCursor},
           endDate: {[Op.or]: [{[Op.gte]: mentorCurrentSlots[0].endDate}, {[Op.eq]: null}]}
         }
+
+        // group here
       }
     ]
   });
+  const structuredSlots = allUsers.map(user => {
+    const structuredUser = {
+      name: user.name,
+      id: user.id,
+      Role: user.Role,
+      Slots: {}
+    };
 
-  res.status(200).json({allUsers});
+    user.Slots.forEach(slot => {
+      if (!structuredUser.Slots[slot.weekDay]) {
+        structuredUser.Slots[slot.weekDay] = [];
+      }
+
+      structuredUser.Slots[slot.weekDay].push({
+        id: slot.id,
+        time: slot.time,
+        startDate: slot.startDate,
+        endDate: slot.endDate,
+        appointmentTypeId: slot.appointmentTypeId,
+        userId: slot.userId,
+        SubGroupId: slot.SubGroupId,
+        ReplacementId: slot.ReplacementId
+      });
+    });
+
+    return structuredUser;
+  });
+
+  res.status(200).json({data: allUsers, structuredSlots});
 });
