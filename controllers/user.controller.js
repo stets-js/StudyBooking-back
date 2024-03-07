@@ -3,6 +3,7 @@ const {User, Course, Slot, Appointment_Type, TeacherCourse} = require('../models
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./factory.controller');
 const sequelize = require('../db');
+const {format} = require('date-fns');
 
 exports.getAllUsers = factory.getAll(User);
 
@@ -84,46 +85,38 @@ exports.getFreeUsers = catchAsync(async (req, res, next) => {
 });
 
 exports.getUsersForReplacementSubGroup = catchAsync(async (req, res, next) => {
-  // userId, subGroupId
+  const today = format(new Date(), 'yyyy-MM-dd');
   const mentorCurrentSlots = await sequelize.query(
-    `SELECT "Slots"."weekDay", "Slots"."time", "Slots"."startDate","Slots"."endDate" FROM "Slots" 
+    `SELECT "Slots"."weekDay", "Slots"."time","Slots"."userId", "Slots"."startDate","Slots"."endDate" FROM "Slots"
     WHERE "Slots"."SubGroupId" = :SubGroupId`,
     {
       replacements: {SubGroupId: req.params.subGroupId},
       type: Sequelize.QueryTypes.SELECT
     }
   );
-  // const teachers = await sequelize.query(
-  //   `SELECT "Users"."id","Users"."name", "Slots"."time" FROM "Users"
-  //     JOIN "TeacherCourses" ON "Users"."id" = "TeacherCourses"."userId"
-  //     JOIN "Slots" ON "Users"."id" = "Slots"."userId"
-  //     WHERE "TeacherCourses"."courseId" = :courseId
-  //     AND "Slots"."SubGroupId" = :SubGroupId`,
-  //   {
-  //     replacements: {courseId: req.query.courseId, SubGroupId: req.params.subGroupId},
-  //     type: Sequelize.QueryTypes.SELECT,
-  //     model: User
-  //   }
-  // );
-  const allUsers = await TeacherCourse.findAll({
-    where: {courseId: req.query.courseId},
-    attributes: ['userId']
-  });
-  const userIds = await User.findAll({
-    attributes: ['id'],
+  const startCursor =
+    today > mentorCurrentSlots[0].startDate ? today : mentorCurrentSlots[0].startDate;
+  const allUsers = await User.findAll({
+    where: {id: {[Op.ne]: mentorCurrentSlots[0].userId}},
+    attributes: ['name', 'id'],
     include: [
       {
+        association: 'teachingCourses',
+        where: {id: req.query.courseId},
+
+        attributes: []
+      },
+      {
         model: Slot,
-        attributes: [],
         where: {
-          weekDay: {[Sequelize.Op.in]: mentorCurrentSlots.map(slot => slot.weekDay)},
-          time: {[Sequelize.Op.in]: mentorCurrentSlots.map(slot => slot.time)},
-          startDate: {[Sequelize.Op.lte]: mentorCurrentSlots[0].startDate},
-          endDate: {[Sequelize.Op.gte]: mentorCurrentSlots[0].endDate}
+          weekDay: {[Op.in]: mentorCurrentSlots.map(slot => slot.weekDay)},
+          time: {[Op.in]: mentorCurrentSlots.map(slot => slot.time)},
+          startDate: {[Op.lte]: startCursor},
+          endDate: {[Op.or]: [{[Op.gte]: mentorCurrentSlots[0].endDate}, {[Op.eq]: null}]}
         }
       }
     ]
   });
 
-  res.status(200).json({allUsers, userIds, mentorCurrentSlots});
+  res.status(200).json({allUsers});
 });

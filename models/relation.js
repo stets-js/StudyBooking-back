@@ -54,7 +54,7 @@ SubGroup.hasMany(Replacement, {onDelete: 'CASCADE'});
 User.beforeFind(async options => {
   options.attributes = options.attributes || {};
   options.attributes.exclude = options.attributes.exclude || [];
-
+  options.attributes.exclude.push('password', 'createdAt', 'updatedAt');
   options.include = options.include || [];
   options.include.push({
     model: Role,
