@@ -20,14 +20,14 @@ User.belongsToMany(Course, {
   through: TeacherCourse,
   foreignKey: 'userId',
   otherKey: 'courseId',
-  as: 'TeachingCourses'
+  as: 'teachingCourses'
 });
 
 Course.belongsToMany(User, {
   through: TeacherCourse,
-  foreignKey: 'courseId',
-  otherKey: 'userId',
-  as: 'TeachingCourses'
+  foreignKey: 'userId',
+  otherKey: 'courseId',
+  as: 'teachers'
 });
 
 Course.belongsTo(User, {as: 'teamLead', foreignKey: 'teamLeadId'});

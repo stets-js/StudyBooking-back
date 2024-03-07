@@ -21,7 +21,8 @@ exports.getUserCourses = catchAsync(async (req, res, next) => {
       message: 'Cant find user'
     });
   }
-  const courses = await user.getCourses();
+  const courses = await user.getTeachingCourses();
+
   res.json({
     status: 'success',
     data: courses
@@ -39,7 +40,7 @@ exports.addUserCourse = catchAsync(async (req, res, next) => {
 
   const courses = await Course.findByPk(req.params.course_id);
 
-  await user.addCourses(courses);
+  await user.addTeachingCourse(courses);
 
   res.json({
     status: 'success',
@@ -58,7 +59,7 @@ exports.deleteUserCourse = catchAsync(async (req, res, next) => {
 
   const courses = await Course.findByPk(req.params.course_id);
 
-  await user.removeCourses(courses);
+  await user.removeTeachingCourse(courses);
 
   res.status(204).json();
 });
