@@ -159,9 +159,9 @@ exports.getAll = (Model, options) =>
     }
     document = await Model.findAll({
       where: whereClause,
+      attributes: {exclude: [Model === User ? 'password' : '']},
       order: Model === User ? [['rating', 'DESC']] : []
     });
-
     res.json({
       status: 'success',
       results: document.length,
