@@ -2,13 +2,14 @@ const express = require('express');
 
 const authController = require('../controllers/auth.controller');
 const slotController = require('../controllers/slot.controller');
+const whereClauseGenerator = require('../utils/whereClauseGenerator');
 
 const router = express.Router();
 
 router
   .route('/')
-  .get(authController.protect, slotController.getAllSlots)
-  .post(authController.protect, slotController.getAllSlots);
+  .get(authController.protect, whereClauseGenerator, slotController.getAllSlots)
+  .post(authController.protect, whereClauseGenerator, slotController.getAllSlots);
 
 router.patch(
   '/bulk',

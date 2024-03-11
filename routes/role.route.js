@@ -2,10 +2,11 @@ const express = require('express');
 
 const authController = require('../controllers/auth.controller');
 const roleController = require('../controllers/role.controller');
+const whereClauseGenerator = require('../utils/whereClauseGenerator');
 
 const router = express.Router();
 
-router.route('/').get(roleController.getAllRoles);
+router.route('/').get(whereClauseGenerator, roleController.getAllRoles);
 router.route('/:id').get(roleController.getRoleById);
 
 router.use(authController.protect);

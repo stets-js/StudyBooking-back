@@ -3,6 +3,7 @@ const express = require('express');
 const userController = require('../controllers/user.controller');
 const authController = require('../controllers/auth.controller');
 const slotController = require('../controllers/slot.controller');
+const whereClauseGenerator = require('../utils/whereClauseGenerator');
 const router = express.Router();
 
 router.use(authController.protect);
@@ -11,7 +12,10 @@ router
   .post(userController.addUserCourse)
   .delete(userController.deleteUserCourse);
 
-router.route('/:id/slots').get(slotController.getAllSlots).post(slotController.createUserSlot);
+router
+  .route('/:id/slots')
+  .get(whereClauseGenerator, slotController.getAllSlots)
+  .post(slotController.createUserSlot);
 
 router.route('/available-teachers/:weekDay/:courseId').get(userController.getFreeUsers);
 router
@@ -21,7 +25,10 @@ router
 
 router.use(authController.allowedTo(['administrator', 'superAdmin']));
 
-router.route('/').get(userController.getAllUsers).post(userController.createUser);
+router
+  .route('/')
+  .get(whereClauseGenerator, userController.getAllUsers)
+  .post(userController.createUser);
 
 router
   .route('/:id')

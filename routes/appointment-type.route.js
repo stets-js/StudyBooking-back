@@ -2,13 +2,14 @@ const express = require('express');
 
 const authController = require('../controllers/auth.controller');
 const appointmentTypeController = require('../controllers/appointment-type.controller');
+const whereClauseGenerator = require('../utils/whereClauseGenerator');
 const router = express.Router();
 
 router.use(authController.protect);
 
 router
   .route('/')
-  .get(appointmentTypeController.getAllAppointmentTypes)
+  .get(whereClauseGenerator, appointmentTypeController.getAllAppointmentTypes)
   .post(appointmentTypeController.createAppointmentType);
 
 router

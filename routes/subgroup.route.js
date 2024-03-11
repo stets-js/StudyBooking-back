@@ -2,10 +2,11 @@ const express = require('express');
 
 const authController = require('../controllers/auth.controller');
 const subGroupController = require('../controllers/subgroup.controller');
+const whereClauseGenerator = require('../utils/whereClauseGenerator');
 
 const router = express.Router();
 
-router.route('/').get(subGroupController.getAllSubGroups);
+router.route('/').get(whereClauseGenerator, subGroupController.getAllSubGroups);
 router.route('/:id').get(subGroupController.getSubGroupById);
 
 router.use(authController.protect);
