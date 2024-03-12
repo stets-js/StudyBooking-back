@@ -66,9 +66,10 @@ exports.deleteUserCourse = catchAsync(async (req, res, next) => {
 });
 
 exports.getFreeUsers = catchAsync(async (req, res, next) => {
-  const course = await Course.findByPk(req.params.courseId);
-  const users = await course.getUsers({attributes: ['id']});
-  const usersId = users.map(el => el.id);
+  const users = await TeacherCourse.findAll({
+    where: {courseId: req.params.courseId}
+  });
+  const usersId = users.map(el => el.userId);
   const availableSlots = await Slot.findAll({
     where: {
       weekDay: req.params.weekDay,
