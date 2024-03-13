@@ -14,6 +14,7 @@ router
 
 router
   .route('/:id')
+  .get(appointmentTypeController.getAppointmentTypeById)
   .patch(appointmentTypeController.updateAppointmentType)
   .delete(appointmentTypeController.deleteAppointmentType);
 

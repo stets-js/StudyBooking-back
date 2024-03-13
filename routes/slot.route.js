@@ -17,4 +17,10 @@ router.patch(
   // authController.allowedTo('administrator'),
   slotController.bulkUpdate
 );
+router.use(authController.protect, authController.allowedTo(['administrator', 'superAdmin']));
+router
+  .route('/:id')
+  .get(slotController.getSlotById)
+  .delete(slotController.deleteSlot)
+  .patch(slotController.updateSlot);
 module.exports = router;

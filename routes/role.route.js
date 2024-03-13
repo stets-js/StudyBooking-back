@@ -9,11 +9,10 @@ const router = express.Router();
 router.route('/').get(whereClauseGenerator, roleController.getAllRoles);
 router.route('/:id').get(roleController.getRoleById);
 
-router.use(authController.protect);
+router.use(authController.protect, authController.allowedTo(['administrator', 'superAdmin']));
 
 router.post('/', roleController.createRole);
 
-//   .delete(roleController.deleteRole)
-//   .patch(roleController.updateRole);
+router.route('/:id').delete(roleController.deleteRole).patch(roleController.updateRole);
 
 module.exports = router;
