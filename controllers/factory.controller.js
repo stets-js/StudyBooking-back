@@ -1,4 +1,4 @@
-const {Op, literal} = require('sequelize');
+const {Op, literal, Sequelize} = require('sequelize');
 const {format, sub} = require('date-fns');
 const {User, SubGroup, Replacement, Course} = require('../models/relation');
 const catchAsync = require('./../utils/catchAsync');
@@ -87,14 +87,33 @@ exports.getOne = Model =>
 exports.getAll = Model =>
   catchAsync(async (req, res, next) => {
     let document;
-
+    let attributes = {
+      exclude: [Model === User ? 'password' : '']
+    };
+    if (req.query.sortBySubgroups)
+      attributes.include = [
+        [
+          Sequelize.literal(
+            '(SELECT COUNT(*) FROM "SubGroups" WHERE "SubGroups"."mentorId" = "User"."id")'
+          ),
+          'subgroupCount'
+        ]
+      ];
     document = await Model.findAll({
       where: req.whereClause,
-      attributes: {exclude: [Model === User ? 'password' : '']},
-      order: Model === User ? [['rating', 'DESC']] : []
+      attributes,
+      order:
+        Model === User
+          ? req.query.sortBySubgroups
+            ? [
+                [Sequelize.literal('"subgroupCount"'), 'ASC'],
+                ['rating', 'DESC']
+              ]
+            : [['rating', 'DESC']]
+          : []
     });
+
     return res.json({
-      cl: req.whereClause,
       status: 'success',
       results: document.length,
       data: document

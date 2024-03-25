@@ -8,6 +8,8 @@ module.exports = catchAsync(async (req, res, next) => {
   if (req.query.weekDay) clause['weekDay'] = req.query.weekDay;
   if (req.query.endSubGroup) clause['endDate'] = {[Op.gte]: new Date(req.query.endSubGroup)};
 
+  if (req.query.mentorId) clause['mentorId'] = req.query.mentorId;
+
   if (req.query.name) clause['name'] = {[Op.iLike]: `%${req.query.name}%`};
   if (req.query.CourseId) clause['CourseId'] = req.query.CourseId;
   if (req.query.role) clause['$Role.name$'] = req.query.role;

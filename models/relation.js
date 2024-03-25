@@ -107,4 +107,22 @@ Slot.beforeFind(async options => {
   );
 });
 
+SubGroup.beforeFind(async options => {
+  options.attributes = options.attributes || {};
+  options.attributes.exclude = options.attributes.exclude || [];
+  options.attributes.exclude.push('createdAt', 'updatedAt');
+  options.include = options.include || [];
+  options.include.push(
+    {
+      model: User,
+      as: 'Admin',
+      attributes: ['name'],
+      foreignKey: 'adminId'
+    },
+    {
+      model: Course
+    }
+  );
+});
+
 module.exports = {User, Role, Course, TeacherCourse, Slot, Appointment_Type, SubGroup, Replacement};

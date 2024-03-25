@@ -5,19 +5,7 @@ const catchAsync = require('../utils/catchAsync');
 exports.getAllSubGroups = factory.getAll(SubGroup);
 
 exports.getSubGroupById = catchAsync(async (req, res, next) => {
-  const document = await SubGroup.findByPk(req.params.id, {
-    include: [
-      {
-        model: User,
-        as: 'Admin',
-        attributes: ['name'],
-        foreignKey: 'adminId'
-      },
-      {
-        model: Course
-      }
-    ]
-  });
+  const document = await SubGroup.findByPk(req.params.id);
   if (!document) {
     return res.status(404).json({message: `No document find with id ${req.params.id}`});
   }
