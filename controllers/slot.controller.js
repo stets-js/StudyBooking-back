@@ -3,7 +3,7 @@ const {addDays} = require('date-fns');
 const {Slot, Appointment_Type} = require('../models/relation');
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./factory.controller');
-exports.getAllSlots = factory.getAll(Slot, {slot: true});
+exports.getAllSlots = factory.getAll(Slot);
 
 exports.getSlotById = factory.getOne(Slot);
 

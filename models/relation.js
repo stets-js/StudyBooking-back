@@ -102,7 +102,32 @@ Slot.beforeFind(async options => {
     },
     {
       model: SubGroup,
-      attributes: ['id', 'name']
+      attributes: ['id', 'name', 'description', 'startDate', 'endDate', 'link', 'schedule'],
+      include: [
+        Course,
+        {
+          model: User,
+          as: 'Admin',
+          attributes: ['name'],
+          foreignKey: 'adminId'
+        }
+      ]
+    },
+    {
+      model: Replacement,
+      attributes: ['id', 'schedule', 'description'],
+      include: {
+        model: SubGroup,
+        include: [
+          {model: Course},
+          {
+            model: User,
+            as: 'Admin',
+            attributes: ['name'],
+            foreignKey: 'adminId'
+          }
+        ]
+      }
     }
   );
 });

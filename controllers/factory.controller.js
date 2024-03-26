@@ -1,6 +1,6 @@
 const {Op, literal, Sequelize} = require('sequelize');
 const {format, sub} = require('date-fns');
-const {User, SubGroup, Replacement, Course} = require('../models/relation');
+const {User, SubGroup, Replacement, Course, Slot} = require('../models/relation');
 const catchAsync = require('./../utils/catchAsync');
 const sequelize = require('../db');
 const sendEmail = require('../utils/email');
@@ -110,6 +110,11 @@ exports.getAll = Model =>
                 ['rating', 'DESC']
               ]
             : [['rating', 'DESC']]
+          : Model === Slot
+          ? [
+              ['weekDay', 'ASC'],
+              ['time', 'ASC']
+            ]
           : []
     });
 

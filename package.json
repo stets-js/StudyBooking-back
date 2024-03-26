@@ -12,6 +12,7 @@
     "date-fns": "^3.3.1",
     "debug": "~2.6.9",
     "dotenv": "^16.4.1",
+    "exceljs": "^4.4.0",
     "express": "~4.16.1",
     "express-rate-limit": "^7.1.5",
     "http-errors": "~1.6.3",

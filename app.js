@@ -13,6 +13,8 @@ const slotsRoutes = require('./routes/slot.route');
 const appointmentTypeRoutes = require('./routes/appointment-type.route');
 const subGroupRoutes = require('./routes/subgroup.route');
 const replacementRoutes = require('./routes/replacement.route');
+const excelRoutes = require('./routes/excel.route');
+
 const app = express();
 
 //development loging
@@ -47,6 +49,7 @@ app.use('/api/slots', slotsRoutes);
 app.use('/api/appointment-type', appointmentTypeRoutes);
 app.use('/api/subgroups', subGroupRoutes);
 app.use('/api/replacement', replacementRoutes);
+app.use('/api/excel', excelRoutes);
 app.all('*', (req, res, next) => {
   next(`Can't find ${req.originalUrl} on this server :#`, 404);
 });
