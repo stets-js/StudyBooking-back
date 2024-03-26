@@ -2,10 +2,8 @@ const {Op, literal, Sequelize} = require('sequelize');
 const {format, sub} = require('date-fns');
 const {User, SubGroup, Replacement, Course, Slot} = require('../models/relation');
 const catchAsync = require('./../utils/catchAsync');
-const sequelize = require('../db');
-const sendEmail = require('../utils/email');
 
-const generateWhereClause = require('../utils/whereClauseGenerator');
+const sendEmail = require('../utils/email');
 
 exports.deleteOne = Model =>
   catchAsync(async (req, res, next) => {
