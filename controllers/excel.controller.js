@@ -1,6 +1,6 @@
 const {User, Role, Course, SubGroup} = require('../models/relation');
 const {google} = require('googleapis');
-const credentials = require('../goiteens-418514-dcdb1452e316.json');
+
 exports.createSheet = async (req, res, next) => {
   try {
     const users = await User.findAll({
@@ -224,6 +224,6 @@ exports.createSheet = async (req, res, next) => {
       spreadsheetUrl: `https://docs.google.com/spreadsheets/d/${spreadsheetId}`
     });
   } catch (error) {
-    res.status(400).json({key: process.env.PRIVATE_KEY.replace(/\\n/g, '\n'), error});
+    res.status(400).json(error);
   }
 };
