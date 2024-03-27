@@ -20,7 +20,11 @@ exports.createSheet = async (req, res, next) => {
 
     // Create a new instance of GoogleAuth
     const auth = new google.auth.GoogleAuth({
-      credentials,
+      credentials: {
+        type: 'service_account',
+        private_key: process.env.PRIVATE_KEY.replace(/\\n/g, '\n'),
+        client_email: process.env.CLIENT_EMAIL
+      },
       scopes: [
         'https://www.googleapis.com/auth/spreadsheets',
         'https://www.googleapis.com/auth/drive'
@@ -220,6 +224,6 @@ exports.createSheet = async (req, res, next) => {
       spreadsheetUrl: `https://docs.google.com/spreadsheets/d/${spreadsheetId}`
     });
   } catch (error) {
-    res.status(400).json(error);
+    res.status(400).json({key: process.env.PRIVATE_KEY.replace(/\\n/g, '\n'), error});
   }
 };
