@@ -23,8 +23,10 @@ exports.createSheet = async (req, res, next) => {
 
     // Додаємо дані до електронної таблиці
     let cursorForNames = 2; // 1 is header, and than  we start from 2
+    const font = {size: 14, family: 2}; // 2 -times new roman
     sheet.addRow([
-      'Mentors',
+      'Mentor',
+      'Email',
       'Course count',
       'Subgroup count',
       'Course',
@@ -38,46 +40,49 @@ exports.createSheet = async (req, res, next) => {
       let coursesLen = user.teachingCourses.length;
       let rowValues = [];
       rowValues[0] = user.name;
-      rowValues[1] = coursesLen;
-      rowValues[2] = subGroupLen;
-      const coursesWithSubgroups = user.teachingCourses.reduce((acc, course) => {
-        const subgroups = user.MentorSubGroups.filter(subgroup => subgroup.CourseId === course.id);
-        acc[course.name] = subgroups.length > 0 ? subgroups : null;
-        return acc;
-      }, {});
-      let startForCourses = cursorForNames; // first row adjusted to name
+      rowValues[1] = user.email;
+      rowValues[2] = coursesLen;
+      rowValues[3] = subGroupLen;
+      let courseCursor = cursorForNames;
+      user.teachingCourses.forEach(course => {
+        rowValues[4] = course.name;
+        const subgroups = user.MentorSubGroups.filter(el => el.CourseId === course.id);
 
-      for (const [key, value] of Object.entries(coursesWithSubgroups)) {
-        if (!value) {
-          rowValues[3] = key;
-          sheet.addRow(rowValues);
-        } else
-          value.forEach(group => {
-            rowValues[3] = key; // D cell
-            rowValues[4] = group.name;
-            rowValues[5] = 'type';
-            rowValues[6] = group.schedule;
+        if (subgroups.length > 0) {
+          subgroups.forEach(group => {
+            rowValues[5] = group.name;
+            rowValues[6] = 'type';
+            rowValues[7] = group.schedule;
             sheet.addRow(rowValues);
           });
-        if (value && value.length > 1) {
-          sheet.mergeCells(`D${startForCourses}:D${startForCourses + value.length - 1}`);
+          sheet.mergeCells(`E${courseCursor}:E${courseCursor + subgroups.length - 1}`);
+          courseCursor += subgroups.length;
+        } else {
+          sheet.addRow(rowValues);
+          courseCursor += 1;
         }
-        startForCourses += (value || []).length + 1;
+      });
+
+      if (cursorForNames < courseCursor - 1) {
+        sheet.mergeCells(`A${cursorForNames}:A${courseCursor - 1}`);
+        sheet.mergeCells(`B${cursorForNames}:B${courseCursor - 1}`);
+        sheet.mergeCells(`C${cursorForNames}:C${courseCursor - 1}`);
+        sheet.mergeCells(`D${cursorForNames}:D${courseCursor - 1}`);
       }
 
-      const increment = subGroupLen > coursesLen ? subGroupLen : coursesLen;
-
-      if (increment > 0) {
-        const cell = sheet.getCell(`K${cursorForNames}`);
-        cell.value = increment;
-        sheet.mergeCells(`A${cursorForNames}:A${cursorForNames + increment - 1}`);
-        sheet.mergeCells(`B${cursorForNames}:B${cursorForNames + increment - 1}`);
-        sheet.mergeCells(`C${cursorForNames}:C${cursorForNames + increment - 1}`);
-      }
-
-      cursorForNames += increment;
+      cursorForNames = courseCursor;
     });
-
+    sheet.columns.forEach(function (column, i) {
+      let maxLength = 0;
+      column.eachCell({includeEmpty: true}, function (cell) {
+        var columnLength = cell.value ? cell.value.toString().length : 10;
+        if (columnLength > maxLength) {
+          maxLength = columnLength + 10;
+        }
+      });
+      column.width = maxLength < 10 ? 10 : maxLength;
+      column.font = font;
+    });
     // Генеруємо електронну таблицю у форматі Excel
     const buffer = await workbook.xlsx.writeBuffer();
 
