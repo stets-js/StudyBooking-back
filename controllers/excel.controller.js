@@ -1,6 +1,6 @@
-const ExcelJS = require('exceljs');
 const {User, Role, Course, SubGroup} = require('../models/relation');
-
+const {google} = require('googleapis');
+const credentials = require('../goiteens-418514-dcdb1452e316.json');
 exports.createSheet = async (req, res, next) => {
   try {
     const users = await User.findAll({
@@ -17,34 +17,60 @@ exports.createSheet = async (req, res, next) => {
         }
       ]
     });
-    // Створюємо новий документ Excel
-    const workbook = new ExcelJS.Workbook();
-    const sheet = workbook.addWorksheet('Teachers');
 
-    // Додаємо дані до електронної таблиці
-    let cursorForNames = 2; // 1 is header, and than  we start from 2
-    const font = {size: 14, family: 2}; // 2 -times new roman
-    sheet.addRow([
-      'Mentor',
-      'Email',
-      'Course count',
-      'Subgroup count',
-      'Course',
-      'Subgroup',
-      'Type',
-      'Schedule'
-    ]);
-    // return res.json(users);
-    users.forEach((user, index) => {
+    // Create a new instance of GoogleAuth
+    const auth = new google.auth.GoogleAuth({
+      credentials,
+      scopes: [
+        'https://www.googleapis.com/auth/spreadsheets',
+        'https://www.googleapis.com/auth/drive'
+      ]
+    });
+    const sheets = google.sheets({version: 'v4', auth});
+    const drive = google.drive({version: 'v3', auth});
+
+    // Create a new spreadsheet
+    const spreadsheet = await sheets.spreadsheets.create({
+      resource: {
+        properties: {
+          title: 'Teachers Spreadsheet'
+        }
+      }
+    });
+    const spreadsheetId = spreadsheet.data.spreadsheetId;
+
+    // Define data to be written to the spreadsheet
+    const rows = [
+      [
+        'Mentor',
+        'Email',
+        'Course count',
+        'Subgroup count',
+        'Course',
+        'Subgroup',
+        'Type',
+        'Schedule'
+      ]
+    ];
+    let mergeRanges = [];
+    let mergeSubgroupsRanges = [];
+    let cursor = {start: 2, end: 2}; // 1 is header
+    let subgroupCursor = {start: 2, end: 2};
+    users.forEach(user => {
+      cursor.start = cursor.end;
+      subgroupCursor.start = cursor.start;
+      subgroupCursor.end = cursor.end;
+      let rowValues = [];
       let subGroupLen = user.MentorSubGroups.length;
       let coursesLen = user.teachingCourses.length;
-      let rowValues = [];
+      rowValues[0] = user.name;
       rowValues[0] = user.name;
       rowValues[1] = user.email;
       rowValues[2] = coursesLen;
       rowValues[3] = subGroupLen;
-      let courseCursor = cursorForNames;
       user.teachingCourses.forEach(course => {
+        subgroupCursor.start = subgroupCursor.end; // every new course must be new group of subgroups
+
         rowValues[4] = course.name;
         const subgroups = user.MentorSubGroups.filter(el => el.CourseId === course.id);
 
@@ -53,50 +79,147 @@ exports.createSheet = async (req, res, next) => {
             rowValues[5] = group.name;
             rowValues[6] = 'type';
             rowValues[7] = group.schedule;
-            sheet.addRow(rowValues);
+            rows.push([...rowValues]);
+            cursor.end += 1;
+            subgroupCursor.end += 1;
           });
-          sheet.mergeCells(`E${courseCursor}:E${courseCursor + subgroups.length - 1}`);
-          courseCursor += subgroups.length;
+          mergeSubgroupsRanges.push({start: subgroupCursor.start, end: subgroupCursor.end});
         } else {
-          sheet.addRow(rowValues);
-          courseCursor += 1;
+          for (let i = 5; i <= 7; i++) rowValues[i] = null;
+          rows.push([...rowValues]);
+          cursor.end += 1;
         }
       });
-
-      if (cursorForNames < courseCursor - 1) {
-        sheet.mergeCells(`A${cursorForNames}:A${courseCursor - 1}`);
-        sheet.mergeCells(`B${cursorForNames}:B${courseCursor - 1}`);
-        sheet.mergeCells(`C${cursorForNames}:C${courseCursor - 1}`);
-        sheet.mergeCells(`D${cursorForNames}:D${courseCursor - 1}`);
-      }
-
-      cursorForNames = courseCursor;
+      mergeRanges.push({start: cursor.start, end: cursor.end});
     });
-    sheet.columns.forEach(function (column, i) {
-      let maxLength = 0;
-      column.eachCell({includeEmpty: true}, function (cell) {
-        var columnLength = cell.value ? cell.value.toString().length : 10;
-        if (columnLength > maxLength) {
-          maxLength = columnLength + 10;
+
+    // Write data to the spreadsheet
+    const resource = {
+      spreadsheetId,
+      range: 'Sheet1',
+      valueInputOption: 'RAW',
+      resource: {values: rows}
+    };
+    await sheets.spreadsheets.values.update(resource);
+
+    await Promise.all(
+      mergeRanges.map(async mergeRange => {
+        if (mergeRange.end - mergeRange.start > 1) {
+          for (let columnIndex = 0; columnIndex <= 3; columnIndex++) {
+            await sheets.spreadsheets.batchUpdate({
+              spreadsheetId,
+              resource: {
+                requests: [
+                  {
+                    mergeCells: {
+                      range: {
+                        sheetId: 0,
+                        startRowIndex: mergeRange.start - 1,
+                        endRowIndex: mergeRange.end - 1,
+                        startColumnIndex: columnIndex,
+                        endColumnIndex: columnIndex + 1
+                      },
+                      mergeType: 'MERGE_ALL'
+                    }
+                  }
+                ]
+              }
+            });
+          }
         }
-      });
-      column.width = maxLength < 10 ? 10 : maxLength;
-      column.font = font;
-    });
-    // Генеруємо електронну таблицю у форматі Excel
-    const buffer = await workbook.xlsx.writeBuffer();
-
-    // Відправляємо створену електронну таблицю як відповідь на запит
-    res.setHeader(
-      'Content-Type',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      })
     );
-    res.setHeader('Content-Disposition', 'attachment; filename="example.xlsx"');
-    res.send(buffer);
+    await Promise.all(
+      mergeSubgroupsRanges.map(async mergeRange => {
+        if (mergeRange.end - mergeRange.start > 1) {
+          await sheets.spreadsheets.batchUpdate({
+            spreadsheetId,
+            resource: {
+              requests: [
+                {
+                  mergeCells: {
+                    range: {
+                      sheetId: 0,
+                      startRowIndex: mergeRange.start - 1,
+                      endRowIndex: mergeRange.end - 1,
+                      startColumnIndex: 4,
+                      endColumnIndex: 5
+                    },
+                    mergeType: 'MERGE_ALL'
+                  }
+                }
+              ]
+            }
+          });
+        }
+      })
+    );
+    // Autosize cells
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId,
+      resource: {
+        requests: [
+          {
+            autoResizeDimensions: {
+              dimensions: {
+                sheetId: 0,
+                dimension: 'COLUMNS',
+                startIndex: 0,
+                endIndex: 8 // Adjust this based on the number of columns
+              }
+            }
+          }
+        ]
+      }
+    });
+    const border = {
+      style: 'SOLID',
+      width: 1,
+      color: {
+        red: 0,
+        green: 0,
+        blue: 0,
+        alpha: 1
+      }
+    };
 
-    // res.json(users);
+    // Apply border to the entire range of cells
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId,
+      resource: {
+        requests: [
+          {
+            updateBorders: {
+              range: {
+                sheetId: 0,
+                startRowIndex: 0,
+                endRowIndex: rows.length,
+                startColumnIndex: 0,
+                endColumnIndex: rows[0].length
+              },
+              top: border,
+              bottom: border,
+              left: border,
+              right: border,
+              innerHorizontal: border,
+              innerVertical: border
+            }
+          }
+        ]
+      }
+    });
+    await drive.permissions.create({
+      fileId: spreadsheetId,
+      requestBody: {
+        role: 'writer',
+        type: 'anyone'
+      }
+    });
+    // Return the URL of the created spreadsheet
+    res.json({
+      spreadsheetUrl: `https://docs.google.com/spreadsheets/d/${spreadsheetId}`
+    });
   } catch (error) {
-    console.error('Error creating spreadsheet:', error);
-    res.status(500).send('Internal Server Error');
+    res.status(400).json(error);
   }
 };
