@@ -1,4 +1,4 @@
-const {User, Role, Course, SubGroup} = require('../models/relation');
+const {User, Course, SubGroup} = require('../models/relation');
 const {google} = require('googleapis');
 
 exports.createSheet = async (req, res, next) => {
@@ -31,17 +31,8 @@ exports.createSheet = async (req, res, next) => {
       ]
     });
     const sheets = google.sheets({version: 'v4', auth});
-    const drive = google.drive({version: 'v3', auth});
 
-    // Create a new spreadsheet
-    const spreadsheet = await sheets.spreadsheets.create({
-      resource: {
-        properties: {
-          title: 'Teachers Spreadsheet'
-        }
-      }
-    });
-    const spreadsheetId = spreadsheet.data.spreadsheetId;
+    const spreadsheetId = process.env.SPREADSHEET_ID;
 
     // Define data to be written to the spreadsheet
     const rows = [
@@ -100,7 +91,7 @@ exports.createSheet = async (req, res, next) => {
     // Write data to the spreadsheet
     const resource = {
       spreadsheetId,
-      range: 'Sheet1',
+      range: 'Mentors',
       valueInputOption: 'RAW',
       resource: {values: rows}
     };
@@ -212,13 +203,7 @@ exports.createSheet = async (req, res, next) => {
         ]
       }
     });
-    await drive.permissions.create({
-      fileId: spreadsheetId,
-      requestBody: {
-        role: 'writer',
-        type: 'anyone'
-      }
-    });
+
     // Return the URL of the created spreadsheet
     res.json({
       spreadsheetUrl: `https://docs.google.com/spreadsheets/d/${spreadsheetId}`
