@@ -11,7 +11,7 @@ router
   .route('/:id/courses/:course_id')
   .post(userController.addUserCourse)
   .delete(userController.deleteUserCourse);
-
+router.get('/:id', userController.getUserById);
 router
   .route('/:id/slots')
   .get(whereClauseGenerator, slotController.getAllSlots)
@@ -32,7 +32,7 @@ router
 
 router
   .route('/:id')
-  .get(userController.getUserById)
+
   .delete(userController.deleteUser)
   .patch(userController.updateUser);
 
