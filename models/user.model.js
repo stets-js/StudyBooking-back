@@ -17,8 +17,23 @@ const User = sequelize.define('User', {
     allowNull: false
   },
   password: {
-    type: Sequelize.STRING(),
+    type: Sequelize.STRING,
     allowNull: false
+  },
+  phone: {
+    type: Sequelize.STRING,
+    // allowNull: false,
+    default: '+380123456789'
+  },
+  city: {
+    type: Sequelize.STRING,
+    // allowNull: false,
+    default: 'Kharkiv'
+  },
+  teachingType: {
+    type: Sequelize.ENUM(['soft', 'tech']),
+    // allowNull: false,
+    default: 'soft'
   }
 });
 
