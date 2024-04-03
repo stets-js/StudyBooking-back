@@ -4,12 +4,17 @@ const catchAsync = require('../utils/catchAsync');
 const factory = require('./factory.controller');
 const sequelize = require('../db');
 const {format} = require('date-fns');
-
+const sendEmail = require('../utils/email');
 exports.getAllUsers = factory.getAll(User);
 
 exports.getUserById = factory.getOne(User);
 
-exports.createUser = factory.createOne(User, {checkRole: true});
+exports.createUser = catchAsync(async (req, res, next) => {
+  req.body.password = (Math.random() + 1).toString(36).substring(7); // for preventing user to login in system without password
+  const document = await User.create(req.body);
+  req.User = document;
+  next(); // next leads to reset password user goes to his/her email and only than can be logged in to the system
+});
 
 exports.deleteUser = factory.deleteOne(User);
 

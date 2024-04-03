@@ -28,7 +28,7 @@ router.use(authController.allowedTo(['administrator', 'superAdmin']));
 router
   .route('/')
   .get(whereClauseGenerator, userController.getAllUsers)
-  .post(userController.createUser);
+  .post(userController.createUser, authController.forgotPassword);
 
 router
   .route('/:id')

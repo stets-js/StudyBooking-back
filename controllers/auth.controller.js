@@ -92,36 +92,28 @@ exports.allowedTo = roles => {
 };
 
 exports.forgotPassword = catchAsync(async (req, res, next) => {
-  //get user based on posted email
-  const user = await User.findOne({
-    where: {
-      email: req.body.email
-    }
-  });
-  if (!user) return res.status(404).json({message: 'cant find user with this email :('});
-
+  // req.user.email came from creating user
   // generate random reset token
-  const resetToken = jwt.sign({email: req.body.email, id: user.id}, process.env.JWT_SECRET, {
+  const email = req?.User?.email || req.body.email;
+  const resetToken = jwt.sign({email}, process.env.JWT_SECRET, {
     expiresIn: '1d'
   });
 
   //send email
-
   const resetURL = `${process.env.DEPLOYED_FRONT}/resetPassword/${resetToken}`;
 
   const message = `Forgot password? Submit a patch request with youer new password and password confirm to: ${resetURL}`; // !!! WRITE SOMETHING MORE COOL
   const html = `<h1>Forgot password?</h1><a href=${resetURL}><button>Click here</button></a>`;
   try {
     await sendEmail({
-      email: user.email,
+      email,
       subject: 'Reset token (24 hours)',
       message,
       html
     });
     res.status(200).json({
       status: 'success',
-      message: 'Token sent to email!',
-      email: user.email // debug only
+      message: 'Token sent to email!'
     });
   } catch (error) {
     res.status(400).json({
@@ -136,7 +128,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   if (!req.params.token) return res.status(400).json({message: 'Where is token?'});
   const decoded = await promisify(jwt.verify)(req.params.token, process.env.JWT_SECRET);
 
-  const user = await User.findByPk(decoded.id);
+  const user = await User.findOne({where: {email: decoded.email}});
   if (!user) {
     res.status(400).json({message: 'Something wrong with token'});
   }
