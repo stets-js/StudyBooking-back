@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "nodemon server.js"
+    "start:loc": "nodemon server.js NODE_ENV=DEV",
+    "start": "nodemon server.js NODE_ENV=DEPLOY"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
