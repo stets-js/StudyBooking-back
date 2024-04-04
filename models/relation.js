@@ -64,6 +64,7 @@ User.beforeFind(async options => {
     attributes: ['id', 'name']
   });
 });
+
 Replacement.beforeFind(async options => {
   options.attributes = options.attributes || {};
   options.attributes.exclude = options.attributes.exclude || [];

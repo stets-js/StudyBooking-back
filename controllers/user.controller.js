@@ -1,5 +1,12 @@
 const {Op, Sequelize} = require('sequelize');
-const {User, Course, Slot, Appointment_Type, TeacherCourse} = require('../models/relation');
+const {
+  User,
+  Course,
+  Slot,
+  Appointment_Type,
+  TeacherCourse,
+  TeacherType
+} = require('../models/relation');
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./factory.controller');
 const sequelize = require('../db');
@@ -21,13 +28,14 @@ exports.deleteUser = factory.deleteOne(User);
 exports.updateUser = factory.updateOne(User);
 
 exports.getUserCourses = catchAsync(async (req, res, next) => {
-  const user = await User.findByPk(req.params.id);
-  if (!user) {
-    return res.status(400).json({
-      message: 'Cant find user'
-    });
-  }
-  const courses = await user.getTeachingCourses();
+  const courses = await TeacherCourse.findAll({
+    where: {userId: req.params.id},
+    include: [
+      {
+        model: TeacherType
+      }
+    ]
+  });
 
   res.json({
     status: 'success',
