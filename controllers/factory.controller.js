@@ -30,7 +30,8 @@ exports.deleteOne = Model =>
 exports.createOne = (Model, options) =>
   catchAsync(async (req, res, next) => {
     const document = await Model.create(req.body);
-    if (Model === SubGroup || Model === Replacement) {
+    // document.mentorId is temp flag for not sending email when empty subgroup creating
+    if ((Model === SubGroup || Model === Replacement) && document.mentorId) {
       let message = '';
       let subject = '';
       if (Model === SubGroup) {
