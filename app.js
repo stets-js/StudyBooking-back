@@ -14,6 +14,7 @@ const appointmentTypeRoutes = require('./routes/appointment-type.route');
 const subGroupRoutes = require('./routes/subgroup.route');
 const replacementRoutes = require('./routes/replacement.route');
 const spreadsheetRoutes = require('./routes/spreadsheet.route');
+const createBasicTeacherTypes = require('./utils/createBasicTeacherTypes');
 
 const app = express();
 
@@ -55,5 +56,5 @@ app.all('*', (req, res, next) => {
 });
 
 createBasicRoles();
-
+createBasicTeacherTypes();
 module.exports = app;

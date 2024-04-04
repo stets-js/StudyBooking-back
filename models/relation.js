@@ -6,6 +6,7 @@ const {Course, TeacherCourse} = require('./course.model');
 const {Slot, Appointment_Type} = require('./slot.model');
 const SubGroup = require('./subgroup.model');
 const Replacement = require('./replacement.model');
+const {TeacherType} = require('./teacher-type.model');
 
 User.belongsTo(Role);
 Role.hasMany(User);
@@ -33,6 +34,8 @@ Course.belongsToMany(User, {
 Course.belongsTo(User, {as: 'teamLead', foreignKey: 'teamLeadId'});
 User.hasMany(Course, {foreignKey: 'teamLeadId'});
 
+TeacherCourse.belongsTo(TeacherType, {foreignKey: 'TeacherTypeId'});
+TeacherType.hasMany(TeacherCourse, {foreignKey: 'TeacherTypeId'});
 User.hasMany(SubGroup, {foreignKey: 'adminId', as: 'AdminSubGroups'});
 SubGroup.belongsTo(User, {foreignKey: 'adminId', as: 'Admin'});
 
@@ -150,4 +153,14 @@ SubGroup.beforeFind(async options => {
   );
 });
 
-module.exports = {User, Role, Course, TeacherCourse, Slot, Appointment_Type, SubGroup, Replacement};
+module.exports = {
+  User,
+  Role,
+  Course,
+  TeacherCourse,
+  Slot,
+  Appointment_Type,
+  SubGroup,
+  Replacement,
+  TeacherType
+};
