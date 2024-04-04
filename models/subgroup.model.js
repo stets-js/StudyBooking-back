@@ -12,13 +12,18 @@ const SubGroup = sequelize.define('SubGroup', {
   },
   startDate: {
     type: Sequelize.DATE,
-    allowNull: false
+    default: new Date()
+    // allowNull: false
   },
   endDate: {
     type: Sequelize.DATE,
-    allowNull: false
+    default: new Date()
+    // allowNull: false
   },
-  schedule: {type: Sequelize.TEXT, allowNull: false},
+  schedule: {
+    type: Sequelize.TEXT
+    // allowNull: false
+  },
   description: {
     type: Sequelize.STRING
   }
