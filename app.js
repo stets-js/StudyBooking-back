@@ -15,7 +15,7 @@ const subGroupRoutes = require('./routes/subgroup.route');
 const replacementRoutes = require('./routes/replacement.route');
 const spreadsheetRoutes = require('./routes/spreadsheet.route');
 const createBasicTeacherTypes = require('./utils/createBasicTeacherTypes');
-
+const teacherTypeRoutes = require('./routes/teacher-type.route');
 const app = express();
 
 //development loging
@@ -51,6 +51,7 @@ app.use('/api/appointment-type', appointmentTypeRoutes);
 app.use('/api/subgroups', subGroupRoutes);
 app.use('/api/replacement', replacementRoutes);
 app.use('/api/spreadsheet', spreadsheetRoutes);
+app.use('/api/teacher-type', teacherTypeRoutes);
 app.all('*', (req, res, next) => {
   next(`Can't find ${req.originalUrl} on this server :#`, 404);
 });

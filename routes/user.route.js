@@ -10,7 +10,8 @@ router.use(authController.protect);
 router
   .route('/:id/courses/:course_id')
   .post(userController.addUserCourse)
-  .delete(userController.deleteUserCourse);
+  .delete(userController.deleteUserCourse)
+  .patch(userController.updateUserCourse)
 router.get('/:id', userController.getUserById);
 router
   .route('/:id/slots')

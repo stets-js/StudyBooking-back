@@ -77,6 +77,10 @@ exports.deleteUserCourse = catchAsync(async (req, res, next) => {
 
   res.status(204).json();
 });
+exports.updateUserCourse = catchAsync(async (req,res,next) => {
+  const teacherCourse = await TeacherCourse.update(req.body,{where: {courseId: req.params.course_id, userId: req.params.id}})
+  res.status(201).json(teacherCourse)
+})
 
 exports.getFreeUsers = catchAsync(async (req, res, next) => {
   const users = await TeacherCourse.findAll({
