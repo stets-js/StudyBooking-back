@@ -24,6 +24,7 @@ const TeacherCourse = sequelize.define('TeacherCourse', {
       model: Course,
       key: 'id'
     }
-  }
+  },
+  
 });
 module.exports = {Course, TeacherCourse};

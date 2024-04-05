@@ -1,5 +1,5 @@
 const sequelize = require('../db');
-
+const Sequelize = require('sequelize');
 const User = require('./user.model');
 const Role = require('./role.model');
 const {Course, TeacherCourse} = require('./course.model');
@@ -34,8 +34,8 @@ Course.belongsToMany(User, {
 Course.belongsTo(User, {as: 'teamLead', foreignKey: 'teamLeadId'});
 User.hasMany(Course, {foreignKey: 'teamLeadId'});
 
-TeacherCourse.belongsTo(TeacherType, {foreignKey: 'TeacherTypeId'});
 TeacherType.hasMany(TeacherCourse, {foreignKey: 'TeacherTypeId'});
+TeacherCourse.belongsTo(TeacherType, {foreignKey:{name: 'TeacherTypeId',type:Sequelize.INTEGER, defaultValue:1}});
 User.hasMany(SubGroup, {foreignKey: 'adminId', as: 'AdminSubGroups'});
 SubGroup.belongsTo(User, {foreignKey: 'adminId', as: 'Admin'});
 

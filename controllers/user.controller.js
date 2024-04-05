@@ -44,21 +44,13 @@ exports.getUserCourses = catchAsync(async (req, res, next) => {
 });
 
 exports.addUserCourse = catchAsync(async (req, res, next) => {
-  const user = await User.findByPk(req.params.id);
 
-  if (!user) {
-    return res.status(400).json({
-      message: 'Cant find user'
-    });
-  }
 
-  const courses = await Course.findByPk(req.params.course_id);
-
-  await user.addTeachingCourse(courses);
-
+  const newTeacherCourse = await TeacherCourse.create({userId: req.params.id, courseId: req.params.course_id}, {include:TeacherType});
+  await newTeacherCourse.reload()
   res.json({
     status: 'success',
-    data: user
+    data:newTeacherCourse,
   });
 });
 
