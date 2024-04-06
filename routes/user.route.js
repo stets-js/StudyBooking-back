@@ -5,16 +5,13 @@ const authController = require('../controllers/auth.controller');
 const slotController = require('../controllers/slot.controller');
 const whereClauseGenerator = require('../utils/whereClauseGenerator');
 const router = express.Router();
-router.get('/health-check', (req, res, next) => {
-  res.json({message: 'Hello, i am ok'});
-});
 
 router.use(authController.protect);
 router
   .route('/:id/courses/:course_id')
   .post(userController.addUserCourse)
   .delete(userController.deleteUserCourse)
-  .patch(userController.updateUserCourse)
+  .patch(userController.updateUserCourse);
 router.get('/:id', userController.getUserById);
 router
   .route('/:id/slots')
