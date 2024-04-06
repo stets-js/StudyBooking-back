@@ -1,5 +1,12 @@
 const {Op, Sequelize} = require('sequelize');
-const {User, Course, Slot, Appointment_Type, TeacherCourse} = require('../models/relation');
+const {
+  User,
+  Course,
+  Slot,
+  Appointment_Type,
+  TeacherCourse,
+  TeacherType
+} = require('../models/relation');
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./factory.controller');
 const sequelize = require('../db');
@@ -21,13 +28,14 @@ exports.deleteUser = factory.deleteOne(User);
 exports.updateUser = factory.updateOne(User);
 
 exports.getUserCourses = catchAsync(async (req, res, next) => {
-  const user = await User.findByPk(req.params.id);
-  if (!user) {
-    return res.status(400).json({
-      message: 'Cant find user'
-    });
-  }
-  const courses = await user.getTeachingCourses();
+  const courses = await TeacherCourse.findAll({
+    where: {userId: req.params.id},
+    include: [
+      {
+        model: TeacherType
+      }
+    ]
+  });
 
   res.json({
     status: 'success',
@@ -36,21 +44,13 @@ exports.getUserCourses = catchAsync(async (req, res, next) => {
 });
 
 exports.addUserCourse = catchAsync(async (req, res, next) => {
-  const user = await User.findByPk(req.params.id);
 
-  if (!user) {
-    return res.status(400).json({
-      message: 'Cant find user'
-    });
-  }
 
-  const courses = await Course.findByPk(req.params.course_id);
-
-  await user.addTeachingCourse(courses);
-
+  const newTeacherCourse = await TeacherCourse.create({userId: req.params.id, courseId: req.params.course_id}, {include:TeacherType});
+  await newTeacherCourse.reload()
   res.json({
     status: 'success',
-    data: user
+    data:newTeacherCourse,
   });
 });
 
@@ -69,6 +69,10 @@ exports.deleteUserCourse = catchAsync(async (req, res, next) => {
 
   res.status(204).json();
 });
+exports.updateUserCourse = catchAsync(async (req,res,next) => {
+  const teacherCourse = await TeacherCourse.update(req.body,{where: {courseId: req.params.course_id, userId: req.params.id}})
+  res.status(201).json(teacherCourse)
+})
 
 exports.getFreeUsers = catchAsync(async (req, res, next) => {
   const users = await TeacherCourse.findAll({

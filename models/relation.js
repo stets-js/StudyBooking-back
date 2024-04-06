@@ -1,11 +1,11 @@
-const sequelize = require('../db');
-
+const Sequelize = require('sequelize');
 const User = require('./user.model');
 const Role = require('./role.model');
 const {Course, TeacherCourse} = require('./course.model');
 const {Slot, Appointment_Type} = require('./slot.model');
 const SubGroup = require('./subgroup.model');
 const Replacement = require('./replacement.model');
+const {TeacherType} = require('./teacher-type.model');
 
 User.belongsTo(Role);
 Role.hasMany(User);
@@ -33,6 +33,8 @@ Course.belongsToMany(User, {
 Course.belongsTo(User, {as: 'teamLead', foreignKey: 'teamLeadId'});
 User.hasMany(Course, {foreignKey: 'teamLeadId'});
 
+TeacherType.hasMany(TeacherCourse, {foreignKey: 'TeacherTypeId'});
+TeacherCourse.belongsTo(TeacherType, {foreignKey:{name: 'TeacherTypeId',type:Sequelize.INTEGER, defaultValue:1}});
 User.hasMany(SubGroup, {foreignKey: 'adminId', as: 'AdminSubGroups'});
 SubGroup.belongsTo(User, {foreignKey: 'adminId', as: 'Admin'});
 
@@ -61,6 +63,7 @@ User.beforeFind(async options => {
     attributes: ['id', 'name']
   });
 });
+
 Replacement.beforeFind(async options => {
   options.attributes = options.attributes || {};
   options.attributes.exclude = options.attributes.exclude || [];
@@ -150,4 +153,14 @@ SubGroup.beforeFind(async options => {
   );
 });
 
-module.exports = {User, Role, Course, TeacherCourse, Slot, Appointment_Type, SubGroup, Replacement};
+module.exports = {
+  User,
+  Role,
+  Course,
+  TeacherCourse,
+  Slot,
+  Appointment_Type,
+  SubGroup,
+  Replacement,
+  TeacherType
+};
