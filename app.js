@@ -52,9 +52,7 @@ app.use('/api/subgroups', subGroupRoutes);
 app.use('/api/replacement', replacementRoutes);
 app.use('/api/spreadsheet', spreadsheetRoutes);
 app.use('/api/teacher-type', teacherTypeRoutes);
-app.get('/api/health-check', (req, res, next) => {
-  res.json({message: 'Hello, I am okay'});
-});
+
 app.all('*', (req, res, next) => {
   next(`Can't find ${req.originalUrl} on this server :#`, 404);
 });

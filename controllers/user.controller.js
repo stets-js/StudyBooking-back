@@ -44,13 +44,14 @@ exports.getUserCourses = catchAsync(async (req, res, next) => {
 });
 
 exports.addUserCourse = catchAsync(async (req, res, next) => {
-
-
-  const newTeacherCourse = await TeacherCourse.create({userId: req.params.id, courseId: req.params.course_id}, {include:TeacherType});
-  await newTeacherCourse.reload()
+  const newTeacherCourse = await TeacherCourse.create(
+    {userId: req.params.id, courseId: req.params.course_id},
+    {include: TeacherType}
+  );
+  await newTeacherCourse.reload();
   res.json({
     status: 'success',
-    data:newTeacherCourse,
+    data: newTeacherCourse
   });
 });
 
@@ -69,10 +70,12 @@ exports.deleteUserCourse = catchAsync(async (req, res, next) => {
 
   res.status(204).json();
 });
-exports.updateUserCourse = catchAsync(async (req,res,next) => {
-  const teacherCourse = await TeacherCourse.update(req.body,{where: {courseId: req.params.course_id, userId: req.params.id}})
-  res.status(201).json(teacherCourse)
-})
+exports.updateUserCourse = catchAsync(async (req, res, next) => {
+  const teacherCourse = await TeacherCourse.update(req.body, {
+    where: {courseId: req.params.course_id, userId: req.params.id}
+  });
+  res.status(201).json(teacherCourse);
+});
 
 exports.getFreeUsers = catchAsync(async (req, res, next) => {
   const users = await TeacherCourse.findAll({
