@@ -29,11 +29,6 @@ const User = sequelize.define('User', {
     type: Sequelize.STRING,
     // allowNull: false,
     default: 'Kharkiv'
-  },
-  teachingType: {
-    type: Sequelize.ENUM(['soft', 'tech']),
-    // allowNull: false,
-    default: 'soft'
   }
 });
 
