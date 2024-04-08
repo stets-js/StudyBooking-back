@@ -59,7 +59,7 @@ exports.updateSheet = async (req, res, next) => {
         },
         {
           model: SubGroup,
-          as: 'MentorSubGroups',
+          as: 'TechMentorSubGroups',
           include: {model: Course, attributes: ['id', 'name']}
         }
       ]

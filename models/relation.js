@@ -40,7 +40,17 @@ TeacherCourse.belongsTo(TeacherType, {
 });
 User.hasMany(SubGroup, {foreignKey: 'adminId', as: 'AdminSubGroups'});
 SubGroup.belongsTo(User, {foreignKey: 'adminId', as: 'Admin'});
-User.hasMany(SubGroup, {foreignKey: 'mentorId', as: 'MentorSubGroups', onDelete: 'CASCADE'});
+
+User.hasMany(SubGroup, {
+  foreignKey: 'softMentorId',
+  as: 'SoftMentorSubGroups',
+  onDelete: 'CASCADE'
+});
+User.hasMany(SubGroup, {
+  foreignKey: 'techMentorId',
+  as: 'TechMentorSubGroups',
+  onDelete: 'CASCADE'
+});
 
 Replacement.belongsTo(User, {foreignKey: 'mentorId', as: 'Mentor'});
 
