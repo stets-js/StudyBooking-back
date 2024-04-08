@@ -9,6 +9,8 @@ module.exports = catchAsync(async (req, res, next) => {
   if (req.query.endSubGroup) clause['endDate'] = {[Op.gte]: new Date(req.query.endSubGroup)};
 
   if (req.query.mentorId) clause['mentorId'] = req.query.mentorId;
+  if (req.query.softMentorId) clause['softMentorId'] = req.query.softMentorId;
+  if (req.query.techMentorId) clause['techMentorId'] = req.query.techMentorId;
 
   if (req.query.name) clause['name'] = {[Op.iLike]: `%${req.query.name}%`};
   if (req.query.CourseId) clause['CourseId'] = req.query.CourseId;

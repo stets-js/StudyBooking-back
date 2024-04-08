@@ -31,7 +31,10 @@ exports.createOne = (Model, options) =>
   catchAsync(async (req, res, next) => {
     const document = await Model.create(req.body);
     // document.mentorId is temp flag for not sending email when empty subgroup creating
-    if ((Model === SubGroup || Model === Replacement) && document.mentorId) {
+    if (
+      (Model === SubGroup || Model === Replacement) &&
+      (document.softMentorId || document.techMentorId)
+    ) {
       let message = '';
       let subject = '';
       if (Model === SubGroup) {
@@ -55,7 +58,9 @@ exports.createOne = (Model, options) =>
         subject = 'У Вас нова заміна';
       }
       try {
-        const user = await User.findByPk(req.body.userId || req.body.mentorId);
+        const user = await User.findByPk(
+          req.body.userId || req.body.softMentorId || req.body.techMentorId
+        );
         if (user) {
           await sendEmail({
             email: user.email,
@@ -90,10 +95,11 @@ exports.getAll = Model =>
       exclude: [Model === User ? 'password' : '']
     };
     if (req.query.sortBySubgroups)
+      // contains soft-tech
       attributes.include = [
         [
           Sequelize.literal(
-            '(SELECT COUNT(*) FROM "SubGroups" WHERE "SubGroups"."mentorId" = "User"."id")'
+            `(SELECT COUNT(*) FROM "SubGroups" WHERE "SubGroups"."${req.query.sortBySubgroups}MentorId" = "User"."id")`
           ),
           'subgroupCount'
         ]
