@@ -3,7 +3,7 @@ const User = require('./user.model');
 const Role = require('./role.model');
 const {Course, TeacherCourse} = require('./course.model');
 const {Slot, Appointment_Type} = require('./slot.model');
-const SubGroup = require('./subgroup.model');
+const {SubGroup, SubgroupMentor} = require('./subgroup.model');
 const Replacement = require('./replacement.model');
 const {TeacherType} = require('./teacher-type.model');
 
@@ -41,30 +41,40 @@ TeacherCourse.belongsTo(TeacherType, {
 User.hasMany(SubGroup, {foreignKey: 'adminId', as: 'AdminSubGroups'});
 SubGroup.belongsTo(User, {foreignKey: 'adminId', as: 'Admin'});
 
-User.hasMany(SubGroup, {
-  foreignKey: 'softMentorId',
-  as: 'SoftMentorSubGroups',
-  onDelete: 'CASCADE'
-});
-User.hasMany(SubGroup, {
-  foreignKey: 'techMentorId',
-  as: 'TechMentorSubGroups',
-  onDelete: 'CASCADE'
-});
-
 Replacement.belongsTo(User, {foreignKey: 'mentorId', as: 'Mentor'});
 
 Course.hasMany(SubGroup);
 SubGroup.belongsTo(Course);
 
-SubGroup.hasMany(Slot, {onDelete: 'CASCADE'});
-Slot.belongsTo(SubGroup);
+Slot.belongsTo(SubGroup, {foreignKey: 'subgroupId'});
+SubGroup.hasMany(Slot, {foreignKey: 'subgroupId', onDelete: 'CASCADE'});
 
 Replacement.hasMany(Slot, {onDelete: 'CASCADE'});
 Slot.belongsTo(Replacement);
 
 Replacement.belongsTo(SubGroup);
 SubGroup.hasMany(Replacement, {onDelete: 'CASCADE'});
+
+User.belongsToMany(SubGroup, {
+  through: SubgroupMentor,
+  foreignKey: 'mentorId',
+  otherKey: 'subgroupId',
+  as: 'mentorSubgroups',
+  onDelete: 'CASCADE'
+});
+
+SubGroup.belongsToMany(User, {
+  through: SubgroupMentor,
+  foreignKey: 'subgroupId',
+  otherKey: 'mentorId',
+  as: 'mentors',
+  onDelete: 'CASCADE'
+});
+SubGroup.hasMany(SubgroupMentor, {foreignKey: 'subgroupId'});
+SubgroupMentor.belongsTo(SubGroup, {foreignKey: 'subgroupId'});
+
+SubgroupMentor.belongsTo(TeacherType);
+TeacherType.hasMany(SubgroupMentor);
 
 User.beforeFind(async options => {
   options.attributes = options.attributes || {};
@@ -126,6 +136,11 @@ Slot.beforeFind(async options => {
           as: 'Admin',
           attributes: ['name'],
           foreignKey: 'adminId'
+        },
+        {
+          model: SubgroupMentor,
+          foreignKey: 'subgroupId',
+          include: TeacherType
         }
       ]
     },
@@ -174,6 +189,7 @@ module.exports = {
   Slot,
   Appointment_Type,
   SubGroup,
+  SubgroupMentor,
   Replacement,
   TeacherType
 };

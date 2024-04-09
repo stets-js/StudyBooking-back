@@ -1,5 +1,12 @@
 const factory = require('./factory.controller');
-const {SubGroup, Slot, User, Appointment_Type, Course} = require('../models/relation');
+const {
+  SubGroup,
+  Slot,
+  User,
+  Appointment_Type,
+  Course,
+  SubgroupMentor
+} = require('../models/relation');
 const catchAsync = require('../utils/catchAsync');
 
 exports.getAllSubGroups = factory.getAll(SubGroup);
@@ -19,4 +26,15 @@ exports.createSubGroup = factory.createOne(SubGroup);
 
 exports.deleteSubGroup = factory.deleteOne(SubGroup);
 
-exports.updateSubGroup = factory.updateOne(SubGroup);
+exports.updateSubGroup = catchAsync(async (req, res, next) => {
+  // for now its updating subgroup + creating new row in SubgroupMentor
+  let id = req.params.id;
+
+  const body = req.body;
+  const subgroup = await SubGroup.update(body, {where: {id}});
+  const subgroupMentor = await SubgroupMentor.create(req.body);
+  res.json({
+    data: subgroup,
+    subgroupMentor
+  });
+});

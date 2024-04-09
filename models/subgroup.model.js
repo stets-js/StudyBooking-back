@@ -1,6 +1,8 @@
 const Sequelize = require('sequelize');
 
 const sequelize = require('../db');
+const User = require('./user.model');
+const {TeacherType} = require('./teacher-type.model');
 
 const SubGroup = sequelize.define('SubGroup', {
   link: {
@@ -20,13 +22,41 @@ const SubGroup = sequelize.define('SubGroup', {
     default: new Date()
     // allowNull: false
   },
-  schedule: {
-    type: Sequelize.TEXT
-    // allowNull: false
-  },
+  // schedule: {
+  //   type: Sequelize.TEXT
+  //   // allowNull: false
+  // },
   description: {
     type: Sequelize.STRING
   }
 });
 
-module.exports = SubGroup;
+const SubgroupMentor = sequelize.define('SubgroupMentor', {
+  schedule: {
+    type: Sequelize.TEXT
+    // allowNull: false
+  },
+  mentorId: {
+    type: Sequelize.DataTypes.INTEGER,
+    references: {
+      model: User,
+      key: 'id'
+    }
+  },
+  subgroupId: {
+    type: Sequelize.DataTypes.INTEGER,
+    references: {
+      model: SubGroup,
+      key: 'id'
+    }
+  },
+  TeacherTypeId: {
+    type: Sequelize.DataTypes.INTEGER,
+    references: {
+      model: TeacherType,
+      key: 'id'
+    }
+  }
+});
+
+module.exports = {SubGroup, SubgroupMentor};

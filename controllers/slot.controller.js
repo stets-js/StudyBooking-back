@@ -73,14 +73,15 @@ exports.bulkUpdate = catchAsync(async (req, res, next) => {
   if (!req.body.appointmentTypeId) {
     return res.status(400).json({message: 'error not enough info'});
   }
-  const universalId = await Appointment_Type.findOne({where: {name: 'universal'}});
+  // const universalId = await Appointment_Type.findOne({where: {name: 'universal'}});
+  const universalId = 6; // !!!
   const bodyForUpdate = {
     appointmentTypeId: req.body.appointmentTypeId,
     startDate: req.body.startDate,
     endDate: req.body.endDate
   };
   if (req.body.replacementId) bodyForUpdate.ReplacementId = req.body.replacementId;
-  else bodyForUpdate.SubGroupId = req.body.subgroupId;
+  else bodyForUpdate.subgroupId = req.body.subgroupId;
   const docs = await Slot.update(bodyForUpdate, {
     where: {
       weekDay: req.body.weekDay,
