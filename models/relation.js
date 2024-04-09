@@ -128,7 +128,7 @@ Slot.beforeFind(async options => {
     },
     {
       model: SubGroup,
-      attributes: ['id', 'name', 'description', 'startDate', 'endDate', 'link', 'schedule'],
+      attributes: ['id', 'name', 'description', 'startDate', 'endDate', 'link'],
       include: [
         Course,
         {
