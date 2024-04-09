@@ -8,6 +8,10 @@ const Course = sequelize.define('Course', {
     type: Sequelize.STRING(200),
     allowNull: false
   },
+  shortening: {
+    type: Sequelize.STRING(50),
+    default: ''
+  },
   group_amount: {type: Sequelize.INTEGER, defaultValue: 0}
 });
 const TeacherCourse = sequelize.define('TeacherCourse', {
@@ -24,7 +28,6 @@ const TeacherCourse = sequelize.define('TeacherCourse', {
       model: Course,
       key: 'id'
     }
-  },
-  
+  }
 });
 module.exports = {Course, TeacherCourse};
