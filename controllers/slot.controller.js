@@ -1,9 +1,48 @@
 const {Op} = require('sequelize');
 const {addDays} = require('date-fns');
-const {Slot, Appointment_Type} = require('../models/relation');
+const {Slot, SubGroup, User, SubgroupMentor, TeacherType, Course} = require('../models/relation');
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./factory.controller');
-exports.getAllSlots = factory.getAll(Slot);
+exports.getAllSlots = catchAsync(async (req, res, next) => {
+  let document;
+
+  document = await Slot.findAll({
+    where: req.whereClause,
+    include: [
+      {
+        model: SubGroup,
+        attributes: ['id', 'name', 'description', 'startDate', 'endDate', 'link'],
+        include: [
+          Course,
+          {
+            model: User,
+            as: 'Admin',
+            attributes: ['name'],
+            foreignKey: 'adminId'
+          },
+          {
+            model: SubgroupMentor,
+            foreignKey: 'subgroupId',
+            include: TeacherType,
+            where: {
+              mentorId: req.params.id
+            }
+          }
+        ]
+      }
+    ],
+    order: [
+      ['weekDay', 'ASC'],
+      ['time', 'ASC']
+    ]
+  });
+
+  return res.json({
+    status: 'success',
+    results: document.length,
+    data: document
+  });
+});
 
 exports.getSlotById = factory.getOne(Slot);
 

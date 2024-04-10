@@ -126,24 +126,7 @@ Slot.beforeFind(async options => {
       model: Appointment_Type,
       attributes: ['id', 'name']
     },
-    {
-      model: SubGroup,
-      attributes: ['id', 'name', 'description', 'startDate', 'endDate', 'link'],
-      include: [
-        Course,
-        {
-          model: User,
-          as: 'Admin',
-          attributes: ['name'],
-          foreignKey: 'adminId'
-        },
-        {
-          model: SubgroupMentor,
-          foreignKey: 'subgroupId',
-          include: TeacherType
-        }
-      ]
-    },
+
     {
       model: Replacement,
       attributes: ['id', 'schedule', 'description'],

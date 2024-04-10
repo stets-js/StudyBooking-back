@@ -115,11 +115,6 @@ exports.getAll = Model =>
                 ['rating', 'DESC']
               ]
             : [['rating', 'DESC']]
-          : Model === Slot
-          ? [
-              ['weekDay', 'ASC'],
-              ['time', 'ASC']
-            ]
           : []
     });
 
