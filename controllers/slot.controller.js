@@ -119,7 +119,7 @@ exports.bulkUpdate = catchAsync(async (req, res, next) => {
     startDate: req.body.startDate,
     endDate: req.body.endDate
   };
-  if (req.body.replacementId) bodyForUpdate.ReplacementId = req.body.replacementId;
+  if (req.body.ReplacementId) bodyForUpdate.ReplacementId = req.body.ReplacementId;
   else bodyForUpdate.subgroupId = req.body.subgroupId;
   const docs = await Slot.update(bodyForUpdate, {
     where: {
