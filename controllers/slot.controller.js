@@ -25,7 +25,7 @@ exports.getAllSlots = catchAsync(async (req, res, next) => {
             foreignKey: 'subgroupId',
             include: TeacherType,
             where: {
-              mentorId: req.params.id
+              mentorId: req.params.id || {[Op.in]: req.body.userIds}
             }
           }
         ]

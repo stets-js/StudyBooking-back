@@ -1,4 +1,4 @@
-const {User, Course, SubGroup} = require('../models/relation');
+const {User, Course, SubGroup, SubgroupMentor} = require('../models/relation');
 const {google} = require('googleapis');
 
 const spreadsheetId = process.env.SPREADSHEET_ID;
@@ -59,77 +59,77 @@ exports.updateSheet = async (req, res, next) => {
         },
         {
           model: SubGroup,
-          as: 'TechMentorSubGroups',
-          include: {model: Course, attributes: ['id', 'name']}
+          as: 'mentorSubgroups'
         }
       ]
     });
 
-    const rows = [
-      [
-        'Mentor',
-        'Email',
-        'Course count',
-        'Subgroup count',
-        'Course',
-        'Subgroup',
-        'Type',
-        'Schedule'
-      ]
-    ];
-    let mergeRanges = [];
-    let mergeSubgroupsRanges = [];
-    let cursor = {start: 2, end: 2}; // 1 is header
-    let subgroupCursor = {start: 2, end: 2};
-    users.forEach(user => {
-      cursor.start = cursor.end;
-      subgroupCursor.start = cursor.start;
-      subgroupCursor.end = cursor.end;
-      let rowValues = [];
-      let subGroupLen = user.MentorSubGroups.length;
-      let coursesLen = user.teachingCourses.length;
-      rowValues[0] = user.name;
-      rowValues[1] = user.email;
-      rowValues[2] = coursesLen;
-      rowValues[3] = subGroupLen;
-      user.teachingCourses.forEach(course => {
-        subgroupCursor.start = subgroupCursor.end; // every new course must be new group of subgroups
+    // const rows = [
+    //   [
+    //     'Mentor',
+    //     'Email',
+    //     'Course count',
+    //     'Subgroup count',
+    //     'Course',
+    //     'Subgroup',
+    //     'Type',
+    //     'Schedule'
+    //   ]
+    // ];
+    // let mergeRanges = [];
+    // let mergeSubgroupsRanges = [];
+    // let cursor = {start: 2, end: 2}; // 1 is header
+    // let subgroupCursor = {start: 2, end: 2};
+    // users.forEach(user => {
+    //   cursor.start = cursor.end;
+    //   subgroupCursor.start = cursor.start;
+    //   subgroupCursor.end = cursor.end;
+    //   let rowValues = [];
+    //   let subGroupLen = user.MentorSubGroups.length;
+    //   let coursesLen = user.teachingCourses.length;
+    //   rowValues[0] = user.name;
+    //   rowValues[1] = user.email;
+    //   rowValues[2] = coursesLen;
+    //   rowValues[3] = subGroupLen;
+    //   user.teachingCourses.forEach(course => {
+    //     subgroupCursor.start = subgroupCursor.end; // every new course must be new group of subgroups
 
-        rowValues[4] = course.name;
-        const subgroups = user.MentorSubGroups.filter(el => el.CourseId === course.id);
+    //     rowValues[4] = course.name;
+    //     const subgroups = user.MentorSubGroups.filter(el => el.CourseId === course.id);
 
-        if (subgroups.length > 0) {
-          subgroups.forEach(group => {
-            rowValues[5] = group.name;
-            rowValues[6] = 'type';
-            rowValues[7] = group.schedule;
-            rows.push([...rowValues]);
-            cursor.end += 1;
-            subgroupCursor.end += 1;
-          });
-          mergeSubgroupsRanges.push({start: subgroupCursor.start, end: subgroupCursor.end});
-        } else {
-          for (let i = 5; i <= 7; i++) rowValues[i] = null;
-          rows.push([...rowValues]);
-          cursor.end += 1;
-        }
-      });
-      mergeRanges.push({start: cursor.start, end: cursor.end});
-    });
+    //     if (subgroups.length > 0) {
+    //       subgroups.forEach(group => {
+    //         rowValues[5] = group.name;
+    //         rowValues[6] = 'type';
+    //         rowValues[7] = group.schedule;
+    //         rows.push([...rowValues]);
+    //         cursor.end += 1;
+    //         subgroupCursor.end += 1;
+    //       });
+    //       mergeSubgroupsRanges.push({start: subgroupCursor.start, end: subgroupCursor.end});
+    //     } else {
+    //       for (let i = 5; i <= 7; i++) rowValues[i] = null;
+    //       rows.push([...rowValues]);
+    //       cursor.end += 1;
+    //     }
+    //   });
+    //   mergeRanges.push({start: cursor.start, end: cursor.end});
+    // });
 
-    const resource = {
-      spreadsheetId,
-      range: 'Mentors',
-      valueInputOption: 'RAW',
-      resource: {values: rows}
-    };
-    await sheets.spreadsheets.values.update(resource);
-    mergeCells(sheets, mergeRanges, 0, 3);
-    mergeCells(sheets, mergeSubgroupsRanges, 4, 4);
+    // const resource = {
+    //   spreadsheetId,
+    //   range: 'Sheet3',
+    //   valueInputOption: 'RAW',
+    //   resource: {values: rows}
+    // };
+    // await sheets.spreadsheets.values.update(resource);
+    // mergeCells(sheets, mergeRanges, 0, 3);
+    // mergeCells(sheets, mergeSubgroupsRanges, 4, 4);
 
     // Return the URL of the created spreadsheet
     res.json({
       spreadsheetUrl: `https://docs.google.com/spreadsheets/d/${spreadsheetId}`,
+      users,
       message: 'updated spreadsheet'
     });
   } catch (error) {
