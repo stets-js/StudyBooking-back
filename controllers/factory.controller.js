@@ -1,5 +1,4 @@
 const {Op, literal, Sequelize} = require('sequelize');
-const {format, sub} = require('date-fns');
 const {User, SubGroup, Replacement, Course, Slot} = require('../models/relation');
 const catchAsync = require('./../utils/catchAsync');
 
@@ -30,46 +29,7 @@ exports.deleteOne = Model =>
 exports.createOne = (Model, options) =>
   catchAsync(async (req, res, next) => {
     const document = await Model.create(req.body);
-    // document.mentorId is temp flag for not sending email when empty subgroup creating
-    if (
-      (Model === SubGroup || Model === Replacement) &&
-      (document.softMentorId || document.techMentorId)
-    ) {
-      let message = '';
-      let subject = '';
-      if (Model === SubGroup) {
-        message = `<div styles="font-family:"Poppins", sans-serif; font-size:20px;><h3>Потік під назвою ${
-          req.body.name
-        } створено!<h3>
-      <h4>Дата ${format(req.body.startDate, 'yyyy-MM-dd')}, - ${format(
-          req.body.endDate,
-          'yyyy-MM-dd'
-        )}</h4>
-      <div>Графік ${req.body.schedule}.<br>
-      Посилання: ${req.body.link}.<br>
-      Опис: ${req.body.description}.<br></div></div>
-     `;
-        subject = 'У Вас новий потік';
 
-        await Course.increment({group_amount: 1}, {where: {id: req.body.CourseId}});
-      } else {
-        message = `<div styles="font-family:"Poppins", sans-serif; font-size:20px;><h2>Була назначена заміна, перевірте свій календар.</h2>
-        <h3>Повідомленя до заміни: ${req.body.description}</h3></div>`;
-        subject = 'У Вас нова заміна';
-      }
-      try {
-        const user = await User.findByPk(
-          req.body.userId || req.body.softMentorId || req.body.techMentorId
-        );
-        if (user) {
-          await sendEmail({
-            email: user.email,
-            subject,
-            html: message
-          });
-        }
-      } catch (e) {}
-    }
     res.status(201).json({
       status: 'success',
       data: document
@@ -99,7 +59,7 @@ exports.getAll = Model =>
       attributes.include = [
         [
           Sequelize.literal(
-            `(SELECT COUNT(*) FROM "SubGroups" WHERE "SubGroups"."${req.query.sortBySubgroups}MentorId" = "User"."id")`
+            `(SELECT COUNT(*) FROM "SubgroupMentors" WHERE "SubgroupMentors"."mentorId" = "User"."id")`
           ),
           'subgroupCount'
         ]
