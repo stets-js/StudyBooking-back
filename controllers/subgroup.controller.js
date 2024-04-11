@@ -21,11 +21,9 @@ exports.createSubGroup = factory.createOne(SubGroup);
 
 exports.deleteSubGroup = factory.deleteOne(SubGroup);
 
-exports.updateSubGroup = catchAsync(async (req, res, next) => {
+exports.updateSubGroupAndAddMentor = catchAsync(async (req, res, next) => {
   // for now its updating subgroup + creating new row in SubgroupMentor
   let id = req.params.id;
-  let err = {}; // TMP !!
-  let user = {};
   const body = req.body;
   const subgroup = await SubGroup.update(body, {where: {id}});
   const subgroupMentor = await SubgroupMentor.create(req.body);
@@ -46,7 +44,7 @@ exports.updateSubGroup = catchAsync(async (req, res, next) => {
   await Course.increment({group_amount: 1}, {where: {id: +req.body.selectedCourse}});
 
   try {
-    user = await User.findByPk(subgroupMentor.mentorId);
+    const user = await User.findByPk(subgroupMentor.mentorId);
     if (user) {
       await sendEmail({
         email: user.email,
@@ -54,13 +52,20 @@ exports.updateSubGroup = catchAsync(async (req, res, next) => {
         html: message
       });
     }
-  } catch (e) {
-    err = e;
-  }
+  } catch (e) {}
   res.json({
     data: subgroup,
-    subgroupMentor,
-    err,
-    user
+    subgroupMentor
+  });
+});
+
+exports.updateSubGroup = catchAsync(async (req, res, next) => {
+  // for now its updating subgroup + creating new row in SubgroupMentor
+  let id = req.params.id;
+  const body = req.body;
+  const subgroup = await SubGroup.update(body, {where: {id}});
+
+  res.json({
+    data: subgroup
   });
 });
