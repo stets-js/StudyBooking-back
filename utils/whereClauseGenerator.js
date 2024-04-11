@@ -4,13 +4,13 @@ const catchAsync = require('./catchAsync');
 module.exports = catchAsync(async (req, res, next) => {
   const clause = {};
   // for available subGroup part
-  if (req.query.type) clause['SubGroupId'] = {[Op.ne]: null};
+  // for one day subgroup table
+  if (req.query.type) clause['subgroupId'] = {[Op.ne]: null};
   if (req.query.weekDay) clause['weekDay'] = req.query.weekDay;
   if (req.query.endSubGroup) clause['endDate'] = {[Op.gte]: new Date(req.query.endSubGroup)};
+  if (req.query.startSubGroup) clause['startDate'] = {[Op.lte]: new Date(req.query.startSubGroup)};
 
   if (req.query.mentorId) clause['mentorId'] = req.query.mentorId;
-  if (req.query.softMentorId) clause['softMentorId'] = req.query.softMentorId;
-  if (req.query.techMentorId) clause['techMentorId'] = req.query.techMentorId;
 
   if (req.query.name) clause['name'] = {[Op.iLike]: `%${req.query.name}%`};
   if (req.query.CourseId) clause['CourseId'] = req.query.CourseId;

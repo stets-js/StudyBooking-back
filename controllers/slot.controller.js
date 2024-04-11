@@ -4,9 +4,9 @@ const {Slot, SubGroup, User, SubgroupMentor, TeacherType, Course} = require('../
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./factory.controller');
 exports.getAllSlots = catchAsync(async (req, res, next) => {
-  let document;
-
-  document = await Slot.findAll({
+  let where = {};
+  if (req.params.id || req.body.userIds) where.mentorId = req.params.id || req.body.userIds;
+  const document = await Slot.findAll({
     where: req.whereClause,
     include: [
       {
@@ -24,9 +24,7 @@ exports.getAllSlots = catchAsync(async (req, res, next) => {
             model: SubgroupMentor,
             foreignKey: 'subgroupId',
             include: TeacherType,
-            where: {
-              mentorId: req.params.id || {[Op.in]: req.body.userIds}
-            }
+            where
           }
         ]
       }
