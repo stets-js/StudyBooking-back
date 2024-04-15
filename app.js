@@ -18,6 +18,8 @@ const createBasicTeacherTypes = require('./utils/createBasicTeacherTypes');
 const teacherTypeRoutes = require('./routes/teacher-type.route');
 const subgroupMentorRoutes = require('./routes/subgroup-mentor.route');
 
+const newSubgroups = require('./tableScrapper');
+
 const app = express();
 
 //development loging
@@ -61,4 +63,5 @@ app.all('*', (req, res, next) => {
 
 createBasicRoles();
 createBasicTeacherTypes();
+// newSubgroups();
 module.exports = app;

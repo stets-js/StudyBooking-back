@@ -1,10 +1,30 @@
+const {Sequelize} = require('sequelize');
 const {Course, TeacherCourse} = require('../models/relation');
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./factory.controller');
 
 exports.getAllCourses = factory.getAll(Course);
 
-exports.getCourseById = factory.getOne(Course);
+exports.getCourseById = catchAsync(async (req, res, next) => {
+  const attributes = {
+    include: [
+      [
+        Sequelize.literal(
+          `(SELECT COUNT(*) FROM "SubGroups" WHERE "SubGroups"."CourseId" =${req.params.id})`
+        ),
+        'group_amount'
+      ]
+    ]
+  };
+  const document = await Course.findOne({where: {id: req.params.id}, attributes});
+  if (!document) {
+    return res.status(404).json({message: `No document find with id ${req.params.id}`});
+  }
+  res.json({
+    status: 'success',
+    data: document
+  });
+});
 
 exports.createCourse = factory.createOne(Course);
 

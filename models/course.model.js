@@ -2,6 +2,7 @@ const Sequelize = require('sequelize');
 
 const sequelize = require('../db');
 const User = require('./user.model');
+const {SubGroup} = require('./subgroup.model');
 
 const Course = sequelize.define('Course', {
   name: {
@@ -11,8 +12,7 @@ const Course = sequelize.define('Course', {
   shortening: {
     type: Sequelize.STRING(50),
     default: ''
-  },
-  group_amount: {type: Sequelize.INTEGER, defaultValue: 0}
+  }
 });
 const TeacherCourse = sequelize.define('TeacherCourse', {
   userId: {
