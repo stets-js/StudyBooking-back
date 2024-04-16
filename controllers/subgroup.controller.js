@@ -41,8 +41,6 @@ exports.updateSubGroupAndAddMentor = catchAsync(async (req, res, next) => {
    `;
   subject = 'Вас призначенно на новий потік!';
 
-  await Course.increment({group_amount: 1}, {where: {id: +req.body.selectedCourse}});
-
   try {
     const user = await User.findByPk(subgroupMentor.mentorId);
     if (user) {

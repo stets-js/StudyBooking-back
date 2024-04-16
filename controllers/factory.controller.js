@@ -16,10 +16,7 @@ exports.deleteOne = Model =>
       if (roleLevel.indexOf(req.user.Role.name) > roleLevel.indexOf(document.Role.name))
         return res.status(400).json({message: 'You dont have right to delete this user.'});
     }
-    if (Model === SubGroup) {
-      await Course.increment({group_amount: -1}, {where: {id: document.CourseId}});
-      await Replacement.destroy({where: {SubGroupId: id}});
-    }
+
     if (!document)
       return res.status(400).json({message: 'No document find with id ' + req.params.id});
     await document.destroy();
