@@ -13,19 +13,19 @@ exports.getAllSlots = catchAsync(async (req, res, next) => {
         model: SubGroup,
         attributes: ['id', 'name', 'description', 'startDate', 'endDate', 'link'],
         include: [
-          Course,
-          {
-            model: User,
-            as: 'Admin',
-            attributes: ['name'],
-            foreignKey: 'adminId'
-          },
-          {
-            model: SubgroupMentor,
-            foreignKey: 'subgroupId',
-            include: TeacherType,
-            where
-          }
+          Course
+          // {
+          //   model: User,
+          //   as: 'Admin',
+          //   attributes: ['name'],
+          //   foreignKey: 'adminId'
+          // },
+          // {
+          //   model: SubgroupMentor,
+          //   foreignKey: 'subgroupId',
+          //   include: TeacherType,
+          //   where
+          // }
         ]
       }
     ],
@@ -139,4 +139,9 @@ exports.bulkUpdate = catchAsync(async (req, res, next) => {
     });
   });
   res.status(200).json({docs});
+});
+
+exports.bulkCreate = catchAsync(async (req, res, next) => {
+  const docs = await Slot.bulkCreate(req.body);
+  res.status(201).json({data: docs, body: req.body});
 });

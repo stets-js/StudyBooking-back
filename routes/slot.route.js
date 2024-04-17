@@ -11,12 +11,15 @@ router
   .get(authController.protect, whereClauseGenerator, slotController.getAllSlots)
   .post(authController.protect, whereClauseGenerator, slotController.getAllSlots);
 
-router.patch(
-  '/bulk',
-  authController.protect,
-  // authController.allowedTo('administrator'),
-  slotController.bulkUpdate
-);
+router
+  .route('/bulk')
+  .patch(
+    authController.protect,
+    // authController.allowedTo('administrator'),
+    slotController.bulkUpdate
+  )
+  .post(slotController.bulkCreate);
+
 router.use(authController.protect, authController.allowedTo(['administrator', 'superAdmin']));
 router
   .route('/:id')
