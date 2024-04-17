@@ -13,19 +13,19 @@ exports.getAllSlots = catchAsync(async (req, res, next) => {
         model: SubGroup,
         attributes: ['id', 'name', 'description', 'startDate', 'endDate', 'link'],
         include: [
-          Course
-          // {
-          //   model: User,
-          //   as: 'Admin',
-          //   attributes: ['name'],
-          //   foreignKey: 'adminId'
-          // },
-          // {
-          //   model: SubgroupMentor,
-          //   foreignKey: 'subgroupId',
-          //   include: TeacherType,
-          //   where
-          // }
+          Course,
+          {
+            model: User,
+            as: 'Admin',
+            attributes: ['name'],
+            foreignKey: 'adminId'
+          },
+          {
+            model: SubgroupMentor,
+            foreignKey: 'subgroupId',
+            include: TeacherType,
+            where
+          }
         ]
       }
     ],
