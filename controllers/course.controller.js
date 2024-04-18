@@ -3,7 +3,17 @@ const {Course, TeacherCourse} = require('../models/relation');
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./factory.controller');
 
-exports.getAllCourses = factory.getAll(Course);
+exports.getAllCourses = catchAsync(async (req, res, next) => {
+  const document = await Course.findAll({
+    where: req.whereClause
+  });
+
+  return res.json({
+    status: 'success',
+    results: document.length,
+    data: document
+  });
+});
 
 exports.getCourseById = catchAsync(async (req, res, next) => {
   const attributes = {

@@ -7,6 +7,7 @@ const whereClauseGenerator = require('../utils/whereClauseGenerator');
 const router = express.Router();
 
 router.use(authController.protect);
+router.route('/:id/courses').get(userController.getUserCourses);
 router
   .route('/:id/courses/:course_id')
   .post(userController.addUserCourse)
@@ -36,8 +37,6 @@ router
 
   .delete(userController.deleteUser)
   .patch(userController.updateUser);
-
-router.route('/:id/courses').get(userController.getUserCourses);
 
 router
   .route('/:subGroupId/mentorsForReplacement')

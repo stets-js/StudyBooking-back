@@ -8,7 +8,6 @@ const router = express.Router();
 
 router.route('/').get(whereClauseGenerator, subGroupController.getAllSubGroups);
 router.route('/:id').get(subGroupController.getSubGroupById);
-
 router.use(authController.protect);
 
 router.post('/', subGroupController.createSubGroup);

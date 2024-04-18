@@ -7,5 +7,5 @@ const whereClauseGenerator = require('../utils/whereClauseGenerator');
 const router = express.Router();
 
 router.route('/').get(whereClauseGenerator, subgroupMentorController.getAllSubgroupsMentor);
-
+router.route('/').post(whereClauseGenerator, subgroupMentorController.createSubgroupMentor);
 module.exports = router;
