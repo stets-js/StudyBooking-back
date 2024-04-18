@@ -19,7 +19,7 @@ const teacherTypeRoutes = require('./routes/teacher-type.route');
 const subgroupMentorRoutes = require('./routes/subgroup-mentor.route');
 
 const newSubgroups = require('./tableScrapper');
-
+const newUsers = require('./excel.js');
 const app = express();
 
 //development loging
@@ -64,4 +64,5 @@ app.all('*', (req, res, next) => {
 createBasicRoles();
 createBasicTeacherTypes();
 // newSubgroups();
+// newUsers();
 module.exports = app;
