@@ -16,7 +16,44 @@ const courseName = [
   'FRONTEND',
   'SoftSkills'
 ];
-
+const ids = {
+  'ADVANCED PROGRAM': 108,
+  ART: 109,
+  INTERNAL: 110,
+  MARATHON: 111,
+  MINI_COURSE: 112,
+  DEMO: 113,
+  SCHOOL_FOR_TEACHERS: 114,
+  SCHOOL: 115,
+  Design: 116,
+  DIGITAL_DESIGN: 117,
+  DESIGN_JUNIOR: 118,
+  FRONTEND: 119,
+  'FrontEnd Eng': 120,
+  FRONTEND_JUNIOR: 121,
+  GAMEDEV: 122,
+  'Graphic design': 123,
+  Logic: 124,
+  MATH: 125,
+  'Math 1': 126,
+  'Math 2': 127,
+  'Math 3': 128,
+  'Math 4': 129,
+  'Math 5': 130,
+  'Math 6': 131,
+  'Math Teens (7-9)': 132,
+  MINECRAFT: 133,
+  'Minecraft Ed': 134,
+  MINECRAFT_KIDS: 135,
+  'Motion design': 136,
+  PYTHON: 137,
+  PYTHON_JUNIOR: 138,
+  Roblox: 139,
+  'Roblox kids': 140,
+  SCRATCH: 141,
+  DRAWING: 142,
+  'Web design': 143
+};
 const newUsers = async () => {
   const startTime = performance.now();
   console.log('STARTED READING EXCEL');
@@ -27,7 +64,7 @@ const newUsers = async () => {
   const sheetNames = workbook.SheetNames;
 
   // Define a function to scrape data from a sheet
-  function scrapeSheet(sheetName) {
+  async function scrapeSheet(sheetName) {
     const sheet = workbook.Sheets[sheetName];
     const range = xlsx.utils.decode_range(sheet['!ref']);
 
@@ -58,46 +95,38 @@ const newUsers = async () => {
           rowData[courseName[courseIndex]] = cellValue;
         }
       }
-
-      // Push the rowData object to the data array
-      data.push(rowData);
+      try {
+        if (rowData.email) {
+          const doc = await User.create({
+            email: rowData.email,
+            name: rowData.name,
+            password: await bcrypt.hash('password', 12),
+            RoleId: 1
+          });
+          for (const key in rowData) {
+            if (rowData[key] === true && key !== 'name' && key !== 'email') {
+              const id = ids[key];
+              if (id) {
+                const res = await TeacherCourse.create({
+                  userId: doc.id,
+                  courseId: id,
+                  TeacherTypeId: 2
+                });
+              }
+            }
+          }
+        }
+      } catch (e) {
+        console.log(e);
+        console.log(rowData);
+      }
     }
 
     return data;
   }
 
-  // Example: Scrape data from the first sheet
-  const firstSheetName = sheetNames[0];
-  const scrapedData = scrapeSheet(firstSheetName);
-  console.log(teacherCount);
   // Display scraped data
-  console.log('READED!!!');
-
-  console.log('started user transfer');
-  scrapedData.forEach(async user => {
-    if (user.email) {
-      console.log(user.email);
-      const doc = await User.create({
-        email: user.email,
-        name: user.name,
-        password: await bcrypt.hash('password', 12),
-        RoleId: 1
-      });
-
-      for (const key in user) {
-        if (obj[key] === true && key !== 'name' && key !== 'email') {
-          const id = ids[key];
-          if (id) {
-            await TeacherCourse.create({
-              userId: doc.id,
-              courseId: id,
-              TeacherTypeId: 2
-            });
-          }
-        }
-      }
-    }
-  });
+  await scrapeSheet(sheetNames[0]);
   const endTime = performance.now();
   const elapsedTime = endTime - startTime;
   console.log('Ended');
