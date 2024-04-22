@@ -67,5 +67,5 @@ app.all('*', (req, res, next) => {
 // createBasicTeacherTypes();
 // newSubgroups();
 // newUsers();
-// mentorScrapper();
+// mentorScrapper()
 module.exports = app;
