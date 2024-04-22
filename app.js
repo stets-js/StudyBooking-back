@@ -18,8 +18,10 @@ const createBasicTeacherTypes = require('./utils/createBasicTeacherTypes');
 const teacherTypeRoutes = require('./routes/teacher-type.route');
 const subgroupMentorRoutes = require('./routes/subgroup-mentor.route');
 
-const newSubgroups = require('./tableScrapper');
+const newSubgroups = require('./subgroupScrapper.js');
 const newUsers = require('./excel.js');
+const mentorScrapper = require('./mentorScrapper.js');
+
 const app = express();
 
 //development loging
@@ -61,8 +63,9 @@ app.all('*', (req, res, next) => {
   next(`Can't find ${req.originalUrl} on this server :#`, 404);
 });
 
-createBasicRoles();
-createBasicTeacherTypes();
+// createBasicRoles();
+// createBasicTeacherTypes();
 // newSubgroups();
 // newUsers();
+// mentorScrapper();
 module.exports = app;
