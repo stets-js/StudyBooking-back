@@ -4,7 +4,7 @@ const sequelize = require('../db');
 
 const TeacherType = sequelize.define('TeacherType', {
   type: {
-    type: Sequelize.ENUM('soft', 'tech'),
+    type: Sequelize.ENUM('soft', 'tech', 'ulti'),
     default: 'soft',
     allowNull: false
   }

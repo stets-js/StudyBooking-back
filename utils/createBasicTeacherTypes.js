@@ -8,7 +8,8 @@ const createBasicTeacherTypes = async () => {
       },
       {
         type: 'tech'
-      }
+      },
+      {type: 'ulti'}
     ];
 
     for (const type of basicTypes) {

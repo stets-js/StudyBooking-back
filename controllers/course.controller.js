@@ -1,4 +1,4 @@
-const {Sequelize} = require('sequelize');
+const {Sequelize, Op} = require('sequelize');
 const {Course, TeacherCourse} = require('../models/relation');
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./factory.controller');
@@ -45,11 +45,12 @@ exports.updateCourse = factory.updateOne(Course);
 exports.getTeachersForCourse = catchAsync(async (req, res, next) => {
   const where = {courseId: req.params.id};
   if (req.query.TeacherTypeId) {
-    where.TeacherTypeId = req.query.TeacherTypeId;
+    where.TeacherTypeId = {[Op.or]: [req.query.TeacherTypeId, 3]}; // 3 - is ulti
   }
   const teachers = await TeacherCourse.findAll({
     where,
-    attributes: ['userId']
+    attributes: ['userId'],
+    order: [['TeacherTypeId', 'ASC']]
   });
   res.status(200).json(teachers.map(record => record.userId));
 });
