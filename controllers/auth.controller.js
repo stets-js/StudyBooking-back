@@ -105,7 +105,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   }/resetPassword/${resetToken}`;
 
   const message = `Forgot password? Submit a patch request with youer new password and password confirm to: ${resetURL}`; // !!! WRITE SOMETHING MORE COOL
-  const html = `<h1>Forgot password?</h1><a href=${resetURL}><button>Click here</button></a>`;
+  const html = `<h1>Forgot password?</h1><a href="${resetURL}"><button>Click here</button></a>`;
   try {
     await sendEmail({
       email,
@@ -115,7 +115,10 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     });
     res.status(200).json({
       status: 'success',
-      message: 'Token sent to email!'
+      message: 'Token sent to email!',
+      resetURL,
+      resetToken,
+      html
     });
   } catch (error) {
     res.status(400).json({
