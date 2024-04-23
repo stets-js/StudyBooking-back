@@ -81,7 +81,11 @@ exports.protect = catchAsync(async (req, res, next) => {
   req.user = freshUser;
   next();
 });
-
+exports.mySelfOrAdmin = catchAsync(async (req, res, next) => {
+  if (req.user.Role.name !== 'teacher' || req.user.id === req.body.id) {
+    next();
+  } else return next(`You dont have permision :(`);
+});
 exports.allowedTo = roles => {
   return (req, res, next) => {
     if (!roles.includes(req.user.Role.name)) {

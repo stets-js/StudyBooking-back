@@ -25,6 +25,8 @@ router
   .patch(slotController.updateSlot)
   .delete(slotController.deleteSlot);
 
+router.route('/:id').patch(authController.mySelfOrAdmin, userController.updateUser);
+
 router.use(authController.allowedTo(['administrator', 'superAdmin']));
 
 router
@@ -35,8 +37,7 @@ router
 router
   .route('/:id')
 
-  .delete(userController.deleteUser)
-  .patch(userController.updateUser);
+  .delete(userController.deleteUser);
 
 router
   .route('/:subGroupId/mentorsForReplacement')

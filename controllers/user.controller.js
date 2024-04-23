@@ -25,7 +25,17 @@ exports.createUser = catchAsync(async (req, res, next) => {
 
 exports.deleteUser = factory.deleteOne(User);
 
-exports.updateUser = factory.updateOne(User);
+exports.updateUser = catchAsync(async (req, res, next) => {
+  let id = req.params.id;
+
+  const body = req.body;
+  delete body.password;
+  let updatedDoc = await User.update(body, {where: {id}});
+
+  res.json({
+    data: updatedDoc
+  });
+});
 
 exports.getUserCourses = catchAsync(async (req, res, next) => {
   const courses = await TeacherCourse.findAll({
