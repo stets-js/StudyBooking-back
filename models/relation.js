@@ -73,6 +73,9 @@ SubGroup.belongsToMany(User, {
 SubGroup.hasMany(SubgroupMentor, {foreignKey: 'subgroupId'});
 SubgroupMentor.belongsTo(SubGroup, {foreignKey: 'subgroupId'});
 
+User.hasMany(SubgroupMentor, {foreignKey: 'mentorId'});
+SubgroupMentor.belongsTo(User, {foreignKey: 'mentorId'});
+
 SubgroupMentor.belongsTo(TeacherType);
 TeacherType.hasMany(SubgroupMentor);
 

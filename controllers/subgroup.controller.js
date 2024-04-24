@@ -1,13 +1,22 @@
 const {format, sub} = require('date-fns');
 
 const factory = require('./factory.controller');
-const {SubGroup, SubgroupMentor, User, Course} = require('../models/relation');
+const {SubGroup, SubgroupMentor, User, TeacherType} = require('../models/relation');
 const catchAsync = require('../utils/catchAsync');
 const sendEmail = require('../utils/email');
 exports.getAllSubGroups = factory.getAll(SubGroup);
 
 exports.getSubGroupById = catchAsync(async (req, res, next) => {
-  const document = await SubGroup.findByPk(req.params.id);
+  const document = await SubGroup.findOne({
+    where: {id: req.params.id},
+    include: [
+      {
+        model: SubgroupMentor,
+        required: false,
+        include: [User, TeacherType]
+      }
+    ]
+  });
   if (!document) {
     return res.status(404).json({message: `No document find with id ${req.params.id}`});
   }
