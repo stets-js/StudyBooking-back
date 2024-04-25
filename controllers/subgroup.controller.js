@@ -4,7 +4,31 @@ const factory = require('./factory.controller');
 const {SubGroup, SubgroupMentor, User, TeacherType} = require('../models/relation');
 const catchAsync = require('../utils/catchAsync');
 const sendEmail = require('../utils/email');
-exports.getAllSubGroups = factory.getAll(SubGroup);
+exports.getAllSubGroups = catchAsync(async (req, res, next) => {
+  if (req.query.sortBySubgroups)
+    // contains soft-tech
+    attributes.include = [
+      [
+        Sequelize.literal(
+          `(SELECT COUNT(*) FROM "SubgroupMentors" WHERE "SubgroupMentors"."mentorId" = "User"."id")`
+        ),
+        'subgroupCount'
+      ]
+    ];
+
+  const document = await SubGroup.findAll({
+    where: req.whereClause,
+    offset: req.query.offset,
+    limit: req.query.limit
+  });
+
+  return res.json({
+    status: 'success',
+    results: document.length,
+    data: document,
+    newOffset: +req.query.offset + +req.query.limit
+  });
+});
 
 exports.getSubGroupById = catchAsync(async (req, res, next) => {
   const document = await SubGroup.findOne({

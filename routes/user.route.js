@@ -17,7 +17,8 @@ router.get('/:id', userController.getUserById);
 router
   .route('/:id/slots')
   .get(whereClauseGenerator, slotController.getAllSlots)
-  .post(slotController.createUserSlot);
+  .post(slotController.createUserSlot)
+  .delete(slotController.deleteSlots);
 
 router.route('/available-teachers/:weekDay/:courseId').get(userController.getFreeUsers);
 router

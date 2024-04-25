@@ -8,4 +8,5 @@ const router = express.Router();
 
 router.route('/').get(whereClauseGenerator, subgroupMentorController.getAllSubgroupsMentor);
 router.route('/').post(whereClauseGenerator, subgroupMentorController.createSubgroupMentor);
+router.route('/:subgroupId/:mentorId').delete(subgroupMentorController.deleteSubgroupMentor);
 module.exports = router;

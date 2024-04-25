@@ -28,3 +28,14 @@ exports.getAllSubgroupsMentor = catchAsync(async (req, res, next) => {
 });
 
 exports.createSubgroupMentor = factory.createOne(SubgroupMentor);
+
+exports.deleteSubgroupMentor = catchAsync(async (req, res, next) => {
+  const document = await SubgroupMentor.findOne({
+    where: {mentorId: req.params.mentorId, subgroupId: req.params.subgroupId}
+  });
+
+  if (!document)
+    return res.status(400).json({message: 'No document find with id ' + req.params.id});
+  await document.destroy();
+  res.status(204).json();
+});

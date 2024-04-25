@@ -52,6 +52,16 @@ exports.deleteSlot = factory.deleteOne(Slot);
 
 exports.updateSlot = factory.updateOne(Slot, {slot: true});
 
+exports.deleteSlots = catchAsync(async (req, res, next) => {
+  const document = await Slot.destroy({
+    where: {userId: req.params.id, subgroupId: req.query.subgroupId}
+  });
+
+  if (!document)
+    return res.status(400).json({message: 'No document find with id ' + req.params.id});
+  res.status(204).json();
+});
+
 exports.createUserSlot = catchAsync(async (req, res, next) => {
   let endDate = req.body.endDate || null;
   const prevSlot = await Slot.findOne({
