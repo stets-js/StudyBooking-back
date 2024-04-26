@@ -19,4 +19,5 @@ router
   .route('/:id')
   .delete(subGroupController.deleteSubGroup)
   .patch(subGroupController.updateSubGroup);
+router.route('/:id/json').get(subGroupController.subgroupJSON);
 module.exports = router;

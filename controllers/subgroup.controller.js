@@ -1,7 +1,9 @@
 const {format, sub} = require('date-fns');
+const fs = require('fs');
+const path = require('path');
 
 const factory = require('./factory.controller');
-const {SubGroup, SubgroupMentor, User, TeacherType} = require('../models/relation');
+const {SubGroup, SubgroupMentor, User, TeacherType, Course} = require('../models/relation');
 const catchAsync = require('../utils/catchAsync');
 const sendEmail = require('../utils/email');
 exports.getAllSubGroups = catchAsync(async (req, res, next) => {
@@ -98,5 +100,38 @@ exports.updateSubGroup = catchAsync(async (req, res, next) => {
 
   res.json({
     data: subgroup
+  });
+});
+
+exports.subgroupJSON = catchAsync(async (req, res, next) => {
+  const subgroup = await SubGroup.findOne({
+    where: {id: req.params.id},
+    include: [
+      // {
+      //   // model: User,
+      //   // as: 'Admin',
+      //   // attributes: ['name'],
+      //   // foreignKey: 'adminId',
+      //   // required: false
+      // },
+      {
+        model: SubgroupMentor,
+        foreignKey: 'subgroupId',
+        include: [TeacherType, {model: User, attributes: {exclude: ['password']}}],
+        required: false
+      }
+    ]
+  });
+  const filePath = path.join(__dirname, 'data.json');
+  fs.writeFileSync(filePath, JSON.stringify(subgroup));
+
+  // Отправляем файл клиенту
+  res.download(filePath, 'data.json', err => {
+    if (err) {
+      res.status(500).send('Ошибка при отправке файла');
+    } else {
+      // Удаляем временный файл после отправки
+      fs.unlinkSync(filePath);
+    }
   });
 });
