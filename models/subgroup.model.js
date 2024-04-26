@@ -12,16 +12,16 @@ const SubGroup = sequelize.define('SubGroup', {
     type: Sequelize.STRING,
     allowNull: false
   },
-  startDate: {
-    type: Sequelize.DATE,
-    default: new Date()
-    // allowNull: false
-  },
-  endDate: {
-    type: Sequelize.DATE,
-    default: new Date()
-    // allowNull: false
-  },
+  // startDate: {
+  //   type: Sequelize.DATE,
+  //   default: new Date()
+  //   // allowNull: false
+  // },
+  // endDate: {
+  //   type: Sequelize.DATE,
+  //   default: new Date()
+  //   // allowNull: false
+  // },
   // schedule: {
   //   type: Sequelize.TEXT
   //   // allowNull: false
