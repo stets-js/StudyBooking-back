@@ -72,13 +72,16 @@ exports.getAll = Model =>
                 ['rating', 'DESC']
               ]
             : [['rating', 'DESC']]
-          : []
+          : [],
+      offset: req.query.offset,
+      limit: req.query.limit
     });
 
     return res.json({
       status: 'success',
       results: document.length,
-      data: document
+      data: document,
+      newOffset: +req.query.offset + +req.query.limit
     });
   });
 
