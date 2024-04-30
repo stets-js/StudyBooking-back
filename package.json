@@ -20,6 +20,7 @@
     "googleapis": "^134.0.0",
     "http-errors": "~1.6.3",
     "jsonwebtoken": "^9.0.2",
+    "kafkajs": "^2.2.4",
     "moment-timezone": "^0.5.44",
     "morgan": "~1.9.1",
     "nodemailer": "^6.9.11",
