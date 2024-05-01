@@ -1,25 +1,28 @@
 const {SubGroup} = require('../models/subgroup.model');
 const {kafka} = require('./client');
 
-async function init() {
+async function consumeSubgroups() {
   const consumer = kafka.consumer({groupId: 'test'});
   await consumer.connect();
 
-  await consumer.subscribe({topics: ['Test-top'], fromBeginning: true});
+  await consumer.subscribe({topics: ['AddSubgroups'], fromBeginning: true});
 
   await consumer.run({
-    eachMessage: async ({topic, partition, message, heartbeat, pause}) => {
+    eachMessage: async ({topic, partition, message, heartbeat, pause, commitOffsets}) => {
       console.log(`1: [${topic}]: PART:${partition}:`, message.value.toString());
-      switch (topic) {
-        case 'addSubgroup':
-          await SubGroup.create(JSON.parse(message.value.toString()));
-          break;
 
-        default:
-          break;
+      try {
+        const subgroupData = JSON.parse(message.value.toString());
+        await SubGroup.create(subgroupData);
+
+        await commitOffsets([{topic, partition, offset: message.offset}]);
+
+        console.log('Success.');
+      } catch (error) {
+        console.error('Ошибка при создании SubGroup:', error);
       }
     }
   });
 }
 
-init();
+consumeSubgroups();
