@@ -53,16 +53,16 @@ const newSubgroups = async () => {
     .on('data', data => {
       if (data.specialization && data.is_archived !== 'true') {
         if (ids[data.specialization]) {
-          results.push({name: data.name, CourseId: ids[data.specialization]});
+          results.push({name: data.name, CourseId: ids[data.specialization], id: data.id});
         }
       }
     })
     .on('end', async () => {
       for (const res of results) {
-        await SubGroup.findOrCreate({
-          where: {name: res.name, CourseId: res.CourseId},
-          default: res,
-          logging: false
+        await SubGroup.create({
+          name: res.name,
+          CourseId: res.CourseId,
+          id: res.id
         });
       }
       const endTime = performance.now();

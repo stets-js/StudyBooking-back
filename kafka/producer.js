@@ -1,6 +1,6 @@
 const {kafka} = require('./client');
 
-async function sendMessage(message) {
+async function sendMessage({message, topic = 'Test-top'}) {
   const producer = kafka.producer();
 
   console.log('Connecting Producer');
@@ -8,7 +8,7 @@ async function sendMessage(message) {
   console.log('Producer Connected Successfully');
 
   await producer.send({
-    topic: 'Test-top',
+    topic,
     messages: [message]
   });
   await producer.disconnect();
