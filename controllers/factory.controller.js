@@ -1,5 +1,5 @@
 const {Op, literal, Sequelize} = require('sequelize');
-const {User, SubGroup, Replacement, Course, Slot} = require('../models/relation');
+const {User, SubGroup, Replacement, Course, Slot, Role} = require('../models/relation');
 const catchAsync = require('./../utils/catchAsync');
 
 const sendEmail = require('../utils/email');
@@ -76,11 +76,17 @@ exports.getAll = Model =>
       offset: req.query.offset,
       limit: req.query.limit
     });
+    totalCount = await Model.count({
+      include: {model: Role, required: false},
+      where: req.whereClause,
+      attributes
+    });
 
     return res.json({
       status: 'success',
       results: document.length,
       data: document,
+      totalCount,
       newOffset: +req.query.offset + +req.query.limit
     });
   });
