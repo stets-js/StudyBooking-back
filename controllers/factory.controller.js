@@ -12,8 +12,8 @@ exports.deleteOne = Model =>
     }
     const document = await Model.findByPk(id);
     if (Model === User) {
-      const roleLevel = ['superAdmin', 'administrator', 'teacher'];
-      if (roleLevel.indexOf(req.user.Role.name) > roleLevel.indexOf(document.Role.name))
+      const roleLevel = [3, 2, 1]; // super, admin, mentor
+      if (roleLevel.indexOf(req.user.RoleId) > roleLevel.indexOf(document.RoleId))
         return res.status(400).json({message: 'You dont have right to delete this user.'});
     }
 
