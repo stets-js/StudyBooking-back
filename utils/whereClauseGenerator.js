@@ -38,49 +38,49 @@ module.exports = catchAsync(async (req, res, next) => {
       ]
     };
   }
-  if (req.query.teachersFilter && req.query.courses) {
-    // I am sorry, but i killed more than 3 hours trying to get users -> teachersCourses <- courses
-    // association, so its corner case with pure SQL
-    // Filtering by courses for teachers
+  // if (req.query.teachersFilter && req.query.courses) {
+  //   // I am sorry, but i killed more than 4 hours trying to get users -> teachersCourses <- courses
+  //   // association, so its corner case with pure SQL
+  //   // Filtering by courses for teachers
 
-    const courseIdList = req.query.courses ? JSON.parse(req.query.courses) : [];
-    const userNameLike = req.query.name ? `%${req.query.name}%` : null;
+  //   const courseIdList = req.query.courses ? JSON.parse(req.query.courses) : [];
+  //   const userNameLike = req.query.name ? `%${req.query.name}%` : null;
 
-    const result = await sequelize.query(
-      `
-        SELECT "Users"."id", "Users"."name", "Users"."rating","Users"."email"
-        FROM "Users"
-        JOIN "TeacherCourses" ON "Users"."id" = "TeacherCourses"."userId"
-        JOIN "Courses" ON "TeacherCourses"."courseId" = "Courses"."id"
-        WHERE "Users"."RoleId" = 1
-          ${
-            courseIdList.length > 0
-              ? 'AND ARRAY(SELECT "courseId" FROM "TeacherCourses" WHERE "userId" = "Users"."id") @> ARRAY[:courseIds]'
-              : ''
-          }
-          ${userNameLike ? 'AND "Users"."name" iLIKE :userName' : ''}
-          GROUP BY "Users"."id"
-          ORDER BY "Users"."rating" DESC
-          OFFSET :offset
-          LIMIT :limit
-        `,
-      {
-        replacements: {
-          courseIds: courseIdList,
-          courseCount: courseIdList.length,
-          userName: userNameLike,
-          offset: req.query.offset,
-          limit: req.query.limit
-        },
-        type: sequelize.QueryTypes.SELECT
-      }
-    );
-    return res.status(200).json({
-      message: 'success',
-      data: result,
-      newOffset: +req.query.offset + +req.query.limit
-    });
-  }
+  //   const result = await sequelize.query(
+  //     `
+  //       SELECT "Users"."id", "Users"."name", "Users"."rating","Users"."email"
+  //       FROM "Users"
+  //       JOIN "TeacherCourses" ON "Users"."id" = "TeacherCourses"."userId"
+  //       JOIN "Courses" ON "TeacherCourses"."courseId" = "Courses"."id"
+  //       WHERE "Users"."RoleId" = 1
+  //         ${
+  //           courseIdList.length > 0
+  //             ? 'AND ARRAY(SELECT "courseId" FROM "TeacherCourses" WHERE "userId" = "Users"."id") @> ARRAY[:courseIds]'
+  //             : ''
+  //         }
+  //         ${userNameLike ? 'AND "Users"."name" iLIKE :userName' : ''}
+  //         GROUP BY "Users"."id"
+  //         ORDER BY "Users"."rating" DESC
+  //         OFFSET :offset
+  //         LIMIT :limit
+  //       `,
+  //     {
+  //       replacements: {
+  //         courseIds: courseIdList,
+  //         courseCount: courseIdList.length,
+  //         userName: userNameLike,
+  //         offset: req.query.offset,
+  //         limit: req.query.limit
+  //       },
+  //       type: sequelize.QueryTypes.SELECT
+  //     }
+  //   );
+  //   return res.status(200).json({
+  //     message: 'success',
+  //     data: result,
+  //     newOffset: +req.query.offset + +req.query.limit
+  //   });
+  // }
   req.whereClause = clause;
   next();
 });

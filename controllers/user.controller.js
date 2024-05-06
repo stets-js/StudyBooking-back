@@ -1,18 +1,63 @@
 const {Op, Sequelize} = require('sequelize');
-const {
-  User,
-  Course,
-  Slot,
-  Appointment_Type,
-  TeacherCourse,
-  TeacherType
-} = require('../models/relation');
+const {User, Course, Slot, TeacherCourse, TeacherType, Role} = require('../models/relation');
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./factory.controller');
 const sequelize = require('../db');
 const {format} = require('date-fns');
-const sendEmail = require('../utils/email');
-exports.getAllUsers = factory.getAll(User);
+
+exports.getAllUsers = catchAsync(async (req, res, next) => {
+  let document;
+  let attributes = {exclude: ['password']};
+  if (req.query.sortBySubgroups)
+    // contains soft-tech
+    attributes.include = [
+      [
+        Sequelize.literal(
+          `(SELECT COUNT(*) FROM "SubgroupMentors" WHERE "SubgroupMentors"."mentorId" = "User"."id")`
+        ),
+        'subgroupCount'
+      ]
+    ];
+
+  let includeOptions = [];
+
+  if (req.query.courses) {
+    // case of filtering users by courses
+    const courseIds = JSON.parse(req.query.courses);
+    includeOptions.push({
+      model: Course,
+      as: 'teachingCourses',
+      where: {id: {[Op.in]: courseIds}}
+    });
+  }
+  document = await User.findAll({
+    subQuery: false,
+    where: req.whereClause,
+    attributes,
+    include: includeOptions,
+    order: req.query.sortBySubgroups
+      ? [
+          [Sequelize.literal('"subgroupCount"'), 'ASC'],
+          ['rating', 'DESC']
+        ]
+      : [['rating', 'DESC']],
+    offset: req.query.offset,
+    limit: req.query.limit
+  });
+  totalCount = await User.count({
+    include: [...includeOptions, {model: Role, required: false}],
+    where: req.whereClause,
+    attributes
+  });
+
+  return res.json({
+    status: 'success',
+    results: document.length,
+    data: document,
+    totalCount,
+    newOffset: +req.query.offset + +req.query.limit
+  });
+});
 
 exports.getUserById = factory.getOne(User);
 
