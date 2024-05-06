@@ -2,7 +2,6 @@ const Sequelize = require('sequelize');
 
 const sequelize = require('../db');
 const User = require('./user.model');
-const {SubGroup} = require('./subgroup.model');
 
 const Course = sequelize.define('Course', {
   name: {
