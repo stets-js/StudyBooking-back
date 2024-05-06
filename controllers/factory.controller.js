@@ -75,7 +75,6 @@ exports.getAll = Model =>
       limit: req.query.limit
     });
     totalCount = await Model.count({
-      include: Model === User ? {model: Role, required: false} : {},
       where: req.whereClause,
       attributes
     });
