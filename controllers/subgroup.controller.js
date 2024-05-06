@@ -24,11 +24,15 @@ exports.getAllSubGroups = catchAsync(async (req, res, next) => {
     offset: req.query.offset,
     limit: req.query.limit
   });
+  totalCount = await SubGroup.count({
+    where: req.whereClause
+  });
 
   return res.json({
     status: 'success',
     results: document.length,
     data: document,
+    totalCount,
     newOffset: +req.query.offset + +req.query.limit
   });
 });
