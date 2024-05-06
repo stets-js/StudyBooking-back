@@ -6,6 +6,7 @@ const factory = require('./factory.controller');
 const {SubGroup, SubgroupMentor, User, TeacherType, Course} = require('../models/relation');
 const catchAsync = require('../utils/catchAsync');
 const sendEmail = require('../utils/email');
+
 exports.getAllSubGroups = catchAsync(async (req, res, next) => {
   if (req.query.sortBySubgroups)
     // contains soft-tech

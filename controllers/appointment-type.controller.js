@@ -1,5 +1,4 @@
 const {Appointment_Type} = require('../models/relation');
-const catchAsync = require('../utils/catchAsync');
 const factory = require('./factory.controller');
 
 exports.getAllAppointmentTypes = factory.getAll(Appointment_Type);

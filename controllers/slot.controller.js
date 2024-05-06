@@ -3,6 +3,7 @@ const {addDays} = require('date-fns');
 const {Slot, SubGroup, User, SubgroupMentor, TeacherType, Course} = require('../models/relation');
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./factory.controller');
+
 exports.getAllSlots = catchAsync(async (req, res, next) => {
   let where = {};
   if (req.params.id || req.body.userIds) where.mentorId = req.params.id || req.body.userIds;

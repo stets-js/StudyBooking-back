@@ -3,7 +3,7 @@ const moment = require('moment-timezone');
 const {promisify} = require('util');
 const sendEmail = require('../utils/email');
 const catchAsync = require('../utils/catchAsync');
-const {User, Role} = require('../models/relation');
+const {User} = require('../models/relation');
 
 const timeLeftTillMorning = () => {
   const nowInKiev = moment().tz('Europe/Kiev');

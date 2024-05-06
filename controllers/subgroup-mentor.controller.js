@@ -1,7 +1,6 @@
-const {sendMessage} = require('../kafka/producer');
 const {SubGroup, User, SubgroupMentor, Course} = require('../models/relation');
 const catchAsync = require('../utils/catchAsync');
-const factory = require('./factory.controller');
+
 exports.getAllSubgroupsMentor = catchAsync(async (req, res, next) => {
   const document = await SubgroupMentor.findAll({
     where: req.whereClause,

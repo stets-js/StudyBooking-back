@@ -1,4 +1,4 @@
-const {User, Course, SubGroup, SubgroupMentor} = require('../models/relation');
+const {User, Course, SubGroup} = require('../models/relation');
 const {google} = require('googleapis');
 
 const spreadsheetId = process.env.SPREADSHEET_ID;

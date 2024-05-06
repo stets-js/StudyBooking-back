@@ -1,8 +1,6 @@
-const {Op, literal, Sequelize} = require('sequelize');
-const {User, SubGroup, Replacement, Course, Slot, Role} = require('../models/relation');
+const {Sequelize} = require('sequelize');
+const {User, Role} = require('../models/relation');
 const catchAsync = require('./../utils/catchAsync');
-
-const sendEmail = require('../utils/email');
 
 exports.deleteOne = Model =>
   catchAsync(async (req, res, next) => {
