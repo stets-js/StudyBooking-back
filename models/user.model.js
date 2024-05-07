@@ -5,6 +5,14 @@ const sequelize = require('../db');
 
 const User = sequelize.define('User', {
   name: {type: Sequelize.STRING(80), allowNull: false},
+  photoUrl: {
+    type: Sequelize.STRING,
+    default:
+      'https://res.cloudinary.com/hzxyensd5/image/upload/v1715070791/jgxfj4poa4f8goi2toaq.jpg'
+  },
+  description: {
+    type: Sequelize.STRING
+  },
   rating: {
     type: Sequelize.FLOAT,
     allowNull: false,

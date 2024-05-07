@@ -47,7 +47,6 @@ app.use('/api', limiter);
 app.use(express.static(`${__dirname}/public`));
 
 // routes
-
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/roles', roleRoutes);
