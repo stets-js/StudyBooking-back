@@ -5,7 +5,7 @@ const authController = require('../controllers/auth.controller');
 const slotController = require('../controllers/slot.controller');
 const whereClauseGenerator = require('../utils/whereClauseGenerator');
 const router = express.Router();
-
+router.route('/').get(whereClauseGenerator, userController.getAllUsers);
 router.use(authController.protect);
 router.route('/:id/courses').get(userController.getUserCourses);
 router
@@ -32,7 +32,7 @@ router.use(authController.allowedTo(['administrator', 'superAdmin']));
 
 router
   .route('/')
-  .get(whereClauseGenerator, userController.getAllUsers)
+  // .get(whereClauseGenerator, userController.getAllUsers)
   .post(userController.createUser, authController.forgotPassword);
 
 router
