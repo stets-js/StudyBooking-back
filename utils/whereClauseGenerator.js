@@ -1,5 +1,6 @@
 const {Op} = require('sequelize');
 const catchAsync = require('./catchAsync');
+const {format} = require('date-fns');
 module.exports = catchAsync(async (req, res, next) => {
   const clause = {};
   // for available subGroup part
@@ -23,13 +24,20 @@ module.exports = catchAsync(async (req, res, next) => {
   if (req.params.id) clause.userId = req.params.id; // cause of Slot userId seact
   if (req.query.startDate) {
     clause.startDate = {
-      [Op.lte]: new Date(req.query.endDate)
+      [Op.lte]: req.query.endDate
     };
 
     clause.endDate = {
-      [Op.or]: [{[Op.eq]: null}, {[Op.gte]: new Date(req.query.startDate)}]
+      [Op.or]: [{[Op.eq]: null}, {[Op.gte]: req.query.startDate}]
     };
   }
+  if (req.query.startDateLesson) {
+    console.log(req.query.endDate);
+    clause.date = {
+      [Op.and]: [{[Op.gte]: req.query.startDateLesson}, {[Op.lte]: req.query.endDateLesson}]
+    };
+  }
+
   req.whereClause = clause;
   next();
 });

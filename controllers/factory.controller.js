@@ -84,7 +84,8 @@ exports.getAll = Model =>
       results: document.length,
       data: document,
       totalCount,
-      newOffset: +req.query.offset + +req.query.limit
+      newOffset: +req.query.offset + +req.query.limit,
+      body: req.query
     });
   });
 

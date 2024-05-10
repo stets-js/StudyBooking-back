@@ -124,7 +124,7 @@ exports.bulkUpdate = catchAsync(async (req, res, next) => {
     return res.status(400).json({message: 'error not enough info'});
   }
   // const universalId = await Appointment_Type.findOne({where: {name: 'universal'}});
-  const universalId = 6; // !!!
+
   const bodyForUpdate = {
     appointmentTypeId: req.body.appointmentTypeId,
     startDate: req.body.startDate,
@@ -139,22 +139,50 @@ exports.bulkUpdate = catchAsync(async (req, res, next) => {
       userId: req.body.userId
     }
   });
-  const endDateConverted = new Date(req.body.endDate);
-  const endDateIndex = endDateConverted.getDay() - 1;
-  const newStartDate = addDays(endDateConverted, 7 - (endDateIndex - 1 < 0 ? 6 : endDateIndex - 1));
-  await (req.body.time || []).forEach(async el => {
-    return await Slot.create({
-      userId: req.body.userId,
-      appointmentTypeId: universalId.id,
-      weekDay: req.body.weekDay,
-      startDate: newStartDate,
-      time: el
-    });
-  });
-  res.status(200).json({docs});
+  req.docs = docs;
+  next();
+});
+
+exports.bulkRemove = catchAsync(async (req, res, next) => {
+  // this func will remove slots under new subgroup
+  const docs = await Slot.destroy({where: {...req.whereClause, time: {[Op.in]: req.body.time}}});
+  next();
 });
 
 exports.bulkCreate = catchAsync(async (req, res, next) => {
   const docs = await Slot.bulkCreate(req.body);
   res.status(201).json({data: docs, body: req.body});
+});
+
+exports.bulkDeleteSlots = catchAsync(async (req, res, next) => {
+  if (!req.body.time) {
+    return res.status(400).json({message: 'error not enough info'});
+  }
+
+  const docs = await Slot.destroy({
+    where: {
+      weekDay: req.body.weekDay,
+      time: {[Op.in]: req.body.time},
+      userId: req.body.userId
+    }
+  });
+  req.docs = docs;
+  next();
+});
+
+exports.CreateSlotsAfterSubgroup = catchAsync(async (req, res, next) => {
+  const universalId = 6; // !!!
+  const endDateConverted = new Date(req.body.endDate);
+  const endDateIndex = endDateConverted.getDay() - 1;
+  const newStartDate = addDays(endDateConverted, 7 - (endDateIndex - 1 < 0 ? 6 : endDateIndex - 1));
+  const slots = await (req.body.time || []).forEach(async el => {
+    return await Slot.create({
+      userId: req.body.userId,
+      appointmentTypeId: universalId,
+      weekDay: req.body.weekDay,
+      startDate: newStartDate,
+      time: el
+    });
+  });
+  res.status(200).json({docs: req.docs, slots});
 });

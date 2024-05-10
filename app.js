@@ -17,6 +17,7 @@ const spreadsheetRoutes = require('./routes/spreadsheet.route');
 const createBasicTeacherTypes = require('./utils/createBasicTeacherTypes');
 const teacherTypeRoutes = require('./routes/teacher-type.route');
 const subgroupMentorRoutes = require('./routes/subgroup-mentor.route');
+const lessonRoutes = require('./routes/lesson.route.js');
 
 const newSubgroups = require('./subgroupScrapper.js');
 const newUsers = require('./excel.js');
@@ -58,6 +59,8 @@ app.use('/api/replacement', replacementRoutes);
 app.use('/api/spreadsheet', spreadsheetRoutes);
 app.use('/api/teacher-type', teacherTypeRoutes);
 app.use('/api/subgroup-mentor', subgroupMentorRoutes);
+app.use('/api/lessons', lessonRoutes);
+
 app.all('*', (req, res, next) => {
   next(`Can't find ${req.originalUrl} on this server :#`, 404);
 });

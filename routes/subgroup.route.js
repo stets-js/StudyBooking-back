@@ -13,7 +13,9 @@ router.use(authController.protect);
 router.post('/', subGroupController.createSubGroup);
 
 // this case of Updating subgroup + creating mentorSubgroup row
-router.route('/:id/creation').patch(subGroupController.updateSubGroupAndAddMentor);
+router
+  .route('/:id/creation')
+  .patch(subGroupController.updateSubGroupAndNext, subGroupController.addMentorToSubgroup);
 
 router
   .route('/:id')

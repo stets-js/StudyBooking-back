@@ -61,11 +61,17 @@ exports.createSubGroup = factory.createOne(SubGroup);
 
 exports.deleteSubGroup = factory.deleteOne(SubGroup);
 
-exports.updateSubGroupAndAddMentor = catchAsync(async (req, res, next) => {
+exports.updateSubGroupAndNext = catchAsync(async (req, res, next) => {
   // for now its updating subgroup + creating new row in SubgroupMentor
   let id = req.params.id;
   const body = req.body;
   const subgroup = await SubGroup.update(body, {where: {id}});
+  req.subgroup = subgroup;
+
+  next();
+});
+
+exports.addMentorToSubgroup = catchAsync(async (req, res, next) => {
   const subgroupMentor = await SubgroupMentor.create(req.body);
   let message = '';
   let subject = '';
@@ -92,13 +98,13 @@ exports.updateSubGroupAndAddMentor = catchAsync(async (req, res, next) => {
     }
   } catch (e) {}
   res.json({
-    data: subgroup,
+    data: req.subgroup,
     subgroupMentor
   });
 });
 
 exports.updateSubGroup = catchAsync(async (req, res, next) => {
-  // for now its updating subgroup + creating new row in SubgroupMentor
+  // for now its updating subgroup
   let id = req.params.id;
   const body = req.body;
   const subgroup = await SubGroup.update(body, {where: {id}});

@@ -7,6 +7,22 @@ const {SubGroup, SubgroupMentor} = require('./subgroup.model');
 const Replacement = require('./replacement.model');
 const {TeacherType} = require('./teacher-type.model');
 
+const {Lesson, LessonTopic, LessonSchedule, LessonSubgroup} = require('./lesson.model');
+
+Lesson.belongsTo(User, {foreignKey: 'mentorId'});
+User.hasMany(Lesson, {foreignKey: 'mentorId'});
+
+Lesson.belongsTo(LessonSchedule);
+LessonSchedule.hasMany(Lesson);
+
+Lesson.belongsTo(LessonTopic);
+LessonTopic.hasMany(Lesson);
+
+Lesson.belongsTo(Appointment_Type, {foreignKey: 'appointmentTypeId'});
+Appointment_Type.hasMany(Lesson, {foreignKey: 'appointmentTypeId'});
+
+Lesson.belongsTo(SubGroup, {foreignKey: 'subgroupId'});
+SubGroup.hasMany(Lesson, {foreignKey: 'subgroupId'});
 User.belongsTo(Role);
 Role.hasMany(User);
 
@@ -166,7 +182,13 @@ SubGroup.beforeFind(async options => {
     }
   );
 });
-
+Lesson.beforeFind(async options => {
+  options.attributes = options.attributes || {};
+  options.attributes.exclude = options.attributes.exclude || [];
+  options.attributes.exclude.push('createdAt', 'updatedAt');
+  options.include = options.include || [];
+  options.include.push(LessonSchedule, Appointment_Type);
+});
 module.exports = {
   User,
   Role,
@@ -177,5 +199,8 @@ module.exports = {
   SubGroup,
   SubgroupMentor,
   Replacement,
-  TeacherType
+  TeacherType,
+  Lesson,
+  LessonTopic,
+  LessonSchedule
 };
