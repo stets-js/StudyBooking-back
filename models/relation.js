@@ -187,7 +187,10 @@ Lesson.beforeFind(async options => {
   options.attributes.exclude = options.attributes.exclude || [];
   options.attributes.exclude.push('createdAt', 'updatedAt');
   options.include = options.include || [];
-  options.include.push(LessonSchedule, Appointment_Type);
+  options.include.push(LessonSchedule, Appointment_Type, {
+    model: SubGroup,
+    include: [Course, SubgroupMentor, {model: User, as: 'Admin', attributes: ['name']}]
+  });
 });
 module.exports = {
   User,
