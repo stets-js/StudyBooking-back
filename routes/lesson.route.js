@@ -6,4 +6,6 @@ const router = express.Router();
 
 router.route('/').get(whereClauseGenerator, lessonController.getAllLessons);
 // router.route('/:id').get(lessonController.getLessonById);
+router.route('/bulk').post(whereClauseGenerator, lessonController.bulkCreate);
+
 module.exports = router;

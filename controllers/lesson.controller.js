@@ -51,7 +51,7 @@ exports.bulkCreate = catchAsync(async (req, res, next) => {
   while (currentDate <= end) {
     if (currentDate.getDay() === req.body.weekDay) {
       lessons.push({
-        mentorId: req.body.userId,
+        mentorId: req.body.userId || req.body.mentorId,
         date: format(currentDate, 'yyyy-MM-dd'),
         LessonScheduleId: schedule.id,
         appointmentTypeId: req.body.appointmentTypeId,
