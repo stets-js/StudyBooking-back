@@ -145,7 +145,9 @@ exports.bulkUpdate = catchAsync(async (req, res, next) => {
 
 exports.bulkRemove = catchAsync(async (req, res, next) => {
   // this func will remove slots under new subgroup
-  const docs = await Slot.destroy({where: {...req.whereClause, time: {[Op.in]: req.body.time}}});
+  const docs = await Slot.destroy({
+    where: {userId: +req.body.userId, weekDay: req.body.weekDay, time: {[Op.in]: req.body.time}}
+  });
   next();
 });
 
