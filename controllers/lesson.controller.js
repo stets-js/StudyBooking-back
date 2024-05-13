@@ -1,7 +1,7 @@
 const {Op} = require('sequelize');
 const {addDays, format} = require('date-fns');
 
-const {Slot, Lesson, LessonSchedule} = require('../models/relation');
+const {Slot, Lesson, LessonSchedule, LessonTopic} = require('../models/relation');
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./factory.controller');
 
@@ -65,3 +65,5 @@ exports.bulkCreate = catchAsync(async (req, res, next) => {
 });
 
 exports.updateLesson = factory.updateOne(Lesson);
+
+exports.getAllTopics = factory.getAll(LessonTopic);
