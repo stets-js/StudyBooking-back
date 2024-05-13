@@ -63,3 +63,5 @@ exports.bulkCreate = catchAsync(async (req, res, next) => {
   const docs = await Lesson.bulkCreate(lessons);
   res.json({docs, schedule});
 });
+
+exports.updateLesson = factory.updateOne(Lesson);

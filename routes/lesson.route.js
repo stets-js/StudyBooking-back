@@ -8,4 +8,5 @@ router.route('/').get(whereClauseGenerator, lessonController.getAllLessons);
 // router.route('/:id').get(lessonController.getLessonById);
 router.route('/bulk').post(whereClauseGenerator, lessonController.bulkCreate);
 
+router.route('/:id').patch(lessonController.updateLesson);
 module.exports = router;

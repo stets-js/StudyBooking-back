@@ -4,7 +4,7 @@ const sequelize = require('../db');
 
 const Lesson = sequelize.define('Lesson', {
   date: {type: Sequelize.DATEONLY},
-  feedBack: {
+  feedback: {
     type: Sequelize.STRING
   }
 });
