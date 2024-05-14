@@ -67,3 +67,8 @@ exports.bulkCreate = catchAsync(async (req, res, next) => {
 exports.updateLesson = factory.updateOne(Lesson);
 
 exports.getAllTopics = factory.getAll(LessonTopic);
+
+exports.deleteLessons = catchAsync(async (req, res, next) => {
+  const docs = Lesson.destroy({where: req.body});
+  res.status(204).json(docs);
+});
