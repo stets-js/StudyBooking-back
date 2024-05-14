@@ -65,21 +65,25 @@ exports.logout = (req, res) => {
 };
 
 exports.protect = catchAsync(async (req, res, next) => {
-  let token;
-  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-    token = req.headers.authorization.split(' ')[1];
-  }
-  if (!token) {
-    return next('You are not logged in bro :(');
-  }
-  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-  const freshUser = await User.findByPk(decoded.id, {});
+  console.log(req.headers);
+  if (req.headers.mic) next();
+  else {
+    let token;
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+      token = req.headers.authorization.split(' ')[1];
+    }
+    if (!token) {
+      return next('You are not logged in bro :(');
+    }
+    const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+    const freshUser = await User.findByPk(decoded.id, {});
 
-  if (!freshUser) return next('This user was deleted');
+    if (!freshUser) return next('This user was deleted');
 
-  // Access to protected route
-  req.user = freshUser;
-  next();
+    // Access to protected route
+    req.user = freshUser;
+    next();
+  }
 });
 exports.mySelfOrAdmin = catchAsync(async (req, res, next) => {
   if (req.user.Role.name !== 'teacher' || req.user.id === req.body.id) {
@@ -88,10 +92,14 @@ exports.mySelfOrAdmin = catchAsync(async (req, res, next) => {
 });
 exports.allowedTo = roles => {
   return (req, res, next) => {
-    if (!roles.includes(req.user.Role.name)) {
-      return next('You dont have permision :(');
+    console.log(req.headers);
+    if (req.headers.mic) next(); // case for ManagersIC from another booking
+    else {
+      if (!roles.includes(req.user.Role.name)) {
+        return next('You dont have permision :(');
+      }
+      next();
     }
-    next();
   };
 };
 

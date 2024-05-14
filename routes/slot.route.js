@@ -10,7 +10,7 @@ const router = express.Router();
 router
   .route('/')
   .get(authController.protect, whereClauseGenerator, slotController.getAllSlots)
-  .post(authController.protect, whereClauseGenerator, slotController.getAllSlots);
+  .post(whereClauseGenerator, slotController.getAllSlots);
 
 router
   .route('/bulk')
