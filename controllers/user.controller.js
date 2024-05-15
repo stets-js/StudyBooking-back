@@ -27,7 +27,7 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
     includeOptions.push({
       model: Course,
       as: 'teachingCourses',
-      where: {id: {[Op.in]: courseIds}}
+      where: courseIds.length > 0 ? {id: {[Op.in]: courseIds}} : {}
     });
   }
   document = await User.findAll({
