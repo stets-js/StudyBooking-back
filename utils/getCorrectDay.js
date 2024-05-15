@@ -4,4 +4,4 @@ const getCorrectDay = day => {
 
   return day === 0 ? 6 : day - 1;
 };
-exports = getCorrectDay;
+module.exports = getCorrectDay;
