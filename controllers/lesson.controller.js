@@ -4,7 +4,7 @@ const {addDays, format} = require('date-fns');
 const {Slot, Lesson, LessonSchedule, LessonTopic} = require('../models/relation');
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./factory.controller');
-
+const getCorrectDay = require('../utils/getCorrectDay');
 exports.getAllLessons = factory.getAll(Lesson);
 
 exports.bulkUpdate = catchAsync(async (req, res, next) => {
@@ -49,7 +49,7 @@ exports.bulkCreate = catchAsync(async (req, res, next) => {
     }
   });
   while (currentDate <= end) {
-    if (currentDate.getDay() === req.body.weekDay) {
+    if (getCorrectDay(currentDate.getDay()) === req.body.weekDay) {
       lessons.push({
         mentorId: req.body.userId || req.body.mentorId,
         date: format(currentDate, 'yyyy-MM-dd'),
