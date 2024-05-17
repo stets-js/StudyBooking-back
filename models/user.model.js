@@ -5,7 +5,11 @@ const sequelize = require('../db');
 
 const User = sequelize.define('User', {
   name: {type: Sequelize.STRING(80), allowNull: false},
-  expirience: {type: Sequelize.STRING, default: 0}, // in years
+  expirience: {type: Sequelize.STRING, defaultValue: 0}, // in years
+  isPrevSubgroupPlaced: {
+    type: Sequelize.BOOLEAN,
+    defaultValue: false
+  },
   photoUrl: {
     type: Sequelize.STRING
     // defaultValue:
