@@ -24,11 +24,11 @@ module.exports = catchAsync(async (req, res, next) => {
   if (req.params.id) clause.userId = req.params.id; // cause of Slot userId seact
   if (req.query.startDate) {
     clause.startDate = {
-      [Op.lte]: req.query.endDate
+      [Op.and]: [{[Op.gte]: req.query.startDate}, {[Op.lte]: req.query.endDate}]
     };
 
     clause.endDate = {
-      [Op.or]: [{[Op.eq]: null}, {[Op.gte]: req.query.startDate}]
+      [Op.or]: [{[Op.eq]: null}, {[Op.gte]: req.query.endDate || req.query.startDate}]
     };
   }
   if (req.query.startDateLesson) {
