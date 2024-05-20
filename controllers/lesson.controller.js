@@ -13,7 +13,7 @@ exports.bulkUpdate = catchAsync(async (req, res, next) => {
   }
   // const universalId = await Appointment_Type.findOne({where: {name: 'universal'}});
 
-  const bodyForUpdate = {
+  let bodyForUpdate = {
     appointmentTypeId: req.body.appointmentTypeId,
     startDate: req.body.startDate,
     endDate: req.body.endDate
@@ -55,7 +55,8 @@ exports.bulkCreate = catchAsync(async (req, res, next) => {
         date: format(currentDate, 'yyyy-MM-dd'),
         LessonScheduleId: schedule.id,
         appointmentTypeId: req.body.appointmentTypeId,
-        subgroupId: req.body.subgroupId
+        subgroupId: req.body.subgroupId,
+        ReplacementId: req.body.ReplacementId
       });
       currentDate.setDate(currentDate.getDate() + 7);
     } else currentDate.setDate(currentDate.getDate() + 1); // Переходим к следующей дате
