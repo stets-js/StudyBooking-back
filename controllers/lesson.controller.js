@@ -30,7 +30,7 @@ exports.getAllLessons = catchAsync(async (req, res, next) => {
     include: [
       LessonSchedule,
       User,
-      {model: LessonTopic, required: true},
+      {model: LessonTopic},
       {
         model: Replacement,
         include: [
