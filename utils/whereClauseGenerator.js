@@ -37,7 +37,9 @@ module.exports = catchAsync(async (req, res, next) => {
       [Op.and]: [{[Op.gte]: req.query.startDateLesson}, {[Op.lte]: req.query.endDateLesson}]
     };
   }
-
+  if (req.query.date) {
+    clause.date = {[Op.eq]: req.query.date};
+  }
   req.whereClause = clause;
   next();
 });
