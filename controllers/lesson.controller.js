@@ -1,11 +1,69 @@
 const {Op} = require('sequelize');
 const {addDays, format} = require('date-fns');
 
-const {Slot, Lesson, LessonSchedule, LessonTopic} = require('../models/relation');
+const {
+  Slot,
+  Lesson,
+  LessonSchedule,
+  LessonTopic,
+  SubGroup,
+  Course,
+  SubgroupMentor,
+  User,
+  Replacement,
+  Appointment_Type
+} = require('../models/relation');
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./factory.controller');
 const getCorrectDay = require('../utils/getCorrectDay');
-exports.getAllLessons = factory.getAll(Lesson);
+exports.getAllLessons = catchAsync(async (req, res, next) => {
+  let document;
+  let whereClause = req.whereClause;
+  let subgroupWhereClause = {};
+  if (req.query.courseId) {
+    subgroupWhereClause = {
+      CourseId: +req.query.courseId
+    };
+  }
+  document = await Lesson.findAll({
+    where: whereClause,
+    include: [
+      LessonSchedule,
+      User,
+      {model: LessonTopic, required: true},
+      {
+        model: Replacement,
+        include: [
+          {
+            model: SubGroup,
+            where: subgroupWhereClause,
+            include: [Course, SubgroupMentor, {model: User, as: 'Admin', attributes: ['name']}]
+          }
+        ]
+      },
+      Appointment_Type,
+      {
+        model: SubGroup,
+        where: subgroupWhereClause,
+        include: [Course, SubgroupMentor, {model: User, as: 'Admin', attributes: ['name']}]
+      }
+    ],
+    offset: req.query.offset,
+    limit: req.query.limit
+  });
+  totalCount = await Lesson.count({
+    where: whereClause
+  });
+
+  return res.json({
+    status: 'success',
+    results: document.length,
+    data: document,
+    totalCount,
+    subgroupWhereClause,
+    newOffset: +req.query.offset + +req.query.limit
+  });
+});
 
 exports.bulkUpdate = catchAsync(async (req, res, next) => {
   if (!req.body.appointmentTypeId) {

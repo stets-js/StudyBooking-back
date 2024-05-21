@@ -190,23 +190,24 @@ Lesson.beforeFind(async options => {
   options.attributes.exclude = options.attributes.exclude || [];
   options.attributes.exclude.push('createdAt', 'updatedAt');
   options.include = options.include || [];
-  options.include.push(
-    LessonSchedule,
-    {
-      model: Replacement,
-      include: [
-        {
-          model: SubGroup,
-          include: [Course, SubgroupMentor, {model: User, as: 'Admin', attributes: ['name']}]
-        }
-      ]
-    },
-    Appointment_Type,
-    {
-      model: SubGroup,
-      include: [Course, SubgroupMentor, {model: User, as: 'Admin', attributes: ['name']}]
-    }
-  );
+  options.include
+    .push
+    // LessonSchedule,
+    // {
+    //   model: Replacement,
+    //   include: [
+    //     {
+    //       model: SubGroup,
+    //       include: [Course, SubgroupMentor, {model: User, as: 'Admin', attributes: ['name']}]
+    //     }
+    //   ]
+    // },
+    // Appointment_Type,
+    // {
+    //   model: SubGroup,
+    //   include: [Course, SubgroupMentor, {model: User, as: 'Admin', attributes: ['name']}]
+    // }
+    ();
 });
 module.exports = {
   User,
