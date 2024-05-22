@@ -22,7 +22,7 @@ const lessonRoutes = require('./routes/lesson.route.js');
 const newSubgroups = require('./subgroupScrapper.js');
 const newUsers = require('./excel.js');
 const mentorScrapper = require('./mentorScrapper.js');
-
+const findEmails = require('./utils/findEmails.js');
 const app = express();
 
 //development loging
@@ -70,4 +70,5 @@ app.all('*', (req, res, next) => {
 // newSubgroups();
 // newUsers();
 // mentorScrapper()
+// findEmails();
 module.exports = app;
