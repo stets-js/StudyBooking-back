@@ -40,7 +40,6 @@ const createSendToken = (user, statusCode, res) => {
 
 exports.login = catchAsync(async (req, res) => {
   const {email, password} = req.body;
-  console.log(req.body);
   const user = await User.findOne({
     where: {email}
   });
@@ -65,7 +64,6 @@ exports.logout = (req, res) => {
 };
 
 exports.protect = catchAsync(async (req, res, next) => {
-  console.log(req.headers);
   if (req.headers.mic) next();
   else {
     let token;
@@ -92,7 +90,6 @@ exports.mySelfOrAdmin = catchAsync(async (req, res, next) => {
 });
 exports.allowedTo = roles => {
   return (req, res, next) => {
-    console.log(req.headers);
     if (req.headers.mic) next(); // case for ManagersIC from another booking
     else {
       if (!roles.includes(req.user.Role.name)) {
