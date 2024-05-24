@@ -17,6 +17,6 @@ router.route('/bulk').post(whereClauseGenerator, lessonController.bulkCreate);
 
 router.route('/').delete(lessonController.deleteLessons);
 
-router.route('/:id').patch(lessonController.updateLesson);
+router.route('/:id').patch(lessonController.updateLesson).delete(lessonController.deleteLesson);
 
 module.exports = router;

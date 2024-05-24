@@ -30,7 +30,7 @@ exports.getAllLessons = catchAsync(async (req, res, next) => {
     include: [
       LessonSchedule,
       User,
-      {model: LessonTopic},
+      LessonTopic,
       {
         model: Replacement,
         include: [
@@ -44,6 +44,7 @@ exports.getAllLessons = catchAsync(async (req, res, next) => {
       Appointment_Type,
       {
         model: SubGroup,
+        required: false,
         where: subgroupWhereClause,
         include: [Course, SubgroupMentor, {model: User, as: 'Admin', attributes: ['name']}]
       }
@@ -126,6 +127,8 @@ exports.bulkCreate = catchAsync(async (req, res, next) => {
 exports.updateLesson = factory.updateOne(Lesson);
 
 exports.getAllTopics = factory.getAll(LessonTopic);
+
+exports.deleteLesson = factory.deleteOne(Lesson);
 
 exports.deleteLessons = catchAsync(async (req, res, next) => {
   const docs = Lesson.destroy({where: req.body});
