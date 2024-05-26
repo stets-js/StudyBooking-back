@@ -11,9 +11,8 @@ router.use(authController.protect);
 router.route('/').get(whereClauseGenerator, lessonController.getAllLessons);
 router.route('/topics').get(lessonController.getAllTopics);
 
-router.use(authController.allowedTo(['administrator', 'superAdmin']));
-
 router.route('/bulk').post(whereClauseGenerator, lessonController.bulkCreate);
+router.use(authController.allowedTo(['administrator', 'superAdmin']));
 
 router.route('/').delete(lessonController.deleteLessons);
 
