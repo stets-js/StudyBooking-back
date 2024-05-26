@@ -12,10 +12,12 @@ router.route('/').get(whereClauseGenerator, lessonController.getAllLessons);
 router.route('/topics').get(lessonController.getAllTopics);
 
 router.route('/bulk').post(whereClauseGenerator, lessonController.bulkCreate);
+
+router.route('/:id').patch(lessonController.updateLesson);
 router.use(authController.allowedTo(['administrator', 'superAdmin']));
 
 router.route('/').delete(lessonController.deleteLessons);
 
-router.route('/:id').patch(lessonController.updateLesson).delete(lessonController.deleteLesson);
+router.route('/:id').delete(lessonController.deleteLesson);
 
 module.exports = router;
