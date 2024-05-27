@@ -1,9 +1,11 @@
 const {Op, Sequelize} = require('sequelize');
+const jwt = require('jsonwebtoken');
+const {format} = require('date-fns');
+
 const {User, Course, Slot, TeacherCourse, TeacherType, Role} = require('../models/relation');
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./factory.controller');
 const sequelize = require('../db');
-const {format} = require('date-fns');
 
 exports.getAllUsers = catchAsync(async (req, res, next) => {
   let document;
@@ -217,4 +219,61 @@ exports.getUsersForReplacementSubGroup = catchAsync(async (req, res, next) => {
   });
 
   res.status(200).json({data: allUsers, structuredSlots});
+});
+
+exports.addCoursesToUsersBulk = catchAsync(async (req, res, next) => {
+  const users = req.body.users;
+
+  users.forEach(async user => {
+    const id = await User.findOne({where: {email: user}});
+    const userCourse = await TeacherCourse.findOrCreate({
+      where: {
+        userId: id.id,
+        courseId: 119,
+        TeacherTypeId: 3
+      },
+      defaults: {
+        userId: id.id,
+        courseId: 119,
+        TeacherTypeId: 3
+      }
+    });
+  });
+  res.status(201).json({message: 'created!'});
+});
+
+const sendEmail = require('../utils/email');
+
+exports.sendEmailsBulk = catchAsync(async (req, res, next) => {
+  const email = req.body.emails;
+  const resetToken = jwt.sign({email}, process.env.JWT_SECRET, {
+    expiresIn: '1d'
+  });
+
+  //send email
+  const resetURL = `${
+    process.env.NODE_ENV === 'DEV' ? process.env.LOCAL_FRONT : process.env.DEPLOYED_FRONT
+  }/resetPassword/${resetToken}`;
+
+  const message = `Forgot password? Submit a patch request with youer new password and password confirm to: ${resetURL}`; // !!! WRITE SOMETHING MORE COOL
+  const html = `<h1>Forgot password?</h1><a href="${resetURL}"><button>Click here</button></a>`;
+  try {
+    await sendEmail({
+      email,
+      subject: 'Reset token (24 hours)',
+      message,
+      html
+    });
+    res.status(200).json({
+      status: 'success',
+      message: 'Token sent to email!',
+      data: req?.User
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({
+      message: 'something went wrong',
+      error
+    });
+  }
 });
