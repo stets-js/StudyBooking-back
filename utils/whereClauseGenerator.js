@@ -40,6 +40,9 @@ module.exports = catchAsync(async (req, res, next) => {
   if (req.query.date) {
     clause.date = {[Op.eq]: req.query.date};
   }
+
+  if (req.query.appointmentTypeId) clause.appointmentTypeId = req.query.appointmentTypeId;
+
   req.whereClause = clause;
   next();
 });
