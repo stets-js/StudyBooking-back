@@ -19,7 +19,6 @@ module.exports = catchAsync(async (req, res, next) => {
   if (req.query.users) clause['$User.id$'] = {[Op.in]: JSON.parse(req.query.users)};
   if (req.body.userIds) {
     clause.userId = {[Op.in]: req.body.userIds};
-    clause['$AppointmentType.name$'] = 'universal';
   }
   if (req.params.id) clause.userId = req.params.id; // cause of Slot userId seact
   if (req.query.startDate) {
