@@ -50,7 +50,8 @@ exports.getAllLessons = catchAsync(async (req, res, next) => {
       }
     ],
     offset: req.query.offset,
-    limit: req.query.limit
+    limit: req.query.limit,
+    order: [['date', 'ASC']]
   });
   totalCount = await Lesson.count({
     where: whereClause
