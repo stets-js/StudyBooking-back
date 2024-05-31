@@ -25,34 +25,41 @@ exports.getAllLessons = catchAsync(async (req, res, next) => {
       CourseId: +req.query.courseId
     };
   }
-  document = await Lesson.findAll({
-    where: whereClause,
-    include: [
-      LessonSchedule,
-      User,
-      LessonTopic,
-      {
-        model: Replacement,
-        include: [
-          {
-            model: SubGroup,
-            where: subgroupWhereClause,
-            include: [Course, SubgroupMentor, {model: User, as: 'Admin', attributes: ['name']}]
-          }
-        ]
-      },
-      Appointment_Type,
-      {
-        model: SubGroup,
-        required: false,
-        where: subgroupWhereClause,
-        include: [Course, SubgroupMentor, {model: User, as: 'Admin', attributes: ['name']}]
-      }
-    ],
-    offset: req.query.offset,
-    limit: req.query.limit,
-    order: [['date', 'ASC']]
-  });
+  try {
+    document = await Lesson.findAll({
+      where: whereClause,
+      include: [
+        LessonSchedule,
+        User,
+        LessonTopic,
+        {
+          model: Replacement,
+          include: [
+            {
+              model: SubGroup,
+              where: subgroupWhereClause,
+              include: [Course, SubgroupMentor, {model: User, as: 'Admin', attributes: ['name']}]
+            }
+          ]
+        },
+        Appointment_Type,
+        {
+          model: SubGroup,
+          required: false,
+          where: subgroupWhereClause,
+          include: [Course, SubgroupMentor, {model: User, as: 'Admin', attributes: ['name']}]
+        }
+      ],
+      offset: req.query.offset,
+      limit: req.query.limit,
+      order: [
+        ['date', 'ASC'],
+        [Lesson.associations.LessonSchedule, 'startTime', 'ASC']
+      ]
+    });
+  } catch (e) {
+    console.log(e);
+  }
   totalCount = await Lesson.count({
     where: whereClause
   });
