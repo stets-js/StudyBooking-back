@@ -246,34 +246,43 @@ const sendEmail = require('../utils/email');
 
 exports.sendEmailsBulk = catchAsync(async (req, res, next) => {
   const email = req.body.emails;
-  const resetToken = jwt.sign({email}, process.env.JWT_SECRET, {
-    expiresIn: '1d'
-  });
 
-  //send email
-  const resetURL = `${
-    process.env.NODE_ENV === 'DEV' ? process.env.LOCAL_FRONT : process.env.DEPLOYED_FRONT
-  }/resetPassword/${resetToken}`;
+  email.forEach(async em => {
+    const resetToken = jwt.sign({email: em}, process.env.JWT_SECRET, {
+      expiresIn: '7d'
+    });
+    const resetURL = `${
+      process.env.NODE_ENV === 'DEV' ? process.env.LOCAL_FRONT : process.env.DEPLOYED_FRONT
+    }/resetPassword/${resetToken}`;
 
-  const message = `Forgot password? Submit a patch request with youer new password and password confirm to: ${resetURL}`; // !!! WRITE SOMETHING MORE COOL
-  const html = `<h1>Forgot password?</h1><a href="${resetURL}"><button>Click here</button></a>`;
-  try {
+    const message = `Forgot password? Submit a patch request with youer new password and password confirm to: ${resetURL}`; // !!! WRITE SOMETHING MORE COOL
+    const html = `<h1>Forgot password?</h1><a href="${resetURL}"><button>Click here</button></a>`;
     await sendEmail({
-      email,
-      subject: 'Reset token (24 hours)',
+      email: em,
+      subject: 'Reset token (7 days)',
       message,
       html
     });
+  });
+  //send email
+
+  res.status(200).json({
+    status: 'success',
+    message: 'Token sent to email!',
+    data: req?.User
+  });
+});
+
+exports.updateTelegramChatId = catchAsync(async (req, res, next) => {
+  const doc = await User.update(
+    {telegramChatId: req.body.telegramChatId},
+    {where: {email: req.body.email}}
+  );
+  if (doc) {
     res.status(200).json({
       status: 'success',
-      message: 'Token sent to email!',
-      data: req?.User
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(400).json({
-      message: 'something went wrong',
-      error
+      message: 'Updated!',
+      data: doc
     });
   }
 });

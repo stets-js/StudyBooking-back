@@ -10,6 +10,7 @@ const User = sequelize.define('User', {
     type: Sequelize.BOOLEAN,
     defaultValue: false
   },
+  telegramChatId: {type: Sequelize.INTEGER},
   photoUrl: {
     type: Sequelize.STRING
     // defaultValue:
