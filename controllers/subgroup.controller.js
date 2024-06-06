@@ -6,6 +6,7 @@ const factory = require('./factory.controller');
 const {SubGroup, SubgroupMentor, User, TeacherType, Course} = require('../models/relation');
 const catchAsync = require('../utils/catchAsync');
 const sendEmail = require('../utils/email');
+const sendTelegramNotification = require('../utils/sendTelegramNotification');
 
 exports.getAllSubGroups = catchAsync(async (req, res, next) => {
   if (req.query.sortBySubgroups)
@@ -75,7 +76,9 @@ exports.addMentorToSubgroup = catchAsync(async (req, res, next) => {
   const subgroupMentor = await SubgroupMentor.create(req.body);
   let message = '';
   let subject = '';
-  message = `<div styles="font-family:"Poppins", sans-serif; font-size:20px;><h3>Вас було призначено на потік!<h3>
+  message = `<div styles="font-family:"Poppins", sans-serif; font-size:20px;><h3>Вас було призначено на потік ${
+    req.body.subgroupName
+  }!<h3>
     <h4>Дата ${format(req.body.startDate, 'yyyy-MM-dd')}, - ${format(
     req.body.endDate,
     'yyyy-MM-dd'
@@ -95,8 +98,11 @@ exports.addMentorToSubgroup = catchAsync(async (req, res, next) => {
         subject,
         html: message
       });
+      if (user.telegramChatId) await sendTelegramNotification(user.telegramChatId, req.body);
     }
-  } catch (e) {}
+  } catch (e) {
+    console.error(e);
+  }
   res.json({
     data: req.subgroup,
     subgroupMentor

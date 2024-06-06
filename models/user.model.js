@@ -2,7 +2,6 @@ const Sequelize = require('sequelize');
 const bcrypt = require('bcrypt');
 
 const sequelize = require('../db');
-
 const User = sequelize.define('User', {
   name: {type: Sequelize.STRING(80), allowNull: false},
   expirience: {type: Sequelize.STRING, defaultValue: 0}, // in years
@@ -10,7 +9,7 @@ const User = sequelize.define('User', {
     type: Sequelize.BOOLEAN,
     defaultValue: false
   },
-  telegramChatId: {type: Sequelize.INTEGER},
+  telegramChatId: {type: Sequelize.BIGINT},
   photoUrl: {
     type: Sequelize.STRING
     // defaultValue:
