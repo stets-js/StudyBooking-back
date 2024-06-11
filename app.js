@@ -25,6 +25,7 @@ const mentorScrapper = require('./mentorScrapper.js');
 const findEmails = require('./utils/findEmails.js');
 
 require('./utils/telegramBot.js');
+require('./utils/slackBot.js');
 const app = express();
 
 //development loging
