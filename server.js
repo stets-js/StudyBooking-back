@@ -1,8 +1,11 @@
-const dotenv = require('dotenv');
+const path = require('path');
+
+require('dotenv').config({path: path.resolve(__dirname, './config.env')});
+
 // const createTopics = require('./kafka/createTopic');
 // const consumer = require('./kafka/consumer');
 // const {sendMessage} = require('./kafka/producer');
-dotenv.config({path: './config.env'});
+const slackApp = require('./utils/slackBot');
 
 process.on('uncaughtException', err => {
   console.log('unchaughtException!! Shutting down server...');
@@ -15,5 +18,6 @@ const app = require('./app');
 // sendMessage({value: 'Hello world', key: 'test'});
 const port = process.env.PORT || 3000;
 const server = app.listen(port, () => {
+  slackApp.start();
   console.log(`App running on port ${port}`);
 });

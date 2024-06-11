@@ -1,4 +1,4 @@
-const slackApp = require('./sendSlackNotification');
+const slackApp = require('./slackBot');
 
 const getUserIdByName = async userName => {
   try {

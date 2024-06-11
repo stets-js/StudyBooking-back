@@ -1,3 +1,6 @@
+const dotenv = require('dotenv');
+dotenv.config({path: './config.env'});
+
 const express = require('express');
 const rateLimit = require('express-rate-limit');
 const morgan = require('morgan');
@@ -25,7 +28,7 @@ const mentorScrapper = require('./mentorScrapper.js');
 const findEmails = require('./utils/findEmails.js');
 
 require('./utils/telegramBot.js');
-require('./utils/slackBot.js');
+
 const app = express();
 
 //development loging
