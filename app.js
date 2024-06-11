@@ -24,7 +24,7 @@ const newUsers = require('./excel.js');
 const mentorScrapper = require('./mentorScrapper.js');
 const findEmails = require('./utils/findEmails.js');
 
-require('./utils/bot');
+require('./utils/telegramBot.js');
 const app = express();
 
 //development loging

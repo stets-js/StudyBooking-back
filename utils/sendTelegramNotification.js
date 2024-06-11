@@ -1,4 +1,4 @@
-const bot = require('./bot');
+const bot = require('./telegramBot');
 
 const sendTelegramNotification = async (chatId, body) => {
   console.log('trying to send message');
