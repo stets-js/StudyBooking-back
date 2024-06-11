@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start:loc": "nodemon server.js NODE_ENV=DEV",
+    "start:loc": "cross-env NODE_ENV=DEV nodemon server.js",
     "start": "nodemon server.js NODE_ENV=DEPLOY"
   },
   "dependencies": {
@@ -30,5 +30,8 @@
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.35.2",
     "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3"
   }
 }
