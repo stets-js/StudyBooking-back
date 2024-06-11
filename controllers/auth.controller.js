@@ -38,16 +38,22 @@ const createSendToken = (user, statusCode, res) => {
   });
 };
 
-exports.login = catchAsync(async (req, res) => {
-  const {email, password} = req.body;
+exports.verifyUser = async (email, password) => {
   const user = await User.findOne({
     where: {email}
   });
 
-  if (!user || !(await user.verifyPassword(password)))
-    return res.status(401).json({message: 'Invalid credentials'});
+  if (!user || !(await user.verifyPassword(password))) return false;
+  return user;
+};
 
-  createSendToken(user, 200, res);
+exports.login = catchAsync(async (req, res) => {
+  const {email, password} = req.body;
+  const verify = verifyUser(email, password);
+  if (!verify) {
+    return res.status(401).json({message: 'Invalid credentials'});
+  }
+  createSendToken(verify, 200, res);
 });
 
 exports.logout = (req, res) => {

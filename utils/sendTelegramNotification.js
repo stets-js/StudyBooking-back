@@ -1,9 +1,7 @@
-const TelegramBot = require('node-telegram-bot-api');
-const botToken = process.env.TELEGRAM_BOT;
+const bot = require('./bot');
 
 const sendTelegramNotification = async (chatId, body) => {
   console.log('trying to send message');
-  const bot = new TelegramBot(botToken);
 
   message = `Вітаю!\nВам був призначений потік ${body.subgroupName}!\nКурс: ${
     body.selectedCourseName
