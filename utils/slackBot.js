@@ -2,8 +2,8 @@ const {App} = require('@slack/bolt');
 
 // Инициализация приложения с использованием токена и Signing Secret
 const app = new App({
-  token: process.env.SL_TOKEN,
-  signingSecret: '9910ad270c2e4cf62fe22c70a4536908'
+  token: process.env.SLACK_BOT_TOKEN,
+  signingSecret: process.env.SLACK_SIGNING_SECRET
 });
 
 (async () => {
