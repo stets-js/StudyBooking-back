@@ -7,6 +7,8 @@ const {SubGroup, SubgroupMentor, User, TeacherType, Course} = require('../models
 const catchAsync = require('../utils/catchAsync');
 const sendEmail = require('../utils/email');
 const sendTelegramNotification = require('../utils/sendTelegramNotification');
+const {sendDirectMessage} = require('../utils/sendSlackNotification');
+const generateNotificationMessage = require('../utils/generateNotificationMessage');
 
 exports.getAllSubGroups = catchAsync(async (req, res, next) => {
   if (req.query.sortBySubgroups)
@@ -98,7 +100,10 @@ exports.addMentorToSubgroup = catchAsync(async (req, res, next) => {
         subject,
         html: message
       });
-      if (user.telegramChatId) await sendTelegramNotification(user.telegramChatId, req.body);
+      const notificationMessage = generateNotificationMessage(req.body);
+      if (user.telegramChatId)
+        await sendTelegramNotification(user.telegramChatId, notificationMessage);
+      if (user.slack) await sendDirectMessage(user.slack, notificationMessage);
     }
   } catch (e) {
     console.error(e);
