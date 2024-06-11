@@ -49,7 +49,7 @@ exports.verifyUser = async (email, password) => {
 
 exports.login = catchAsync(async (req, res) => {
   const {email, password} = req.body;
-  const verify = verifyUser(email, password);
+  const verify = await this.verifyUser(email, password);
   if (!verify) {
     return res.status(401).json({message: 'Invalid credentials'});
   }
