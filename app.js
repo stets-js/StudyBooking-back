@@ -5,6 +5,7 @@ const express = require('express');
 const rateLimit = require('express-rate-limit');
 const morgan = require('morgan');
 const cors = require('cors');
+const {createEventAdapter} = require('@slack/events-api');
 
 const createBasicRoles = require('./utils/createBasicRoles');
 
@@ -67,6 +68,8 @@ app.use('/api/teacher-type', teacherTypeRoutes);
 app.use('/api/subgroup-mentor', subgroupMentorRoutes);
 app.use('/api/lessons', lessonRoutes);
 
+const slackEvents = createEventAdapter(process.env.SLACK_SIGNING_SECRET);
+app.use('/slack/events', slackEvents.expressMiddleware());
 app.all('*', (req, res, next) => {
   next(`Can't find ${req.originalUrl} on this server :#`, 404);
 });
