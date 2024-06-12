@@ -32,6 +32,8 @@ require('./utils/telegramBot.js');
 
 const app = express();
 
+const slackEvents = createEventAdapter(process.env.SLACK_SIGNING_SECRET);
+app.use('/slack/events', slackEvents.expressMiddleware());
 //development loging
 // if (process.env.NODE_ENV === 'development') {
 app.use(morgan('dev'));
@@ -68,8 +70,6 @@ app.use('/api/teacher-type', teacherTypeRoutes);
 app.use('/api/subgroup-mentor', subgroupMentorRoutes);
 app.use('/api/lessons', lessonRoutes);
 
-const slackEvents = createEventAdapter(process.env.SLACK_SIGNING_SECRET);
-app.use('/slack/events', slackEvents.expressMiddleware());
 app.all('*', (req, res, next) => {
   next(`Can't find ${req.originalUrl} on this server :#`, 404);
 });
