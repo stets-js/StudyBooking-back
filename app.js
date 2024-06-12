@@ -29,11 +29,25 @@ const mentorScrapper = require('./mentorScrapper.js');
 const findEmails = require('./utils/findEmails.js');
 
 require('./utils/telegramBot.js');
-
+const slackApp = require('./utils/slackBot.js');
 const app = express();
 
 const slackEvents = createEventAdapter(process.env.SLACK_SIGNING_SECRET);
 app.use('/slack/events', slackEvents.expressMiddleware());
+
+slackEvents.on('message', async event => {
+  if (event.text.includes('hello')) {
+    try {
+      await slackApp.client.chat.postMessage({
+        channel: event.channel,
+        text: `Привет, <@${event.user}>!`
+      });
+    } catch (error) {
+      console.error('Error handling message event:', error);
+    }
+  }
+});
+
 //development loging
 // if (process.env.NODE_ENV === 'development') {
 app.use(morgan('dev'));
