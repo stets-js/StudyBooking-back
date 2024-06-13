@@ -7,4 +7,4 @@ const Feedback = sequelize.define('Feedback', {
     type: Sequelize.STRING
   }
 });
-module.exports = Feedback;
+module.exports = {Feedback};

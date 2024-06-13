@@ -18,11 +18,12 @@ const appointmentTypeRoutes = require('./routes/appointment-type.route');
 const subGroupRoutes = require('./routes/subgroup.route');
 const replacementRoutes = require('./routes/replacement.route');
 const spreadsheetRoutes = require('./routes/spreadsheet.route');
-const createBasicTeacherTypes = require('./utils/createBasicTeacherTypes');
 const teacherTypeRoutes = require('./routes/teacher-type.route');
 const subgroupMentorRoutes = require('./routes/subgroup-mentor.route');
-const lessonRoutes = require('./routes/lesson.route.js');
+const lessonRoutes = require('./routes/lesson.route');
+const feedbackRoutes = require('./routes/feedback.route');
 
+const createBasicTeacherTypes = require('./utils/createBasicTeacherTypes');
 const newSubgroups = require('./subgroupScrapper.js');
 const newUsers = require('./excel.js');
 const mentorScrapper = require('./mentorScrapper.js');
@@ -30,8 +31,9 @@ const findEmails = require('./utils/findEmails.js');
 
 require('./utils/telegramBot.js');
 const slackApp = require('./utils/slackBot.js');
-const app = express();
 
+const app = express();
+// has to be initialized before all other routes !!!
 const slackEvents = createEventAdapter(process.env.SLACK_SIGNING_SECRET);
 app.use('/slack/events', slackEvents.expressMiddleware());
 
@@ -83,6 +85,7 @@ app.use('/api/spreadsheet', spreadsheetRoutes);
 app.use('/api/teacher-type', teacherTypeRoutes);
 app.use('/api/subgroup-mentor', subgroupMentorRoutes);
 app.use('/api/lessons', lessonRoutes);
+app.use('/api/feedback', feedbackRoutes);
 
 app.all('*', (req, res, next) => {
   next(`Can't find ${req.originalUrl} on this server :#`, 404);

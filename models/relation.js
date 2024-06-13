@@ -8,7 +8,7 @@ const Replacement = require('./replacement.model');
 const {TeacherType} = require('./teacher-type.model');
 
 const {Lesson, LessonTopic, LessonSchedule, LessonSubgroup} = require('./lesson.model');
-const Feedback = require('./feedback.model');
+const {Feedback} = require('./feedback.model');
 
 Lesson.belongsTo(User, {foreignKey: 'mentorId'});
 User.hasMany(Lesson, {foreignKey: 'mentorId'});
