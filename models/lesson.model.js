@@ -3,10 +3,7 @@ const Sequelize = require('sequelize');
 const sequelize = require('../db');
 
 const Lesson = sequelize.define('Lesson', {
-  date: {type: Sequelize.DATEONLY},
-  feedback: {
-    type: Sequelize.STRING
-  }
+  date: {type: Sequelize.DATEONLY}
 });
 
 const LessonTopic = sequelize.define('LessonTopic', {
