@@ -49,7 +49,7 @@ exports.getAllLessons = catchAsync(async (req, res, next) => {
         Appointment_Type,
         {
           model: SubGroup,
-          // required: false,
+          required: false,
           where: subgroupWhereClause,
           include: [Course, SubgroupMentor, {model: User, as: 'Admin', attributes: ['name']}]
         }
