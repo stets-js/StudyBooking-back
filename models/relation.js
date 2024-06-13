@@ -8,6 +8,7 @@ const Replacement = require('./replacement.model');
 const {TeacherType} = require('./teacher-type.model');
 
 const {Lesson, LessonTopic, LessonSchedule, LessonSubgroup} = require('./lesson.model');
+const Feedback = require('./feedback.model');
 
 Lesson.belongsTo(User, {foreignKey: 'mentorId'});
 User.hasMany(Lesson, {foreignKey: 'mentorId'});
@@ -23,6 +24,10 @@ Appointment_Type.hasMany(Lesson, {foreignKey: 'appointmentTypeId'});
 
 Lesson.belongsTo(SubGroup, {foreignKey: 'subgroupId'});
 SubGroup.hasMany(Lesson, {foreignKey: 'subgroupId'});
+
+Lesson.hasOne(Feedback, {foreignKey: 'lessonId'});
+Feedback.belongsTo(Lesson, {foreignKey: 'lessonId'});
+
 User.belongsTo(Role);
 Role.hasMany(User);
 
@@ -185,30 +190,30 @@ SubGroup.beforeFind(async options => {
     }
   );
 });
-Lesson.beforeFind(async options => {
-  options.attributes = options.attributes || {};
-  options.attributes.exclude = options.attributes.exclude || [];
-  options.attributes.exclude.push('createdAt', 'updatedAt');
-  options.include = options.include || [];
-  options.include
-    .push
-    // LessonSchedule,
-    // {
-    //   model: Replacement,
-    //   include: [
-    //     {
-    //       model: SubGroup,
-    //       include: [Course, SubgroupMentor, {model: User, as: 'Admin', attributes: ['name']}]
-    //     }
-    //   ]
-    // },
-    // Appointment_Type,
-    // {
-    //   model: SubGroup,
-    //   include: [Course, SubgroupMentor, {model: User, as: 'Admin', attributes: ['name']}]
-    // }
-    ();
-});
+// Lesson.beforeFind(async options => {
+//   options.attributes = options.attributes || {};
+//   options.attributes.exclude = options.attributes.exclude || [];
+//   options.attributes.exclude.push('createdAt', 'updatedAt');
+//   options.include = options.include || [];
+//   options.include
+//     .push
+//     // LessonSchedule,
+//     // {
+//     //   model: Replacement,
+//     //   include: [
+//     //     {
+//     //       model: SubGroup,
+//     //       include: [Course, SubgroupMentor, {model: User, as: 'Admin', attributes: ['name']}]
+//     //     }
+//     //   ]
+//     // },
+//     // Appointment_Type,
+//     // {
+//     //   model: SubGroup,
+//     //   include: [Course, SubgroupMentor, {model: User, as: 'Admin', attributes: ['name']}]
+//     // }
+//     ();
+// });
 module.exports = {
   User,
   Role,
@@ -222,5 +227,6 @@ module.exports = {
   TeacherType,
   Lesson,
   LessonTopic,
-  LessonSchedule
+  LessonSchedule,
+  Feedback
 };

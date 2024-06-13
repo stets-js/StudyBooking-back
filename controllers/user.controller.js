@@ -229,12 +229,12 @@ exports.addCoursesToUsersBulk = catchAsync(async (req, res, next) => {
     const userCourse = await TeacherCourse.findOrCreate({
       where: {
         userId: id.id,
-        courseId: 119,
+        courseId: 139,
         TeacherTypeId: 3
       },
       defaults: {
         userId: id.id,
-        courseId: 119,
+        courseId: 139,
         TeacherTypeId: 3
       }
     });
@@ -245,27 +245,38 @@ exports.addCoursesToUsersBulk = catchAsync(async (req, res, next) => {
 const sendEmail = require('../utils/email');
 
 exports.sendEmailsBulk = catchAsync(async (req, res, next) => {
-  const email = req.body.emails;
+  const emails = req.body.emails;
 
-  email.forEach(async em => {
-    const resetToken = jwt.sign({email: em}, process.env.JWT_SECRET, {
-      expiresIn: '7d'
-    });
-    const resetURL = `${
-      process.env.NODE_ENV === 'DEV' ? process.env.LOCAL_FRONT : process.env.DEPLOYED_FRONT
-    }/resetPassword/${resetToken}`;
+  for (let i = 0; i < emails.length; i++) {
+    const em = emails[i];
 
-    const message = `Forgot password? Submit a patch request with youer new password and password confirm to: ${resetURL}`; // !!! WRITE SOMETHING MORE COOL
-    const html = `<h1>Forgot password?</h1><a href="${resetURL}"><button>Click here</button></a>`;
-    await sendEmail({
-      email: em,
-      subject: 'Reset token (7 days)',
-      message,
-      html
-    });
-  });
-  //send email
+    // Wrapping the email sending process in a setTimeout to delay each email by 1 second
+    await new Promise(resolve =>
+      setTimeout(async () => {
+        const resetToken = jwt.sign({email: em}, process.env.JWT_SECRET, {
+          expiresIn: '7d'
+        });
+        const resetURL = `${
+          // process.env.NODE_ENV === 'DEV' ? process.env.LOCAL_FRONT :
+          process.env.DEPLOYED_FRONT
+        }/resetPassword/${resetToken}`;
 
+        const message = `Forgot password? Submit a patch request with your new password and password confirm to: ${resetURL}`;
+        const html = `<h1>Forgot password?</h1><a href="${resetURL}"><button>Click here</button></a>`;
+
+        await sendEmail({
+          email: em,
+          subject: 'Reset token (7 days)',
+          message,
+          html
+        });
+
+        resolve();
+      }, i * 100)
+    ); // Delay of i * 1000 milliseconds (1 second per email)
+  }
+
+  // Send response after all emails have been sent
   res.status(200).json({
     status: 'success',
     message: 'Token sent to email!',

@@ -11,11 +11,14 @@ const {
   SubgroupMentor,
   User,
   Replacement,
-  Appointment_Type
+  Appointment_Type,
+  Feedback
 } = require('../models/relation');
+
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./factory.controller');
 const getCorrectDay = require('../utils/getCorrectDay');
+
 exports.getAllLessons = catchAsync(async (req, res, next) => {
   let document;
   let whereClause = req.whereClause;
@@ -32,6 +35,7 @@ exports.getAllLessons = catchAsync(async (req, res, next) => {
         LessonSchedule,
         User,
         LessonTopic,
+        Feedback,
         {
           model: Replacement,
           include: [
@@ -45,7 +49,7 @@ exports.getAllLessons = catchAsync(async (req, res, next) => {
         Appointment_Type,
         {
           model: SubGroup,
-          required: false,
+          // required: false,
           where: subgroupWhereClause,
           include: [Course, SubgroupMentor, {model: User, as: 'Admin', attributes: ['name']}]
         }
