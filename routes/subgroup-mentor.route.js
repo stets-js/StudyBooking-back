@@ -6,7 +6,10 @@ const whereClauseGenerator = require('../utils/whereClauseGenerator');
 
 const router = express.Router();
 
-router.route('/').get(whereClauseGenerator, subgroupMentorController.getAllSubgroupsMentor);
-router.route('/').post(whereClauseGenerator, subgroupMentorController.createSubgroupMentor);
+router
+  .route('/')
+  .get(whereClauseGenerator, subgroupMentorController.getAllSubgroupsMentor)
+  .post(whereClauseGenerator, subgroupMentorController.createSubgroupMentor)
+  .patch(subgroupMentorController.updateSubgroupMentor);
 router.route('/:subgroupId/:mentorId').delete(subgroupMentorController.deleteSubgroupMentor);
 module.exports = router;

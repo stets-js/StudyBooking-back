@@ -51,3 +51,8 @@ exports.deleteSubgroupMentor = catchAsync(async (req, res, next) => {
   await document.destroy();
   res.status(204).json();
 });
+
+exports.updateSubgroupMentor = catchAsync(async (req, res, next) => {
+  const doc = await SubgroupMentor.update(req.body.body, {where: req.body.condition});
+  res.status(200).json(doc);
+});
