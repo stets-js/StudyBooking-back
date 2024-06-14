@@ -14,9 +14,9 @@ router.route('/topics').get(lessonController.getAllTopics);
 router.route('/bulk').post(whereClauseGenerator, lessonController.bulkCreate);
 
 router.route('/:id').patch(lessonController.updateLesson);
-router.use(authController.allowedTo(['administrator', 'superAdmin']));
-
 router.route('/').delete(lessonController.deleteLessons);
+
+router.use(authController.allowedTo(['administrator', 'superAdmin']));
 
 router.route('/:id').delete(lessonController.deleteLesson);
 
