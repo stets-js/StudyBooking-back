@@ -133,7 +133,7 @@ exports.bulkCreate = catchAsync(async (req, res, next) => {
     } else currentDate.setDate(currentDate.getDate() + 1); // Переходим к следующей дате
   }
   const docs = await Lesson.bulkCreate(lessons);
-  res.json({docs, schedule});
+  res.json({docs, schedule, start, end});
 });
 
 exports.updateLesson = factory.updateOne(Lesson);

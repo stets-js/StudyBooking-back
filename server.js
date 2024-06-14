@@ -18,13 +18,14 @@ const app = require('./app');
 // sendMessage({value: 'Hello world', key: 'test'});
 const port = process.env.PORT || 3000;
 const server = app.listen(port, () => {
-  slackApp
-    .start()
-    .then(() => {
-      console.log('Slack app started!');
-    })
-    .catch(err => {
-      console.error('Error starting Slack app:', err);
-    });
+  if (process.env.NODE_ENV !== 'DEV')
+    slackApp
+      .start()
+      .then(() => {
+        console.log('Slack app started!');
+      })
+      .catch(err => {
+        console.error('Error starting Slack app:', err);
+      });
   console.log(`App running on port ${port}`);
 });

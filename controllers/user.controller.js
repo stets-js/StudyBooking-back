@@ -10,6 +10,7 @@ const sequelize = require('../db');
 exports.getAllUsers = catchAsync(async (req, res, next) => {
   let document;
   let attributes = {exclude: ['password']};
+
   if (req.query.sortBySubgroups)
     // contains soft-tech
     attributes.include = [
@@ -22,7 +23,14 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
     ];
 
   let includeOptions = [];
-
+  if (req.query.onlyIndiv) {
+    includeOptions.push({
+      model: Slot,
+      attributes: [],
+      where: {appointmentTypeId: 2}, // indiv
+      required: true // This will ensure that only users with slots are included
+    });
+  }
   if (req.query.courses) {
     // case of filtering users by courses
     const courseIds = JSON.parse(req.query.courses);
