@@ -4,7 +4,7 @@ const {verifyUser} = require('../controllers/auth.controller');
 const {User} = require('../models/relation');
 // Your Telegram bot token
 const token = '7361130041:AAGIIqcTmUh-KigWFkJ3lM97C2ByFeN7SjI';
-if (process.env.NODE_ENV === 'DEV') return;
+if (!(process.env.NODE_ENV === 'DEV')) return;
 
 const bot = new TelegramBot(token, {polling: true});
 
