@@ -3,12 +3,12 @@ const TelegramBot = require('node-telegram-bot-api');
 const {verifyUser} = require('../controllers/auth.controller');
 const {User} = require('../models/relation');
 // Your Telegram bot token
-const token = '7361130041:AAGIIqcTmUh-KigWFkJ3lM97C2ByFeN7SjI';
-if (!(process.env.NODE_ENV === 'DEV')) return;
+const token = '7361130041:AAG3ftX4Py1BQ-6nf_knEkhekGMk82KrrZI';
+if (process.env.NODE_ENV === 'DEV') return;
 
 const bot = new TelegramBot(token, {polling: true});
 
-bot.onText(/\/start/, msg => {
+bot.onText(/\/start/, (msg, match) => {
   const chatId = msg.chat.id;
   bot.sendMessage(chatId, 'Привіт! Введіть свою почту з букінга.');
   bot.once('message', msg => processEmail(msg));
