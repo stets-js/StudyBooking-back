@@ -22,6 +22,7 @@ const teacherTypeRoutes = require('./routes/teacher-type.route');
 const subgroupMentorRoutes = require('./routes/subgroup-mentor.route');
 const lessonRoutes = require('./routes/lesson.route');
 const feedbackRoutes = require('./routes/feedback.route');
+const userDocumentRoutes = require('./routes/user-document.route');
 
 const createBasicTeacherTypes = require('./utils/createBasicTeacherTypes');
 const newSubgroups = require('./subgroupScrapper.js');
@@ -86,6 +87,7 @@ app.use('/api/teacher-type', teacherTypeRoutes);
 app.use('/api/subgroup-mentor', subgroupMentorRoutes);
 app.use('/api/lessons', lessonRoutes);
 app.use('/api/feedback', feedbackRoutes);
+app.use('/api/user-document', userDocumentRoutes);
 
 app.all('*', (req, res, next) => {
   next(`Can't find ${req.originalUrl} on this server :#`, 404);

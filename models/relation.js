@@ -6,7 +6,8 @@ const {Slot, Appointment_Type} = require('./slot.model');
 const {SubGroup, SubgroupMentor} = require('./subgroup.model');
 const Replacement = require('./replacement.model');
 const {TeacherType} = require('./teacher-type.model');
-
+const {UserDocument} = require('./user-document.model');
+const {DocumentType} = require('./document-type.model');
 const {Lesson, LessonTopic, LessonSchedule, LessonSubgroup} = require('./lesson.model');
 const {Feedback} = require('./feedback.model');
 
@@ -36,6 +37,9 @@ Appointment_Type.hasMany(Slot, {foreignKey: 'appointmentTypeId'});
 
 User.hasMany(Slot, {foreignKey: 'userId', onDelete: 'CASCADE'});
 Slot.belongsTo(User, {foreignKey: 'userId'});
+
+User.belongsToMany(DocumentType, {through: UserDocument});
+DocumentType.belongsToMany(User, {through: UserDocument});
 
 User.belongsToMany(Course, {
   through: TeacherCourse,
@@ -228,5 +232,6 @@ module.exports = {
   Lesson,
   LessonTopic,
   LessonSchedule,
-  Feedback
+  Feedback,
+  UserDocument
 };
