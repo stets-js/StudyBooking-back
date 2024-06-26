@@ -12,8 +12,9 @@ router
   .post(userDocumentController.createUserDocument);
 
 router
-  .route('/:id')
-  .get(userDocumentController.getUserDocumentById)
+  .route('/:id') // id - userId
+  .get(userDocumentController.getUserDocumentsByUserId)
+  .post(userDocumentController.addUserDocument)
   .patch(userDocumentController.updateUserDocument)
   .delete(userDocumentController.deleteUserDocument);
 

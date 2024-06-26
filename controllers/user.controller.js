@@ -237,12 +237,12 @@ exports.addCoursesToUsersBulk = catchAsync(async (req, res, next) => {
     const userCourse = await TeacherCourse.findOrCreate({
       where: {
         userId: id.id,
-        courseId: 139,
+        courseId: 118,
         TeacherTypeId: 3
       },
       defaults: {
         userId: id.id,
-        courseId: 139,
+        courseId: 118,
         TeacherTypeId: 3
       }
     });
@@ -280,7 +280,7 @@ exports.sendEmailsBulk = catchAsync(async (req, res, next) => {
         });
 
         resolve();
-      }, i * 100)
+      }, i * 10)
     ); // Delay of i * 1000 milliseconds (1 second per email)
   }
 
