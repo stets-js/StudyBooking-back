@@ -55,4 +55,20 @@ exports.createUserDocument = factory.createOne(UserDocument);
 
 exports.deleteUserDocument = factory.deleteOne(UserDocument);
 
-exports.updateUserDocument = factory.updateOne(UserDocument);
+exports.updateUserDocument = catchAsync(async (req, res, next) => {
+  let document = await UserDocument.findOne({
+    where: {UserId: req.params.id, DocumentTypeId: req.body.DocumentTypeId}
+  });
+  console.log(req.body.documents);
+  if (req.body.documents.length === 0) {
+    document = await document.destroy();
+  } else {
+    document.documents = req.body.documents;
+    await document.save();
+  }
+  return res.json({
+    status: 'success',
+    results: document.length,
+    data: document
+  });
+});
