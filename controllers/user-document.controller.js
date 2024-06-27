@@ -1,19 +1,31 @@
+const sequelize = require('../db');
 const {UserDocument} = require('../models/relation');
 const factory = require('./factory.controller');
+const catchAsync = require('../utils/catchAsync');
 
 exports.getAllUserDocuments = factory.getAll(UserDocument);
 
-exports.getUserDocumentsByUserId = factory.getOne(UserDocument);
+exports.getUserDocumentsByUserId = catchAsync(async (req, res, next) => {
+  const document = await UserDocument.findAll({
+    where: {UserId: req.params.id}
+  });
+  console.log(document);
+  return res.json({
+    status: 'success',
+    results: document.length,
+    data: document
+  });
+});
+
 exports.addUserDocument = async (req, res, next) => {
   const documentId = req.body.documentId;
   const userId = req.params.id;
-
+  let message = '';
   try {
     // Find the user's document entry in the database
     let userDocument = await UserDocument.findOne({
       where: {UserId: userId, DocumentTypeId: documentId}
     });
-
     if (!userDocument) {
       // If the user document entry does not exist, create a new one
       userDocument = await UserDocument.create({
@@ -21,14 +33,17 @@ exports.addUserDocument = async (req, res, next) => {
         UserId: userId,
         DocumentTypeId: documentId
       });
+      message = 'Document added successfully';
     } else {
       // If the user document entry already exists, update it
-      userDocument.documents.push(req.body.document);
-      await userDocument.save();
+      userDocument = await UserDocument.update(
+        {documents: sequelize.fn('array_append', sequelize.col('documents'), req.body.document)},
+        {where: {UserId: userId, DocumentTypeId: documentId}, returning: true}
+      );
+      message = 'Document appended successfully';
     }
-
     // Respond with success message or updated user document
-    res.status(201).json({message: 'Document added successfully', userDocument});
+    res.status(201).json({message, userDocument});
   } catch (err) {
     // Handle errors
     console.error(err);
