@@ -157,3 +157,8 @@ exports.subgroupJSON = catchAsync(async (req, res, next) => {
     }
   });
 });
+
+exports.sendTelegram = (req, res, next) => {
+  sendTelegramNotification(req.body.telegram, 'Hello?');
+  res.status(200).json({message: 'sended'});
+};
