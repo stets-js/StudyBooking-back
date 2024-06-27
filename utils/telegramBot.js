@@ -3,7 +3,7 @@ const TelegramBot = require('node-telegram-bot-api');
 const {verifyUser} = require('../controllers/auth.controller');
 const {User} = require('../models/relation');
 // Your Telegram bot token
-const token = '7361130041:AAG3ftX4Py1BQ-6nf_knEkhekGMk82KrrZI';
+const token = '7361130041:AAFm7LGbuOrjtcRl1F7EY47aFfSTgJyBtpg';
 if (process.env.NODE_ENV === 'DEV') return;
 
 const bot = new TelegramBot(token, {polling: true});
@@ -45,4 +45,4 @@ async function processAddChatId(chatId, user) {
   }
 }
 
-module.export = bot;
+module.exports = bot;
