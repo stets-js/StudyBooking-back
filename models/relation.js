@@ -115,10 +115,21 @@ User.beforeFind(async options => {
   options.attributes.exclude = options.attributes.exclude || [];
   options.attributes.exclude.push('createdAt', 'updatedAt');
   options.include = options.include || [];
-  options.include.push({
-    model: Role,
-    attributes: ['id', 'name']
-  });
+  options.include.push(
+    {
+      model: Role,
+      attributes: ['id', 'name']
+    },
+    {
+      model: Course,
+      as: 'teachingCourses',
+      through: {
+        model: TeacherCourse,
+        attributes: []
+      },
+      attributes: ['id', 'name']
+    }
+  );
 });
 
 Replacement.beforeFind(async options => {
