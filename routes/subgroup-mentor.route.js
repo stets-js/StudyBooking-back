@@ -5,7 +5,7 @@ const subgroupMentorController = require('../controllers/subgroup-mentor.control
 const whereClauseGenerator = require('../utils/whereClauseGenerator');
 
 const router = express.Router();
-
+router.use(authController.protect);
 router
   .route('/')
   .get(whereClauseGenerator, subgroupMentorController.getAllSubgroupsMentor)

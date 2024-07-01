@@ -47,14 +47,15 @@ exports.verifyUser = async (email, password) => {
   return user;
 };
 
-exports.login = catchAsync(async (req, res) => {
+exports.login = async (req, res) => {
   const {email, password} = req.body;
   const verify = await this.verifyUser(email, password);
   if (!verify) {
     return res.status(401).json({message: 'Invalid credentials'});
   }
+  req.user = verify;
   createSendToken(verify, 200, res);
-});
+};
 
 exports.logout = (req, res) => {
   try {

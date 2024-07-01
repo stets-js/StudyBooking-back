@@ -1,10 +1,17 @@
 const slackApp = require('./slackBot.js');
-
+// const tmp = async () => {
+//   const result = await slackApp.client.users.list({
+//     token: process.env.SLACK_BOT_TOKEN
+//   });
+//   console.log(result.members);
+// };
+// tmp();
 const getUserIdByName = async userName => {
   try {
     const result = await slackApp.client.users.list({
       token: process.env.SLACK_BOT_TOKEN
     });
+    console.log(result);
     const user = result.members.find(member => member.name === userName);
     return user ? user.id : null;
   } catch (error) {

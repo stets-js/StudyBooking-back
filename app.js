@@ -6,7 +6,8 @@ const rateLimit = require('express-rate-limit');
 const morgan = require('morgan');
 const cors = require('cors');
 const {createEventAdapter} = require('@slack/events-api');
-
+const logger = require('./utils/logger');
+const Logs = require('./models/log.model.js');
 const createBasicRoles = require('./utils/createBasicRoles');
 
 const authRoutes = require('./routes/auth.route');
@@ -72,6 +73,8 @@ app.use('/api', limiter);
 
 // Serving static files
 app.use(express.static(`${__dirname}/public`));
+
+app.use(morgan(logger));
 
 // routes
 app.use('/api/auth', authRoutes);

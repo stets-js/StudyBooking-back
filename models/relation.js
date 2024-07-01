@@ -10,7 +10,7 @@ const {UserDocument} = require('./user-document.model');
 const {DocumentType} = require('./document-type.model');
 const {Lesson, LessonTopic, LessonSchedule, LessonSubgroup} = require('./lesson.model');
 const {Feedback} = require('./feedback.model');
-
+const Logs = require('./log.model');
 Lesson.belongsTo(User, {foreignKey: 'mentorId'});
 User.hasMany(Lesson, {foreignKey: 'mentorId'});
 
@@ -40,6 +40,9 @@ Slot.belongsTo(User, {foreignKey: 'userId'});
 
 User.belongsToMany(DocumentType, {through: UserDocument});
 DocumentType.belongsToMany(User, {through: UserDocument});
+
+User.hasMany(Logs, {foreignKey: 'userId', onDelete: 'CASCADE'});
+Logs.belongsTo(User, {foreignKey: 'userId'});
 
 User.belongsToMany(Course, {
   through: TeacherCourse,
