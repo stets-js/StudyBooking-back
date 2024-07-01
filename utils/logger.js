@@ -2,8 +2,8 @@ const Logs = require('../models/log.model');
 
 const logger = (tokens, req, res) => {
   // Определяем маршруты, которые хотим игнорировать
-  // const ignoreRoutes = ['/ignore-this-route', '/static'];
-  if (req.method === 'GET') {
+  const notIgnoringGets = ['/api/lessons'];
+  if (req.method === 'GET' && !notIgnoringGets.includes(tokens.url(req, res).split('?')[0])) {
     return null;
   }
   Logs.create({
