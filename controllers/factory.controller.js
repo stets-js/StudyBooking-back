@@ -31,9 +31,9 @@ exports.createOne = (Model, options) =>
     });
   });
 
-exports.getOne = Model =>
+exports.getOne = (Model, includeOptions = {}) =>
   catchAsync(async (req, res, next) => {
-    const document = await Model.findByPk(req.params.id);
+    const document = await Model.findOne({where: {id: req.params.id}, includeOptions});
     if (!document) {
       return res.status(404).json({message: `No document find with id ${req.params.id}`});
     }

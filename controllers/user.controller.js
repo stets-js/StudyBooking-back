@@ -28,20 +28,21 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
       model: Slot,
       attributes: [],
       where: {appointmentTypeId: 2}, // indiv
-      required: true // This will ensure that only users with slots are included
+      required: true
     });
   }
   if (req.query.courses) {
     // case of filtering users by courses
     const courseIds = JSON.parse(req.query.courses);
-    includeOptions.push({
-      model: Course,
-      as: 'teachingCourses',
-      where: courseIds.length > 0 ? {id: {[Op.in]: courseIds}} : {}
-    });
+    if (courseIds.length > 0)
+      includeOptions.push({
+        model: Course,
+        as: 'teachingCourses',
+        where: {id: {[Op.in]: courseIds}}
+      });
   }
   document = await User.findAll({
-    subQuery: false,
+    // subQuery: false,
     where: req.whereClause,
     attributes,
     include: includeOptions,
@@ -65,11 +66,18 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
     results: document.length,
     data: document,
     totalCount,
-    newOffset: +req.query.offset + +req.query.limit
+    newOffset: +req.query.offset + document.length
   });
 });
 
-exports.getUserById = factory.getOne(User);
+exports.getUserById = factory.getOne(User, {
+  includes: [
+    {
+      model: Course,
+      as: 'teachingCourses'
+    }
+  ]
+});
 
 exports.createUser = catchAsync(async (req, res, next) => {
   req.body.password = (Math.random() + 1).toString(36).substring(7); // for preventing user to login in system without password
@@ -230,19 +238,19 @@ exports.getUsersForReplacementSubGroup = catchAsync(async (req, res, next) => {
 });
 
 exports.addCoursesToUsersBulk = catchAsync(async (req, res, next) => {
-  const users = req.body.users;
-
+  const users = req.body.emails;
+  const courseId = req.body.courseId;
   users.forEach(async user => {
     const id = await User.findOne({where: {email: user}});
     const userCourse = await TeacherCourse.findOrCreate({
       where: {
         userId: id.id,
-        courseId: 118,
+        courseId,
         TeacherTypeId: 3
       },
       defaults: {
         userId: id.id,
-        courseId: 118,
+        courseId,
         TeacherTypeId: 3
       }
     });
