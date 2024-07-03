@@ -313,3 +313,56 @@ exports.updateTelegramChatId = catchAsync(async (req, res, next) => {
     });
   }
 });
+async function getCourseData(courseId) {
+  const [results] = await sequelize.query(
+    `
+    SELECT
+      u.name AS userName,
+      u.email AS userEmail,
+      u."createdAt" AS userCreatedAt,
+      u."updatedAt" AS userUpdatedAt,
+      c.name AS courseName
+    FROM "Users" u
+    JOIN "TeacherCourses" tc ON u.id = tc."userId"
+    JOIN "Courses" c ON tc."courseId" = c.id
+    WHERE c.id = :courseId AND
+    u."updatedAt" > '2024-06-25' AND
+          u."createdAt" != u."updatedAt" AND
+          EXTRACT(EPOCH FROM (u."updatedAt" - u."createdAt")) > 180
+  `,
+    {
+      replacements: {courseId}
+    }
+  );
+  return results.map(row => [row.username, row.useremail, row.usercreatedat, row.userupdatedat]);
+}
+async function getAllCourses() {
+  const courses = await Course.findAll({
+    attributes: ['id', 'name'],
+    where: {id: {[Op.in]: [141]}}
+  });
+
+  return courses;
+}
+
+const createSheetForCourse = require('../utils/spreadsheet/createNewSheet');
+const uploadDataToGoogleSheet = require('../utils/spreadsheet/uploadData');
+const loginToSheet = require('../utils/spreadsheet/loginToSheet');
+
+async function exportData() {
+  const sheets = await loginToSheet();
+
+  const spreadsheetId = '1FrBBGGz-fRqfeUuLzO1Jslqem6L0bogJ_qU_9m8zY14';
+  const courses = await getAllCourses();
+  for (const course of courses) {
+    const courseData = await getCourseData(course.id);
+    courseData.unshift(['User Name', 'User Email', 'Created At', 'Updated At']); // Додаємо заголовки таблиці
+
+    await createSheetForCourse(sheets, spreadsheetId, course.name);
+    await uploadDataToGoogleSheet(sheets, spreadsheetId, course.name, courseData);
+  }
+}
+exports.usersThatChangedPassword = async (req, res, next) => {
+  await exportData();
+  res.status(200).send('Data successfully exported to Google Sheet');
+};
