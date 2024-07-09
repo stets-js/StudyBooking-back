@@ -70,14 +70,12 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.getUserById = factory.getOne(User, {
-  includes: [
-    {
-      model: Course,
-      as: 'teachingCourses'
-    }
-  ]
-});
+exports.getUserById = factory.getOne(User, [
+  {
+    model: Course,
+    as: 'teachingCourses'
+  }
+]);
 
 exports.createUser = catchAsync(async (req, res, next) => {
   req.body.password = (Math.random() + 1).toString(36).substring(7); // for preventing user to login in system without password
@@ -339,7 +337,7 @@ async function getCourseData(courseId) {
 async function getAllCourses() {
   const courses = await Course.findAll({
     attributes: ['id', 'name'],
-    where: {id: {[Op.in]: [141]}}
+    where: {id: {[Op.in]: [117]}}
   });
 
   return courses;
@@ -348,6 +346,7 @@ async function getAllCourses() {
 const createSheetForCourse = require('../utils/spreadsheet/createNewSheet');
 const uploadDataToGoogleSheet = require('../utils/spreadsheet/uploadData');
 const loginToSheet = require('../utils/spreadsheet/loginToSheet');
+const Logs = require('../models/log.model');
 
 async function exportData() {
   const sheets = await loginToSheet();
@@ -358,7 +357,7 @@ async function exportData() {
     const courseData = await getCourseData(course.id);
     courseData.unshift(['User Name', 'User Email', 'Created At', 'Updated At']); // Додаємо заголовки таблиці
 
-    await createSheetForCourse(sheets, spreadsheetId, course.name);
+    // await createSheetForCourse(sheets, spreadsheetId, course.name);
     await uploadDataToGoogleSheet(sheets, spreadsheetId, course.name, courseData);
   }
 }
@@ -366,3 +365,98 @@ exports.usersThatChangedPassword = async (req, res, next) => {
   await exportData();
   res.status(200).send('Data successfully exported to Google Sheet');
 };
+const endpointToActionMap = {
+  '^/api/auth/login$': 'логін',
+  '/api/subgroup-mentor': 'призначенно на потік',
+  '/subgroups/\\d+$': 'Редагування потока',
+  '^/api/subgroups': 'Створення потока',
+  '^/api/lessons': 'Перегляд календаря',
+  '/api/auth/forgotPassword': 'Скидання пароля',
+  '^/api/users/\\d+/slots/\\d+$': 'Видалення слота',
+  '^/api/users/\\d+/slots$': 'Виставляння слота',
+  '^/api/users/\\d+': 'Редагування юзера',
+  '/api/users/\\d+/courses/\\d+': 'Додавання курса до викладача'
+  // Добавьте здесь другие соответствия
+};
+
+const getActionFromEndpoint = endpoint => {
+  for (const pattern in endpointToActionMap) {
+    if (new RegExp(pattern).test(endpoint)) {
+      return endpointToActionMap[pattern];
+    }
+  }
+  return null; // Вернуть null, если сопоставление не найдено
+};
+exports.getLogs = async (req, res, next) => {
+  const logs = await Logs.findAll({
+    where: {
+      userId: {[Op.or]: [{[Op.ne]: 18}, {[Op.ne]: 129}]},
+      path: {[Op.ne]: '/api/lessons/bulk'}
+    },
+    include: [
+      {
+        model: User,
+        attributes: ['name', 'email']
+      }
+    ]
+  });
+
+  // Логин и загрузка данных в Google Sheets
+  const sheets = await loginToSheet();
+  const spreadsheetId = '1iNDkg4PglhR2KF7oKHfBUTBUOrjlK32ocMrDThrZbl0';
+
+  const logDataByAction = {
+    Other: [['User Name', 'User Email', 'Action', 'Method', 'Created At', 'Updated At']]
+  };
+
+  for (const log of logs) {
+    const action = getActionFromEndpoint(log.path) || 'Other';
+    if (!logDataByAction[action]) {
+      logDataByAction[action] = [
+        ['User Name', 'User Email', 'Action', 'Method', 'Created At', 'Updated At']
+      ];
+    }
+
+    logDataByAction[action].push([
+      log?.User?.name || undefined,
+      log?.User?.email || log.body?.email || undefined,
+      action,
+      log.method,
+      log.createdAt,
+      log.updatedAt
+    ]);
+  }
+
+  for (const [action, logData] of Object.entries(logDataByAction)) {
+    await createSheetIfNotExists(sheets, spreadsheetId, action);
+    await uploadDataToGoogleSheet(sheets, spreadsheetId, action, logData);
+  }
+
+  res.status(200).json(logs);
+};
+
+// Функция для создания листа, если он не существует
+async function createSheetIfNotExists(sheets, spreadsheetId, sheetTitle) {
+  const {data} = await sheets.spreadsheets.get({
+    spreadsheetId
+  });
+
+  const sheetExists = data.sheets.some(sheet => sheet.properties.title === sheetTitle);
+
+  if (!sheetExists) {
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId,
+      resource: {
+        requests: [
+          {
+            addSheet: {
+              properties: {
+                title: sheetTitle
+              }
+            }
+          }
+        ]
+      }
+    });
+  }
+}
