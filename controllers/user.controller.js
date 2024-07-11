@@ -149,6 +149,7 @@ exports.updateUserCourse = catchAsync(async (req, res, next) => {
 });
 
 exports.getFreeUsers = catchAsync(async (req, res, next) => {
+  const {appointmentType} = req.query;
   const users = await TeacherCourse.findAll({
     where: {courseId: req.params.courseId}
   });
@@ -156,7 +157,7 @@ exports.getFreeUsers = catchAsync(async (req, res, next) => {
   const availableSlots = await Slot.findAll({
     where: {
       weekDay: req.params.weekDay,
-      '$AppointmentType.name$': 'universal'
+      '$AppointmentType.name$': appointmentType
     },
     include: {
       model: User,
