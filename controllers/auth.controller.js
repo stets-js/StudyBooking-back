@@ -17,16 +17,16 @@ const signToken = (user, timeTillMorning) => {
     {id: user.id, user_name: user.name, role: user.Role.name, roleId: user.Role.id},
     process.env.JWT_SECRET,
     {
-      expiresIn: timeTillMorning
+      expiresIn: '90d'
     }
   );
 };
 
 const createSendToken = (user, statusCode, res) => {
-  const timeTillMorning = timeLeftTillMorning();
-  const token = signToken(user, timeTillMorning);
+  // const timeTillMorning = timeLeftTillMorning();
+  const token = signToken(user);
   const cookieOptions = {
-    expires: new Date(Date.now() + timeTillMorning),
+    // expires: new Date(Date.now() + timeTillMo.rning),
     httpOnly: true
   };
   res.cookie('jwt', token, cookieOptions);
