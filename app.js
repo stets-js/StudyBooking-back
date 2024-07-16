@@ -25,6 +25,8 @@ const lessonRoutes = require('./routes/lesson.route');
 const feedbackRoutes = require('./routes/feedback.route');
 const userDocumentRoutes = require('./routes/user-document.route');
 const documentTypeRoutes = require('./routes/document-type.route');
+const reportRoutes = require('./routes/report.route');
+
 const createBasicTeacherTypes = require('./utils/createBasicTeacherTypes');
 const newSubgroups = require('./subgroupScrapper.js');
 const newUsers = require('./excel.js');
@@ -92,7 +94,7 @@ app.use('/api/lessons', lessonRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/user-document', userDocumentRoutes);
 app.use('/api/document-type', documentTypeRoutes);
-
+app.use('/api/reports', reportRoutes);
 app.all('*', (req, res, next) => {
   next(`Can't find ${req.originalUrl} on this server :#`, 404);
 });

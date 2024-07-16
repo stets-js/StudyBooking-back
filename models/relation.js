@@ -11,6 +11,7 @@ const {DocumentType} = require('./document-type.model');
 const {Lesson, LessonTopic, LessonSchedule, LessonSubgroup} = require('./lesson.model');
 const {Feedback} = require('./feedback.model');
 const Logs = require('./log.model');
+const Report = require('./report.model');
 Lesson.belongsTo(User, {foreignKey: 'mentorId'});
 User.hasMany(Lesson, {foreignKey: 'mentorId'});
 
@@ -110,6 +111,15 @@ SubgroupMentor.belongsTo(User, {foreignKey: 'mentorId'});
 SubgroupMentor.belongsTo(TeacherType);
 TeacherType.hasMany(SubgroupMentor);
 
+Report.belongsTo(User, {foreignKey: 'mentorId'});
+User.hasMany(Report, {foreignKey: 'mentorId'});
+
+Report.belongsTo(Course, {foreignKey: 'courseId'});
+Course.hasMany(Report, {foreignKey: 'courseId'});
+
+Report.belongsTo(SubGroup, {foreignKey: 'subgroupId'});
+SubGroup.hasMany(Report, {foreignKey: 'subgroupId'});
+
 User.beforeFind(async options => {
   options.attributes = options.attributes || {};
   options.attributes.exclude = options.attributes.exclude || [];
@@ -148,6 +158,27 @@ Replacement.beforeFind(async options => {
       }
     ]
   });
+});
+
+Report.beforeFind(async options => {
+  options.attributes = options.attributes || {};
+  options.attributes.exclude = options.attributes.exclude || [];
+
+  options.include = options.include || [];
+  options.include.push(
+    {
+      model: Course,
+      attributes: ['name']
+    },
+    {
+      model: User,
+      attributes: ['name', 'id']
+    },
+    {
+      model: SubGroup,
+      attributes: ['name']
+    }
+  );
 });
 
 Slot.beforeFind(async options => {

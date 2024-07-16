@@ -21,7 +21,7 @@ module.exports = catchAsync(async (req, res, next) => {
     clause.userId = {[Op.in]: req.body.userIds};
   }
   if (req.params.id) clause.userId = req.params.id; // cause of Slot userId seact
-
+  if (req.query.subgroupId) clause['subgroupId'] = req.query.subgroupId;
   if (req.query.startDate) {
     // case for teacherCalendar
     clause.startDate = {

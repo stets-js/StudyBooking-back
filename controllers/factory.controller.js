@@ -70,7 +70,7 @@ exports.getAll = Model =>
                 ['rating', 'DESC']
               ]
             : [['rating', 'DESC']]
-          : [],
+          : [['updatedAt', 'DESC']],
       offset: req.query.offset,
       limit: req.query.limit
     });

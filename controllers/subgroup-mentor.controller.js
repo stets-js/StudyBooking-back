@@ -16,7 +16,8 @@ exports.getAllSubgroupsMentor = catchAsync(async (req, res, next) => {
           },
           Course
         ]
-      }
+      },
+      {model: User, attributes: ['name', 'id']}
     ],
     order: [['subgroupId', 'ASC']]
   });
