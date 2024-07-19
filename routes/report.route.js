@@ -2,6 +2,7 @@ const express = require('express');
 
 const authController = require('../controllers/auth.controller');
 const reportController = require('../controllers/report.controller');
+const whereClauseGenerator = require('../utils/whereClauseGenerator');
 
 const router = express.Router();
 
@@ -9,7 +10,7 @@ router.use(authController.protect);
 
 router
   .route('/')
-  .get(reportController.getAllReports)
+  .get(whereClauseGenerator, reportController.getAllReports)
   .post(authController.allowedTo(['QC manager', 'superAdmin']), reportController.createReport);
 
 router
