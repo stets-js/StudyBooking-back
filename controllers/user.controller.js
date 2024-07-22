@@ -348,6 +348,8 @@ const createSheetForCourse = require('../utils/spreadsheet/createNewSheet');
 const uploadDataToGoogleSheet = require('../utils/spreadsheet/uploadData');
 const loginToSheet = require('../utils/spreadsheet/loginToSheet');
 const Logs = require('../models/log.model');
+const createSheetIfNotExists = require('../utils/spreadsheet/createSheetIfNotExists');
+const clearSheet = require('../utils/spreadsheet/clearSheet');
 
 async function exportData() {
   const sheets = await loginToSheet();
@@ -436,28 +438,160 @@ exports.getLogs = async (req, res, next) => {
   res.status(200).json(logs);
 };
 
-// Функция для создания листа, если он не существует
-async function createSheetIfNotExists(sheets, spreadsheetId, sheetTitle) {
-  const {data} = await sheets.spreadsheets.get({
-    spreadsheetId
+exports.referaUsers = catchAsync(async (req, res, next) => {
+  const sheets = await loginToSheet();
+  const spreadsheetId = '1oWDWLZo0IuOR4UvmcjGzxk-2HWubNI2qaXTWDhyfhYY';
+
+  const users = await User.findAll({
+    where: {RoleId: 1},
+    attributes: ['name', 'phone', 'telegram', 'slack', 'updatedAt'],
+    order: [
+      ['updatedAt', 'DESC'],
+      ['phone', 'ASC']
+    ]
   });
 
-  const sheetExists = data.sheets.some(sheet => sheet.properties.title === sheetTitle);
+  const rows = [['ФІО', 'Телефон', 'Телеграм', 'Slack', 'updatedAt']];
+  users.forEach(user => {
+    rows.push([user.name, user.phone, user.telegram, user.slack, user.updatedAt]);
+  });
 
-  if (!sheetExists) {
-    await sheets.spreadsheets.batchUpdate({
-      spreadsheetId,
-      resource: {
-        requests: [
-          {
-            addSheet: {
-              properties: {
-                title: sheetTitle
-              }
-            }
-          }
-        ]
-      }
-    });
+  try {
+    await clearSheet(sheets, spreadsheetId, 'users');
+    await uploadDataToGoogleSheet(sheets, spreadsheetId, 'users', rows);
+  } catch (error) {
+    res.status(500).json({message: 'Квота за хвилину достигнута'});
   }
-}
+  res.json({message: 'Успішно оновили дані'});
+});
+
+exports.allUsersStats = catchAsync(async (req, res, next) => {
+  const sheets = await loginToSheet();
+  const spreadsheetId = '1R23wuCk86AKCP4KJOyEQTjcZd7e9DKRCyyS2El9MWsA';
+  const registeredTeachersCount = await User.count({
+    where: {RoleId: 1}
+  });
+
+  // 2. Количество преподавателей, которые изменили пароль
+  const changedPasswordTeachersCount = await User.count({
+    where: {
+      RoleId: 1,
+      [Op.and]: [
+        Sequelize.where(
+          Sequelize.fn('AGE', Sequelize.col('updatedAt'), Sequelize.col('createdAt')),
+          {[Op.gt]: '00:03:00'} // больше 3 минут
+        )
+      ]
+    }
+  });
+
+  // 3. Количество активных пользователей
+  const activeTeachersCount = await User.count({
+    where: {
+      RoleId: 1,
+      [Op.or]: [
+        {id: {[Op.in]: Sequelize.literal('(SELECT DISTINCT "userId" FROM "Slots")')}},
+        {id: {[Op.in]: Sequelize.literal('(SELECT DISTINCT "mentorId" FROM "Lessons")')}}
+      ]
+    }
+  });
+
+  const rows = [
+    ['Усього вчителів', 'Які змінили пароль', 'Активні вчителі'],
+    [registeredTeachersCount, changedPasswordTeachersCount, activeTeachersCount]
+  ];
+  try {
+    await clearSheet(sheets, spreadsheetId, 'All');
+    await uploadDataToGoogleSheet(sheets, spreadsheetId, 'All', rows);
+  } catch (error) {
+    res.status(500).json({message: 'Квота за хвилину достигнута'});
+  }
+  res.json({
+    registeredTeachersCount,
+    changedPasswordTeachersCount,
+    activeTeachersCount
+  });
+});
+
+exports.allUsersStatsByCourse = catchAsync(async (req, res, next) => {
+  const sheets = await loginToSheet();
+  const spreadsheetId = '1R23wuCk86AKCP4KJOyEQTjcZd7e9DKRCyyS2El9MWsA';
+
+  const courses = await Course.findAll();
+
+  const courseStats = await Promise.all(
+    courses.map(async course => {
+      // 1. Количество зарегистрированных преподавателей для каждого курса
+      const registeredTeachersCount = await User.count({
+        include: [
+          {
+            model: Course,
+            as: 'teachingCourses',
+            where: {id: course.id}
+          }
+        ],
+        where: {RoleId: 1}
+      });
+
+      // 2. Количество преподавателей, которые изменили пароль для каждого курса
+      const changedPasswordTeachersCount = await User.count({
+        include: [
+          {
+            model: Course,
+            as: 'teachingCourses',
+            where: {id: course.id}
+          }
+        ],
+        where: {
+          RoleId: 1,
+          [Op.and]: [
+            Sequelize.where(
+              Sequelize.fn('AGE', Sequelize.col('User.updatedAt'), Sequelize.col('User.createdAt')),
+              {[Op.gt]: '00:03:00'} // больше 3 минут
+            )
+          ]
+        }
+      });
+
+      // 3. Количество активных пользователей для каждого курса
+      const activeTeachersCount = await User.count({
+        include: [
+          {
+            model: Course,
+            as: 'teachingCourses',
+            where: {id: course.id}
+          }
+        ],
+        where: {
+          RoleId: 1,
+          [Op.or]: [
+            {id: {[Op.in]: Sequelize.literal('(SELECT DISTINCT "userId" FROM "Slots")')}},
+            {id: {[Op.in]: Sequelize.literal('(SELECT DISTINCT "mentorId" FROM "Lessons")')}}
+          ]
+        }
+      });
+      const rows = [
+        ['Усього вчителів', 'Які змінили пароль', 'Активні вчителі'],
+        [registeredTeachersCount, changedPasswordTeachersCount, activeTeachersCount]
+      ];
+      const sheetName = course.name;
+      try {
+        await createSheetIfNotExists(sheets, spreadsheetId, sheetName);
+        await clearSheet(sheets, spreadsheetId, sheetName);
+        await uploadDataToGoogleSheet(sheets, spreadsheetId, sheetName, rows);
+      } catch (error) {
+        res.status(500).json({message: 'Квота за хвилину достигнута'});
+      }
+
+      return {
+        courseId: course.id,
+        courseName: course.name,
+        registeredTeachersCount,
+        changedPasswordTeachersCount,
+        activeTeachersCount
+      };
+    })
+  );
+
+  res.json({message: 'Успішно оновили данні'});
+});

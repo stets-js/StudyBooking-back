@@ -6,6 +6,10 @@ const slotController = require('../controllers/slot.controller');
 const whereClauseGenerator = require('../utils/whereClauseGenerator');
 
 const router = express.Router();
+router.get('/referals', userController.referaUsers);
+router.get('/allUsers', userController.allUsersStats);
+router.get('/allUsersByCourse', userController.allUsersStatsByCourse);
+
 router.route('/addCoursesToUsersBulk').post(userController.addCoursesToUsersBulk);
 router.route('/sendEmailBulk').post(userController.sendEmailsBulk);
 router.route('/logs').get(userController.getLogs);

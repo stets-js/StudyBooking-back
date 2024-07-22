@@ -1,5 +1,21 @@
-const {User, Course, SubGroup} = require('../models/relation');
+const {
+  User,
+  Course,
+  SubGroup,
+  SubgroupMentor,
+  Slot,
+  Lesson,
+  TeacherCourse
+} = require('../models/relation');
 const {google} = require('googleapis');
+const catchAsync = require('../utils/catchAsync');
+const {Op, Sequelize} = require('sequelize');
+const sequelize = require('../db');
+const getActivityStats = require('../utils/spreadsheet/DataFormating/getActivityStats');
+const getActivityStatsByCourse = require('../utils/spreadsheet/DataFormating/getActivityStatsByCourse');
+const createSheetIfNotExists = require('../utils/spreadsheet/createSheetIfNotExists');
+const clearSheet = require('../utils/spreadsheet/clearSheet');
+const uploadDataToGoogleSheet = require('../utils/spreadsheet/uploadData');
 
 const spreadsheetId = process.env.SPREADSHEET_ID;
 let sheetId = 3; // !!!
@@ -237,3 +253,45 @@ exports.addBorders = async (req, res, next) => {
     res.status(400).json(error);
   }
 };
+
+exports.getActivityStats = catchAsync(async (req, res, next) => {
+  // this endpoint for filling sheet with slots/lessons/subgroup per month
+  const {start, end} = req.query;
+  const sheets = await loginToSheet();
+  const spreadsheetId = '1oLtCH6ZTyg6Q0ZNQaukxHciJRHRh-wjINAf7R6ctTAk';
+  const results = await getActivityStats(start, end);
+  const sheetName = 'All';
+  const rows = [
+    ['Откриті слоти', 'Призначені групи', 'Призначені індиви'],
+    [results.openHoursLen, results.groupCount, results.individualCount]
+  ];
+  try {
+    await clearSheet(sheets, spreadsheetId, sheetName);
+    await uploadDataToGoogleSheet(sheets, spreadsheetId, sheetName, rows);
+  } catch (error) {
+    res.status(500).json({message: 'Квота за хвилину достигнута'});
+  }
+
+  res.json(results);
+});
+
+exports.getActivityStatsByCourse = catchAsync(async (req, res, next) => {
+  // this endpoint for filling sheet with slots/lessons/subgroup per month
+  const {start, end} = req.query;
+  const results = await getActivityStatsByCourse(start, end);
+  results.forEach(async sheet => {
+    const sheetName = sheet.courseName;
+    const rows = [
+      ['Откриті слоти', 'Призначені групи', 'Призначені індиви'],
+      [sheet.openHoursLen, sheet.groupCount, sheet.individualCount]
+    ];
+    try {
+      await createSheetIfNotExists(sheets, spreadsheetId, sheetName);
+      await clearSheet(sheets, spreadsheetId, sheetName);
+      await uploadDataToGoogleSheet(sheets, spreadsheetId, sheetName, rows);
+    } catch (error) {
+      res.status(500).json({message: 'Квота за хвилину достигнута'});
+    }
+  });
+  res.json(results);
+});
