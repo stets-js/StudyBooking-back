@@ -4,9 +4,9 @@ const {Lesson} = require('../../../models/lesson.model');
 const {Course} = require('../../../models/course.model');
 const {SubGroup} = require('../../../models/subgroup.model');
 
-const getActivityStatsByCourse = async (start, end) => {
-  const courses = await Course.findAll();
-
+const getActivityStatsByCourse = async (start, end, where) => {
+  const courses = await Course.findAll({where});
+  console.log(courses, 'COURSES!');
   const results = await Promise.all(
     courses.map(async (course, index) => {
       // Количество открытых часов
