@@ -278,19 +278,28 @@ exports.getActivityStats = catchAsync(async (req, res, next) => {
 exports.getActivityStatsByCourse = catchAsync(async (req, res, next) => {
   // this endpoint for filling sheet with slots/lessons/subgroup per month
   const {start, end} = req.query;
-  const results = await getActivityStatsByCourse(start, end);
+  const courseId = req.query.courseId;
+
+  let where = {};
+  if (courseId) where.id = courseId;
+
+  const sheets = await loginToSheet();
+  const spreadsheetId = '1oLtCH6ZTyg6Q0ZNQaukxHciJRHRh-wjINAf7R6ctTAk';
+
+  const results = await getActivityStatsByCourse(start, end, where);
   results.forEach(async sheet => {
     const sheetName = sheet.courseName;
     const rows = [
       ['Откриті слоти', 'Призначені групи', 'Призначені індиви'],
       [sheet.openHoursLen, sheet.groupCount, sheet.individualCount]
     ];
+    console.log(sheet);
     try {
       await createSheetIfNotExists(sheets, spreadsheetId, sheetName);
       await clearSheet(sheets, spreadsheetId, sheetName);
       await uploadDataToGoogleSheet(sheets, spreadsheetId, sheetName, rows);
     } catch (error) {
-      res.status(500).json({message: 'Квота за хвилину достигнута'});
+      return res.status(500).json({message: 'Квота за хвилину достигнута'});
     }
   });
   res.json(results);

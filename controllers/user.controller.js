@@ -516,9 +516,10 @@ exports.allUsersStats = catchAsync(async (req, res, next) => {
 exports.allUsersStatsByCourse = catchAsync(async (req, res, next) => {
   const sheets = await loginToSheet();
   const spreadsheetId = '1R23wuCk86AKCP4KJOyEQTjcZd7e9DKRCyyS2El9MWsA';
-
-  const courses = await Course.findAll();
-
+  const courseId = req.query.courseId;
+  let where = {};
+  if (courseId) where.id = courseId;
+  const courses = await Course.findAll({where});
   const courseStats = await Promise.all(
     courses.map(async course => {
       // 1. Количество зарегистрированных преподавателей для каждого курса
