@@ -33,7 +33,7 @@ exports.sendTelegramAfterCreating = async (req, res, next) => {
   }
   console.log(message);
   // ''
-  sendTelegramNotification('-1002197881869', ``);
+  sendTelegramNotification('-1002197881869', message);
   next();
 };
 exports.deleteBugOrIdea = factory.deleteOne(BugOrIdea);
