@@ -1,7 +1,7 @@
 const BugOrIdea = require('../models/bugOrIdea.model');
 const User = require('../models/user.model');
 const factory = require('./factory.controller');
-
+const sendTelegramNotification = require('../utils/sendTelegramNotification');
 exports.getAllBugOrIdeas = factory.getAll(BugOrIdea);
 
 exports.getBugOrIdeaById = factory.getOne(BugOrIdea);
@@ -32,7 +32,6 @@ exports.sendTelegramAfterCreating = async (req, res, next) => {
     `;
   }
   console.log(message);
-  // ''
   sendTelegramNotification('-1002197881869', message);
   next();
 };
