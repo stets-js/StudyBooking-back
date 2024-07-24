@@ -154,6 +154,6 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   // if token !expired, and is user, set new password
   user.password = req.body.password;
   await user.save();
-
+  console.log(user);
   createSendToken(user, 201, res);
 });

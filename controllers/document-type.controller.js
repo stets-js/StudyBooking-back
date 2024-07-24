@@ -1,4 +1,5 @@
 const {DocumentType} = require('../models/document-type.model');
+const sendTelegramNotification = require('../utils/sendTelegramNotification');
 const factory = require('./factory.controller');
 
 exports.getAllDocumentTypes = factory.getAll(DocumentType);

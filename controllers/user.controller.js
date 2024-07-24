@@ -6,7 +6,12 @@ const {User, Course, Slot, TeacherCourse, TeacherType, Role} = require('../model
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./factory.controller');
 const sequelize = require('../db');
-
+const {sendGroupMessage, getUserIdByName} = require('../utils/sendSlackNotification');
+exports.tmpSendGroupSlack = async (req, res, next) => {
+  const userId = await getUserIdByName('Mykhailo Onyshchenko');
+  const resa = sendGroupMessage('testingbot', `<@${userId}>, hello bro. I am alive!! HELP ME`);
+  res.json(resa);
+};
 exports.getAllUsers = catchAsync(async (req, res, next) => {
   let document;
   let attributes = {exclude: ['password']};

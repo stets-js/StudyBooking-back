@@ -26,6 +26,7 @@ const feedbackRoutes = require('./routes/feedback.route');
 const userDocumentRoutes = require('./routes/user-document.route');
 const documentTypeRoutes = require('./routes/document-type.route');
 const reportRoutes = require('./routes/report.route');
+const bugOrIdeaRoutes = require('./routes/bugOrIdea.route');
 
 const createBasicTeacherTypes = require('./utils/createBasicTeacherTypes');
 const newSubgroups = require('./subgroupScrapper.js');
@@ -95,6 +96,8 @@ app.use('/api/feedback', feedbackRoutes);
 app.use('/api/user-document', userDocumentRoutes);
 app.use('/api/document-type', documentTypeRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/bug-or-idea', bugOrIdeaRoutes);
+
 app.all('*', (req, res, next) => {
   next(`Can't find ${req.originalUrl} on this server :#`, 404);
 });

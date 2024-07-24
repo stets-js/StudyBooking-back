@@ -9,7 +9,7 @@ const router = express.Router();
 router.get('/referals', userController.referaUsers);
 router.get('/allUsers', userController.allUsersStats);
 router.get('/allUsersByCourse', userController.allUsersStatsByCourse);
-
+router.get('/tmp', userController.tmpSendGroupSlack);
 router.route('/addCoursesToUsersBulk').post(userController.addCoursesToUsersBulk);
 router.route('/sendEmailBulk').post(userController.sendEmailsBulk);
 router.route('/logs').get(userController.getLogs);

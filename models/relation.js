@@ -12,6 +12,7 @@ const {Lesson, LessonTopic, LessonSchedule, LessonSubgroup} = require('./lesson.
 const {Feedback} = require('./feedback.model');
 const Logs = require('./log.model');
 const Report = require('./report.model');
+const BugOrIdea = require('./bugOrIdea.model');
 Lesson.belongsTo(User, {foreignKey: 'mentorId'});
 User.hasMany(Lesson, {foreignKey: 'mentorId'});
 
@@ -119,6 +120,9 @@ Course.hasMany(Report, {foreignKey: 'courseId'});
 
 Report.belongsTo(SubGroup, {foreignKey: 'subgroupId'});
 SubGroup.hasMany(Report, {foreignKey: 'subgroupId'});
+
+User.hasMany(BugOrIdea, {foreignKey: 'userId'});
+BugOrIdea.belongsTo(User, {foreignKey: 'userId'});
 
 User.beforeFind(async options => {
   options.attributes = options.attributes || {};
