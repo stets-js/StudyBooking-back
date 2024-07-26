@@ -244,21 +244,29 @@ exports.getUsersForReplacementSubGroup = catchAsync(async (req, res, next) => {
 exports.addCoursesToUsersBulk = catchAsync(async (req, res, next) => {
   const users = req.body.emails;
   const courseId = req.body.courseId;
-  users.forEach(async user => {
-    const id = await User.findOne({where: {email: user}});
-    const userCourse = await TeacherCourse.findOrCreate({
-      where: {
-        userId: id.id,
-        courseId,
-        TeacherTypeId: 3
-      },
-      defaults: {
-        userId: id.id,
-        courseId,
-        TeacherTypeId: 3
-      }
-    });
-  });
+  await Promise.all(
+    users.map(async user => {
+      const freshUser = await User.findOne({where: {email: user}});
+      const where = courseId !== -1 ? {id: courseId} : {};
+      const courses = await Course.findAll({where: where});
+      await Promise.all(
+        courses.map(async course => {
+          await TeacherCourse.findOrCreate({
+            where: {
+              userId: freshUser.id,
+              courseId: course.id,
+              TeacherTypeId: 1
+            },
+            defaults: {
+              userId: freshUser.id,
+              courseId: course.id,
+              TeacherTypeId: 1
+            }
+          });
+        })
+      );
+    })
+  );
   res.status(201).json({message: 'created!'});
 });
 
