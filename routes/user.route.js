@@ -6,15 +6,19 @@ const slotController = require('../controllers/slot.controller');
 const whereClauseGenerator = require('../utils/whereClauseGenerator');
 
 const router = express.Router();
+// sheets
 router.get('/referals', userController.referaUsers);
 router.get('/allUsers', userController.allUsersStats);
+router.get('/notChangedPassword', userController.UsersThatDontChangedPassword);
 router.get('/allUsersByCourse', userController.allUsersStatsByCourse);
-router.get('/tmp', userController.tmpSendGroupSlack);
+
 router.route('/addCoursesToUsersBulk').post(userController.addCoursesToUsersBulk);
 router.route('/sendEmailBulk').post(userController.sendEmailsBulk);
+
 router.route('/logs').get(userController.getLogs);
 router.route('/telegram').patch(userController.updateTelegramChatId);
 router.route('/usersThatChangedPassword').get(userController.usersThatChangedPassword);
+
 router.route('/').get(whereClauseGenerator, userController.getAllUsers);
 router.use(authController.protect);
 router.route('/:id/courses').get(userController.getUserCourses);

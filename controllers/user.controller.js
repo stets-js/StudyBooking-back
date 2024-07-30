@@ -609,3 +609,28 @@ exports.allUsersStatsByCourse = catchAsync(async (req, res, next) => {
 
   res.json({message: 'Успішно оновили данні'});
 });
+
+exports.UsersThatDontChangedPassword = catchAsync(async (req, res, next) => {
+  const changedPasswordTeachers = await User.findAll({
+    where: {
+      RoleId: 1,
+      [Op.and]: [
+        Sequelize.where(
+          Sequelize.fn('AGE', Sequelize.col('User.updatedAt'), Sequelize.col('User.createdAt')),
+          {[Op.lt]: '00:01:00'}
+        )
+      ]
+    }
+  });
+  const sheets = await loginToSheet();
+  const spreadsheetId = '1x3GGXGr63lBk0LJzu5NGzUGQYjR9phVqoPoy5BN00Fk';
+
+  const rows = [['Name', 'Email']];
+  changedPasswordTeachers.forEach(user => rows.push([user?.name, user?.email]));
+
+  const sheetName = 'Users';
+  await createSheetIfNotExists(sheets, spreadsheetId, sheetName);
+  await clearSheet(sheets, spreadsheetId, sheetName);
+  await uploadDataToGoogleSheet(sheets, spreadsheetId, sheetName, rows);
+  res.json({message: 'yes', rows: changedPasswordTeachers.length});
+});
