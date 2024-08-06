@@ -304,3 +304,18 @@ exports.getActivityStatsByCourse = catchAsync(async (req, res, next) => {
   });
   res.json(results);
 });
+
+exports.getAllSheets = catchAsync(async (req, res, next) => {
+  const sheets = loginToSheet();
+  const spreadsheetId = req.params.id;
+  const sheetsData = await sheets.spreadsheets.get({
+    spreadsheetId
+  });
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      sheets: sheetsData.data.sheets.map(el => el.properties.title)
+    }
+  });
+});
