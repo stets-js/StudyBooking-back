@@ -541,6 +541,13 @@ exports.allUsersStatsByCourse = catchAsync(async (req, res, next) => {
           {
             model: Course,
             as: 'teachingCourses',
+            through: {
+              where: {
+                TeacherTypeId: {
+                  [Op.ne]: 1
+                }
+              }
+            },
             where: {id: course.id}
           }
         ],
@@ -553,6 +560,13 @@ exports.allUsersStatsByCourse = catchAsync(async (req, res, next) => {
           {
             model: Course,
             as: 'teachingCourses',
+            through: {
+              where: {
+                TeacherTypeId: {
+                  [Op.ne]: 1
+                }
+              }
+            },
             where: {id: course.id}
           }
         ],
@@ -573,6 +587,13 @@ exports.allUsersStatsByCourse = catchAsync(async (req, res, next) => {
           {
             model: Course,
             as: 'teachingCourses',
+            through: {
+              where: {
+                TeacherTypeId: {
+                  [Op.ne]: 1
+                }
+              }
+            },
             where: {id: course.id}
           }
         ],
