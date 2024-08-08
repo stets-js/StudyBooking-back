@@ -16,6 +16,7 @@ const getActivityStatsByCourse = require('../utils/spreadsheet/DataFormating/get
 const createSheetIfNotExists = require('../utils/spreadsheet/createSheetIfNotExists');
 const clearSheet = require('../utils/spreadsheet/clearSheet');
 const uploadDataToGoogleSheet = require('../utils/spreadsheet/uploadData');
+const Report = require('../models/report.model');
 
 const spreadsheetId = process.env.SPREADSHEET_ID;
 let sheetId = 3; // !!!
@@ -262,7 +263,7 @@ exports.getActivityStats = catchAsync(async (req, res, next) => {
   const results = await getActivityStats(start, end);
   const sheetName = 'All';
   const rows = [
-    ['Откриті слоти', 'Призначені групи', 'Призначені індиви'],
+    ['Виставлені слоти', 'Призначені групи', 'Призначені індиви'],
     [results.openHoursLen, results.groupCount, results.individualCount]
   ];
   try {
@@ -318,4 +319,82 @@ exports.getAllSheets = catchAsync(async (req, res, next) => {
       sheets: sheetsData.data.sheets.map(el => el.properties.title)
     }
   });
+});
+
+const generatePossibleNames = name => {
+  // here is magic, possible names
+  // first name - FN, last name -LN, middle name - MN
+  // FN LN, LN FN, FN (MN) LS - what i need
+  const arr = [name];
+  const splitted = name.split(' ');
+  if (splitted.length > 2) {
+    // case when FN LN MN -> FN (MN) LN
+    if (!splitted[1].startsWith('(')) arr.push(`${splitted[0]} (${splitted[2]}) ${splitted[1]}`);
+  } else {
+    arr.push(`${splitted[1]} ${splitted[0]}`);
+  }
+  if (name.includes("'") || name.includes('`'))
+    arr.push(name.replace("'", '`'), name.replace('`', "'"));
+  return arr;
+};
+
+exports.fetchReportsFromSheets = catchAsync(async (req, res, next) => {
+  const sheets = loginToSheet();
+  const spreadsheetId = req.params.id;
+  const sheetLabel = req.body.sheet;
+  const fullResponse = await sheets.spreadsheets.get({
+    spreadsheetId: spreadsheetId,
+    ranges: [sheetLabel],
+    fields: 'sheets(data(rowData(values(userEnteredValue,formattedValue,hyperlink))))'
+  });
+  const rowData = fullResponse.data.sheets[0].data[0].rowData.splice(5);
+
+  const formattedRows = rowData.map(row =>
+    row.values
+      ? row.values.map(cell => {
+          if (cell.hyperlink) {
+            return cell.hyperlink;
+          } else {
+            return cell.formattedValue;
+          }
+        })
+      : []
+  );
+  // );
+
+  res.status(200).json(formattedRows);
+});
+
+exports.AddReportsToDB = catchAsync(async (req, res, next) => {
+  const {rows} = req.body;
+  let notFound = [];
+  const Courses = await Course.findAll();
+  rows.map(row => {
+    const name = row[0];
+    const nameVariants = generatePossibleNames(name);
+    const user = User.findOne({
+      where: {
+        name: nameVariants
+      }
+    });
+    if (!user) notFound.push(name);
+    else {
+      const course = Courses.find(c => c.name === row[1]);
+
+      const body = {
+        mentorId: user.id
+      };
+      if (course) body.courseId = course.id;
+      else body.course = row[1];
+      body.link = row[2];
+      body.mark1 = row[3];
+      body.mark2 = row[4];
+      body.crit_error = row[5];
+      body.total = row[6];
+      body.rating = row[7];
+      body.report_rating = row[8];
+      Report.create(body);
+    }
+  });
+  res.json(notFound);
 });

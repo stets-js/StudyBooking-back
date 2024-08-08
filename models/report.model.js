@@ -19,22 +19,37 @@ const Report = sequelize.define('Reports', {
       key: 'id'
     }
   },
-  subgroupId: {
-    type: DataTypes.INTEGER,
-    references: {
-      model: SubGroup,
-      key: 'id'
-    }
-  },
+  course: {type: DataTypes.STRING},
   date: {
     type: DataTypes.DATEONLY,
     defaultValue: new Date()
   },
-  mark: {
+  mark1: {
     type: DataTypes.INTEGER,
     defaultValue: 100
   },
+  mark2: {
+    type: DataTypes.INTEGER,
+    defaultValue: 100
+  },
+  crit_error: {
+    type: DataTypes.INTEGER,
+    defaultValue: 100
+  },
+
+  total: {
+    type: DataTypes.INTEGER,
+    defaultValue: 100
+  },
+  rating: {
+    type: DataTypes.STRING(1)
+  },
+  report_rating: {type: DataTypes.STRING(1)},
   link: {type: DataTypes.STRING},
+  sheetName: {
+    type: DataTypes.STRING
+  },
+
   status: {
     type: DataTypes.ENUM('Погоджено', 'Погодження', 'Апеляція'),
     defaultValue: 'Погодження'
