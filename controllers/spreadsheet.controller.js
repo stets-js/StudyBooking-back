@@ -333,8 +333,8 @@ const generatePossibleNames = name => {
   } else {
     arr.push(`${splitted[1]} ${splitted[0]}`);
   }
-  if (name.includes("'") || name.includes('`'))
-    arr.push(name.replace("'", '`'), name.replace('`', "'"));
+  if (name.includes("'") || name.includes('`') || name.includes('‘'))
+    arr.push(name.replace("'", '`'), name.replace('`', "'"), name.replace('‘', "'"));
   return arr;
 };
 
@@ -366,35 +366,43 @@ exports.fetchReportsFromSheets = catchAsync(async (req, res, next) => {
 });
 
 exports.AddReportsToDB = catchAsync(async (req, res, next) => {
-  const {rows} = req.body;
-  let notFound = [];
-  const Courses = await Course.findAll();
-  rows.map(row => {
-    const name = row[0];
-    const nameVariants = generatePossibleNames(name);
-    const user = User.findOne({
-      where: {
-        name: nameVariants
-      }
-    });
-    if (!user) notFound.push(name);
-    else {
-      const course = Courses.find(c => c.name === row[1]);
+  const {rows, sheetName} = req.body;
 
-      const body = {
-        mentorId: user.id
-      };
-      if (course) body.courseId = course.id;
-      else body.course = row[1];
-      body.link = row[2];
-      body.mark1 = row[3];
-      body.mark2 = row[4];
-      body.crit_error = row[5];
-      body.total = row[6];
-      body.rating = row[7];
-      body.report_rating = row[8];
-      Report.create(body);
-    }
-  });
-  res.json(notFound);
+  let notFound = [];
+  const courses = await Course.findAll();
+
+  const reports = await Promise.all(
+    rows.map(async row => {
+      const name = row[0];
+      const nameVariants = generatePossibleNames(name);
+      const user = await User.findOne({
+        where: {
+          name: nameVariants
+        }
+      });
+
+      if (!user) {
+        notFound.push(name);
+        return undefined; // Explicitly return undefined for clarity
+      } else {
+        const course = courses.find(
+          c => c.name.trim().toLowerCase() === row[1].trim().toLowerCase()
+        );
+        const body = {
+          mentorId: user.id,
+          sheetName
+        };
+
+        if (course) body.courseId = course.id;
+        else body.course = row[1];
+
+        body.link = row[2];
+
+        const newRep = await Report.create(body);
+
+        return await newRep.reload();
+      }
+    })
+  );
+  res.json({notFound, reports});
 });
