@@ -154,9 +154,13 @@ exports.updateUserCourse = catchAsync(async (req, res, next) => {
 });
 
 exports.getFreeUsers = catchAsync(async (req, res, next) => {
-  const {appointmentType} = req.query;
+  const {appointmentType, teacherType} = req.query;
+  let teacherCourseWhere = {courseId: req.params.courseId};
+  if (+teacherType === 1) {
+    teacherCourseWhere.TeacherTypeId = 1;
+  } else teacherCourseWhere = {TeacherTypeId: [2, 3], ...teacherCourseWhere};
   const users = await TeacherCourse.findAll({
-    where: {courseId: req.params.courseId}
+    where: teacherCourseWhere
   });
   const usersId = users.map(el => el.userId);
   const availableSlots = await Slot.findAll({
@@ -171,7 +175,7 @@ exports.getFreeUsers = catchAsync(async (req, res, next) => {
     },
     attributes: ['time']
   });
-  res.json({availableSlots});
+  res.json({availableSlots, teacherCourseWhere});
 });
 
 exports.getUsersForReplacementSubGroup = catchAsync(async (req, res, next) => {
