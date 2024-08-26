@@ -65,6 +65,7 @@ exports.deleteSlots = catchAsync(async (req, res, next) => {
 
 exports.createUserSlot = catchAsync(async (req, res, next) => {
   let endDate = req.body.endDate || null;
+
   const prevSlot = await Slot.findOne({
     where: {
       userId: req.params.id,
@@ -72,35 +73,34 @@ exports.createUserSlot = catchAsync(async (req, res, next) => {
       weekDay: req.body.weekDay,
       time: req.body.time,
       endDate: {
-        [Op.and]: [{[Op.gte]: req.body.prevWeekStart}, {[Op.lte]: req.body.prevWeekEnd}]
+        [Op.lte]: req.body.prevWeekEnd
       }
     }
   });
   if (prevSlot) {
     prevSlot.endDate = null;
-    const updatedPrevSlot = prevSlot.save();
-    return res.status(200).json({status: 'success', message: 'updated', data: updatedPrevSlot});
+    const updatedPrevSlot = await prevSlot.save();
+    return res
+      .status(200)
+      .json({status: 'success', message: 'updated prevSlot', data: updatedPrevSlot});
   } else {
     //find slots in future
     const futureSlot = await Slot.findOne({
       where: {
         userId: req.params.id,
         weekDay: req.body.weekDay,
-        time: req.body.time
+        startDate: {
+          [Op.gt]: req.body.startDate
+        },
+        time: req.body.time,
+        appointmentTypeId: req.body.appointmentTypeId
       }
     });
     if (futureSlot) {
-      if (futureSlot.appointmentTypeId === req.body.appointmentTypeId) {
-        // if universal
-        futureSlot.startDate = req.body.startDate;
-        const doc = await futureSlot.save();
+      futureSlot.startDate = req.body.startDate;
+      const doc = await futureSlot.save();
 
-        return res
-          .status(200)
-          .json({message: 'success', message: 'updated future slot', data: doc});
-      } else {
-        endDate = addDays(futureSlot.startDate, -1);
-      }
+      return res.status(200).json({message: 'success', message: 'updated future slot', data: doc});
     }
     const document = await Slot.create({
       userId: req.params.id,
@@ -145,6 +145,7 @@ exports.bulkUpdate = catchAsync(async (req, res, next) => {
 
 exports.bulkRemove = catchAsync(async (req, res, next) => {
   // this func will remove slots under new subgroup
+
   const docs = await Slot.destroy({
     where: {userId: +req.body.userId, weekDay: req.body.weekDay, time: {[Op.in]: req.body.time}}
   });
