@@ -13,6 +13,8 @@ const {Feedback} = require('./feedback.model');
 const Logs = require('./log.model');
 const Report = require('./report.model');
 const BugOrIdea = require('./bugOrIdea.model');
+const sequelize = require('../db');
+
 Lesson.belongsTo(User, {foreignKey: 'mentorId'});
 User.hasMany(Lesson, {foreignKey: 'mentorId'});
 
@@ -123,6 +125,21 @@ SubGroup.hasMany(Report, {foreignKey: 'subgroupId'});
 
 User.hasMany(BugOrIdea, {foreignKey: 'userId'});
 BugOrIdea.belongsTo(User, {foreignKey: 'userId'});
+
+const TeamLeadMentor = sequelize.define('TeamLeadMentor', {});
+User.belongsToMany(User, {
+  through: TeamLeadMentor,
+  as: 'Admins',
+  foreignKey: 'mentorId',
+  otherKey: 'adminId'
+});
+
+User.belongsToMany(User, {
+  through: TeamLeadMentor,
+  as: 'Mentors',
+  foreignKey: 'adminId',
+  otherKey: 'mentorId'
+});
 
 User.beforeFind(async options => {
   options.attributes = options.attributes || {};
