@@ -22,4 +22,5 @@ router
   .delete(subGroupController.deleteSubGroup)
   .patch(subGroupController.updateSubGroup);
 router.route('/:id/json').get(subGroupController.subgroupJSON);
+router.post('/add_subgroups_from_zoho', subGroupController.addSubgroupsFromZoho);
 module.exports = router;

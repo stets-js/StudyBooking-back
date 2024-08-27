@@ -162,3 +162,39 @@ exports.sendTelegram = (req, res, next) => {
   sendTelegramNotification(req.body.telegram, 'Hello?');
   res.status(200).json({message: 'sended'});
 };
+
+exports.addSubgroupsFromZoho = catchAsync(async (req, res, next) => {
+  const data = req.body;
+
+  const courseName = data.name;
+  const subgroupsData = data.subgroups || [];
+
+  let course = await Course.findOne({ where: { name: courseName } });
+
+  if (!course) {
+    course = await Course.create({ name: courseName });
+  }
+
+  for (let subgroupData of subgroupsData) {
+    const subgroupName = subgroupData.name;
+    const existingSubgroup = await SubGroup.findOne({
+      where: {
+        CourseId: course.id,
+        name: subgroupName,
+      },
+    });
+
+    if (!existingSubgroup) {
+      await SubGroup.create({
+        name: subgroupName,
+        startDate: subgroupData.startDate,
+        endDate: subgroupData.endDate,
+        link: subgroupData.link,
+        description: subgroupData.description,
+        CourseId: course.id,
+      });
+    }
+  }
+
+  res.status(201).json({ message: 'Course and subgroups added successfully.' });
+});
