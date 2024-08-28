@@ -2,7 +2,15 @@ const {Op, Sequelize} = require('sequelize');
 const jwt = require('jsonwebtoken');
 const {format} = require('date-fns');
 
-const {User, Course, Slot, TeacherCourse, TeacherType, Role} = require('../models/relation');
+const {
+  User,
+  Course,
+  Slot,
+  TeacherCourse,
+  TeacherType,
+  Role,
+  TeamLeadMentor
+} = require('../models/relation');
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./factory.controller');
 const sequelize = require('../db');
@@ -28,6 +36,14 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
     ];
 
   let includeOptions = [];
+  if (req.query.adminId) {
+    includeOptions.push({
+      model: TeamLeadMentor,
+      as: 'MentorTeams',
+      where: {adminId: req.query.adminId},
+      required: true
+    });
+  }
   if (req.query.onlyIndiv) {
     includeOptions.push({
       model: Slot,
@@ -50,7 +66,7 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
     // subQuery: false,
     where: req.whereClause,
     attributes,
-    include: includeOptions,
+    include: [...includeOptions, {model: Role, where: {name: req.query.role}}],
     order: req.query.sortBySubgroups
       ? [
           [Sequelize.literal('"subgroupCount"'), 'ASC'],
@@ -60,8 +76,9 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
     offset: req.query.offset,
     limit: req.query.limit
   });
+
   totalCount = await User.count({
-    include: [...includeOptions, {model: Role, required: false}],
+    include: [...includeOptions, {model: Role, where: {name: req.query.role}}],
     where: req.whereClause,
     attributes
   });

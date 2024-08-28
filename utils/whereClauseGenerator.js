@@ -14,7 +14,6 @@ module.exports = catchAsync(async (req, res, next) => {
 
   if (req.query.name) clause['name'] = {[Op.iLike]: `%${req.query.name}%`};
   if (req.query.CourseId) clause['CourseId'] = req.query.CourseId;
-  if (req.query.role) clause['$Role.name$'] = req.query.role;
   if (req.query.userId) clause[userId] = req.query.role;
   if (req.query.users) clause['$User.id$'] = {[Op.in]: JSON.parse(req.query.users)};
   if (req.body.userIds) {

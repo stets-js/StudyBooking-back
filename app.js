@@ -36,6 +36,7 @@ const findEmails = require('./utils/findEmails.js');
 
 require('./utils/telegramBot.js');
 const slackApp = require('./utils/slackBot.js');
+const User = require('./models/user.model.js');
 
 const app = express();
 // has to be initialized before all other routes !!!
@@ -108,5 +109,13 @@ app.all('*', (req, res, next) => {
 // newUsers();
 // mentorScrapper()
 // findEmails();
+
+const addMentorsToTL = async (tlId, mentorsEmails) => {
+  const admin = await User.findByPk(tlId);
+  mentorsEmails.forEach(async mentor => {
+    const user = await User.findOne({where: {email: mentor}});
+    await admin.addMentor(user);
+  });
+};
 
 module.exports = app;

@@ -127,18 +127,24 @@ User.hasMany(BugOrIdea, {foreignKey: 'userId'});
 BugOrIdea.belongsTo(User, {foreignKey: 'userId'});
 
 const TeamLeadMentor = sequelize.define('TeamLeadMentor', {});
-User.belongsToMany(User, {
-  through: TeamLeadMentor,
-  as: 'Admins',
+User.hasMany(TeamLeadMentor, {
   foreignKey: 'mentorId',
-  otherKey: 'adminId'
+  as: 'MentorTeams'
 });
 
-User.belongsToMany(User, {
-  through: TeamLeadMentor,
-  as: 'Mentors',
+User.hasMany(TeamLeadMentor, {
   foreignKey: 'adminId',
-  otherKey: 'mentorId'
+  as: 'AdminTeams'
+});
+
+TeamLeadMentor.belongsTo(User, {
+  foreignKey: 'mentorId',
+  as: 'Mentor'
+});
+
+TeamLeadMentor.belongsTo(User, {
+  foreignKey: 'adminId',
+  as: 'Admin'
 });
 
 User.beforeFind(async options => {
@@ -146,10 +152,14 @@ User.beforeFind(async options => {
   options.attributes.exclude = options.attributes.exclude || [];
   options.attributes.exclude.push('createdAt', 'updatedAt');
   options.include = options.include || [];
-  options.include.push({
-    model: Role,
-    attributes: ['id', 'name']
-  });
+  const isRoleIncluded = options.include.some(
+    include => include.model && include.model.name === 'Role'
+  );
+  if (!isRoleIncluded)
+    options.include.push({
+      model: Role,
+      attributes: ['id', 'name']
+    });
 });
 
 Replacement.beforeFind(async options => {
@@ -288,5 +298,6 @@ module.exports = {
   LessonTopic,
   LessonSchedule,
   Feedback,
-  UserDocument
+  UserDocument,
+  TeamLeadMentor
 };
