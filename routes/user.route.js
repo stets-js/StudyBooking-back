@@ -20,7 +20,9 @@ router.route('/telegram').patch(userController.updateTelegramChatId);
 router.route('/usersThatChangedPassword').get(userController.usersThatChangedPassword);
 
 router.route('/').get(whereClauseGenerator, userController.getAllUsers);
+
 router.use(authController.protect);
+
 router.route('/:id/courses').get(userController.getUserCourses);
 router
   .route('/:id/courses/:course_id')
@@ -49,6 +51,10 @@ router
   // .get(whereClauseGenerator, userController.getAllUsers)
   .post(userController.createUser, authController.forgotPassword);
 
+router
+  .route('/team')
+  .post(userController.addMentorToAdminTeam)
+  .delete(userController.removeMentorFromAdminTeam);
 router
   .route('/:id')
 

@@ -96,6 +96,11 @@ exports.getUserById = factory.getOne(User, [
   {
     model: Course,
     as: 'teachingCourses'
+  },
+  {
+    model: TeamLeadMentor,
+    include: {model: User, as: 'Admin', attributes: ['name', 'id']},
+    as: 'MentorTeams'
   }
 ]);
 
@@ -675,4 +680,21 @@ exports.UsersThatDontChangedPassword = catchAsync(async (req, res, next) => {
   await clearSheet(sheets, spreadsheetId, sheetName);
   await uploadDataToGoogleSheet(sheets, spreadsheetId, sheetName, rows);
   res.json({message: 'yes', rows: changedPasswordTeachers.length});
+});
+
+exports.addMentorToAdminTeam = catchAsync(async (req, res, next) => {
+  const {adminId, mentorId} = req.body;
+  if (!adminId || !mentorId) return res.status(400).json({message: 'Not enough info'});
+
+  await User.addMentor(adminId, mentorId);
+
+  const mentor = await User.findByPk(mentorId);
+  return res.json(mentor);
+});
+
+exports.removeMentorFromAdminTeam = catchAsync(async (req, res, next) => {
+  const {adminId, mentorId} = req.body;
+  if (!adminId || !mentorId) return res.status(400).json({message: 'Not enough info'});
+  const data = await User.removeMentor(adminId, mentorId);
+  res.json(data);
 });

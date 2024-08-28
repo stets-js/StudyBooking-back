@@ -14,6 +14,7 @@ const Logs = require('./log.model');
 const Report = require('./report.model');
 const BugOrIdea = require('./bugOrIdea.model');
 const sequelize = require('../db');
+const TeamLeadMentor = require('./TeamLeadMentor');
 
 Lesson.belongsTo(User, {foreignKey: 'mentorId'});
 User.hasMany(Lesson, {foreignKey: 'mentorId'});
@@ -126,7 +127,6 @@ SubGroup.hasMany(Report, {foreignKey: 'subgroupId'});
 User.hasMany(BugOrIdea, {foreignKey: 'userId'});
 BugOrIdea.belongsTo(User, {foreignKey: 'userId'});
 
-const TeamLeadMentor = sequelize.define('TeamLeadMentor', {});
 User.hasMany(TeamLeadMentor, {
   foreignKey: 'mentorId',
   as: 'MentorTeams'

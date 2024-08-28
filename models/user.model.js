@@ -2,6 +2,7 @@ const Sequelize = require('sequelize');
 const bcrypt = require('bcrypt');
 
 const sequelize = require('../db');
+const TeamLeadMentor = require('./TeamLeadMentor');
 const User = sequelize.define('User', {
   name: {type: Sequelize.STRING(80), allowNull: false},
   expirience: {type: Sequelize.STRING, defaultValue: 0}, // in years
@@ -62,4 +63,31 @@ User.prototype.verifyPassword = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
 
+// Method to remove a mentor for a specific administrator
+User.removeMentor = async function (adminId, mentorId) {
+  try {
+    await TeamLeadMentor.destroy({
+      where: {
+        adminId,
+        mentorId
+      }
+    });
+    return {status: 'success', message: 'Mentor removed successfully.'};
+  } catch (error) {
+    console.error('Error removing mentor:', error);
+    throw new Error('Error removing mentor.');
+  }
+};
+User.addMentor = async function (adminId, mentorId) {
+  try {
+    await TeamLeadMentor.create({
+      adminId,
+      mentorId
+    });
+    return {status: 'success', message: 'Mentor added successfully.'};
+  } catch (error) {
+    console.error('Error adding mentor:', error);
+    throw new Error('Error adding mentor.');
+  }
+};
 module.exports = User;
