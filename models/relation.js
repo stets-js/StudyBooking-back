@@ -15,6 +15,7 @@ const Report = require('./report.model');
 const BugOrIdea = require('./bugOrIdea.model');
 const sequelize = require('../db');
 const TeamLeadMentor = require('./TeamLeadMentor');
+const {Answer, Question, Survey} = require('./survey.model');
 
 Lesson.belongsTo(User, {foreignKey: 'mentorId'});
 User.hasMany(Lesson, {foreignKey: 'mentorId'});
@@ -146,6 +147,15 @@ TeamLeadMentor.belongsTo(User, {
   foreignKey: 'adminId',
   as: 'Admin'
 });
+
+Answer.belongsTo(Question, {onDelete: 'CASCADE'});
+Question.hasMany(Answer);
+
+Answer.belongsTo(User, {onDelete: 'CASCADE'});
+User.hasMany(Answer);
+
+Question.belongsTo(Survey, {onDelete: 'CASCADE'});
+Survey.hasMany(Question);
 
 User.beforeFind(async options => {
   options.attributes = options.attributes || {};

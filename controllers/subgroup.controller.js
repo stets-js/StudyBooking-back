@@ -9,6 +9,7 @@ const sendEmail = require('../utils/email');
 const sendTelegramNotification = require('../utils/sendTelegramNotification');
 const {sendDirectMessage} = require('../utils/sendSlackNotification');
 const {generateNotificationMessage} = require('../utils/generateNotificationMessage');
+const translateCourse = require('../utils/zoho/courseTranslator');
 
 exports.getAllSubGroups = catchAsync(async (req, res, next) => {
   if (req.query.sortBySubgroups)
@@ -167,21 +168,25 @@ exports.addSubgroupsFromZoho = catchAsync(async (req, res, next) => {
   const data = req.body;
 
   const courseName = data.name;
+  const translatedCourse = translateCourse(courseName);
+
+  if (!!translatedCourse.id) {
+    await sendTelegramNotification('-1002197881869', `Не вийшло знайти курс з зохо!\n${data}`);
+    return res.status(400).json({message: 'Cant find this course in the system'});
+  }
   const subgroupsData = data.subgroups || [];
 
-  let course = await Course.findOne({ where: { name: courseName } });
-
-  if (!course) {
-    course = await Course.create({ name: courseName });
-  }
+  // if (!course) {
+  //   course = await Course.create({name: courseName});
+  // }
 
   for (let subgroupData of subgroupsData) {
     const subgroupName = subgroupData.name;
     const existingSubgroup = await SubGroup.findOne({
       where: {
-        CourseId: course.id,
-        name: subgroupName,
-      },
+        CourseId: translatedCourse.id,
+        name: subgroupName
+      }
     });
 
     if (!existingSubgroup) {
@@ -191,10 +196,10 @@ exports.addSubgroupsFromZoho = catchAsync(async (req, res, next) => {
         endDate: subgroupData.endDate,
         link: subgroupData.link,
         description: subgroupData.description,
-        CourseId: course.id,
+        CourseId: translatedCourse.id
       });
     }
   }
 
-  res.status(201).json({ message: 'Course and subgroups added successfully.' });
+  res.status(201).json({message: 'Course and subgroups added successfully.'});
 });

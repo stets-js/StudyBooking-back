@@ -77,12 +77,12 @@ exports.protect = catchAsync(async (req, res, next) => {
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
       token = req.headers.authorization.split(' ')[1];
     }
+
     if (!token) {
       return next('You are not logged in bro :(');
     }
     const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
     const freshUser = await User.findByPk(decoded.id, {});
-
     if (!freshUser) return next('This user was deleted');
 
     // Access to protected route
