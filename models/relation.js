@@ -157,6 +157,9 @@ User.hasMany(Answer);
 Question.belongsTo(Survey, {onDelete: 'CASCADE'});
 Survey.hasMany(Question);
 
+Answer.belongsTo(Survey, {onDelete: 'CASCADE'});
+Survey.hasMany(Answer);
+
 User.beforeFind(async options => {
   options.attributes = options.attributes || {};
   options.attributes.exclude = options.attributes.exclude || [];

@@ -18,6 +18,7 @@ exports.createQuestion = catchAsync(async (req, res) => {
       return Question.create({
         text: question.text,
         type: question.type,
+        answers: question.answers,
         SurveyId: surveyId
       });
     })
@@ -36,6 +37,20 @@ exports.createAnswer = catchAsync(async (req, res) => {
   });
 
   res.status(201).json(answer);
+});
+
+exports.createAnswersBulk = catchAsync(async (req, res) => {
+  const {userId, SurveyId, answers} = req.body;
+
+  const answersData = Object.keys(answers).map(questionId => ({
+    response: answers[questionId],
+    UserId: userId,
+    SurveyId,
+    QuestionId: questionId
+  }));
+  const createdAnswers = await Answer.bulkCreate(answersData);
+
+  res.status(201).json(createdAnswers);
 });
 
 exports.getSurveyWithQuestions = catchAsync(async (req, res) => {
