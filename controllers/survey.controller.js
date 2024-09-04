@@ -10,14 +10,14 @@ exports.createSurvey = catchAsync(async (req, res) => {
 });
 
 exports.createQuestion = catchAsync(async (req, res) => {
-  const {surveyId, questions, type} = req.body;
+  const {surveyId, questions} = req.body;
 
   // Создаем вопрос и связываем его с опросом
   const createdQuestions = Promise.all(
-    questions.map(async text => {
+    questions.map(async question => {
       return Question.create({
-        text,
-        type,
+        text: question.text,
+        type: question.type,
         SurveyId: surveyId
       });
     })

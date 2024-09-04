@@ -20,6 +20,11 @@ const Question = sequelize.define('Question', {
   type: {
     type: DataTypes.ENUM('yes_no', 'text'),
     allowNull: false
+  },
+  answers: {
+    type: DataTypes.ARRAY(DataTypes.STRING),
+    allowNull: false,
+    defaultValue: ['no', 'yes']
   }
 });
 

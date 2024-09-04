@@ -7,7 +7,7 @@ const {
   createQuestion
 } = require('../controllers/survey.controller');
 
-router.route('/surveys').post(createSurvey);
+router.route('/').post(createSurvey);
 
 router.route('/questions').post(createQuestion);
 
