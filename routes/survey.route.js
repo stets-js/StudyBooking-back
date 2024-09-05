@@ -5,15 +5,18 @@ const {
   createAnswer,
   createSurvey,
   createQuestion,
-  createAnswersBulk
+  createAnswersBulk,
+  userAnsweredSurvey
 } = require('../controllers/survey.controller');
+const {protect} = require('../controllers/auth.controller');
 
-router.route('/').post(createSurvey);
-router.route('/:id').get(getSurveyWithQuestions);
-
+router.use(protect);
 router.route('/questions').post(createQuestion);
 
 router.route('/answers').post(createAnswer);
 router.route('/answers/bulk').post(createAnswersBulk);
+
+router.route('/').post(createSurvey);
+router.route('/:id').get(getSurveyWithQuestions).post(userAnsweredSurvey);
 
 module.exports = router;

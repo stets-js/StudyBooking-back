@@ -23,7 +23,6 @@ const Question = sequelize.define('Question', {
   },
   answers: {
     type: DataTypes.ARRAY(DataTypes.STRING),
-    allowNull: false,
     defaultValue: ['no', 'yes']
   }
 });

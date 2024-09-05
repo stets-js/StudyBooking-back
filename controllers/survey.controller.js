@@ -11,7 +11,6 @@ exports.createSurvey = catchAsync(async (req, res) => {
 
 exports.createQuestion = catchAsync(async (req, res) => {
   const {surveyId, questions} = req.body;
-
   // Создаем вопрос и связываем его с опросом
   const createdQuestions = Promise.all(
     questions.map(async question => {
@@ -59,9 +58,12 @@ exports.getSurveyWithQuestions = catchAsync(async (req, res) => {
   const survey = await Survey.findByPk(id, {
     include: [
       {
-        model: Question
+        model: Question,
+        separate: true,
+        order: [['id', 'ASC']]
       }
-    ]
+    ],
+    order: [['createdAt', 'ASC']]
   });
 
   if (!survey) {
@@ -69,4 +71,13 @@ exports.getSurveyWithQuestions = catchAsync(async (req, res) => {
   }
 
   res.status(200).json(survey);
+});
+
+exports.userAnsweredSurvey = catchAsync(async (req, res) => {
+  const {id} = req.params;
+
+  const isAnswered = await Answer.findOne({
+    where: {UserId: req.user.id, SurveyId: id}
+  });
+  res.status(200).json({isAnswered: isAnswered ? true : false});
 });
