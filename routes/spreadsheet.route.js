@@ -8,8 +8,7 @@ router.get('/activityByCourse', spreadsheetController.getActivityStatsByCourse);
 router.get('/activity', spreadsheetController.getActivityStats);
 router
   .route('/:id/reports/:sheetId')
-  .get(spreadsheetController.fetchReportsFromSheets)
-  .post(spreadsheetController.AddReportsToDB);
+  .post(spreadsheetController.fetchReportsFromSheets, spreadsheetController.AddReportsToDB);
 router.get('/:id', spreadsheetController.getAllSheets);
 
 router.use(authController.protect, authController.allowedTo(['administrator', 'superAdmin']));

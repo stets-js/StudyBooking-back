@@ -341,14 +341,24 @@ const generatePossibleNames = name => {
 exports.fetchReportsFromSheets = catchAsync(async (req, res, next) => {
   const sheets = loginToSheet();
   const spreadsheetId = req.params.id;
-  const sheetLabel = req.body.sheet;
+  const sheetLabel = req.params.sheetId;
   const fullResponse = await sheets.spreadsheets.get({
     spreadsheetId: spreadsheetId,
     ranges: [sheetLabel],
     fields: 'sheets(data(rowData(values(userEnteredValue,formattedValue,hyperlink))))'
   });
   const rowData = fullResponse.data.sheets[0].data[0].rowData.splice(5);
-
+  const headers = fullResponse.data.sheets[0].data[0].rowData.splice(0, 5);
+  let totalIndex = 0;
+  headers.forEach(header => {
+    if (Array.isArray(header.values))
+      header.values.forEach((headerCell, index) => {
+        if (headerCell.formattedValue === 'Загальний бал') {
+          totalIndex = index;
+        }
+      });
+  });
+  req.totalIndex = totalIndex;
   const formattedRows = rowData.map(row =>
     row.values
       ? row.values.map(cell => {
@@ -361,13 +371,18 @@ exports.fetchReportsFromSheets = catchAsync(async (req, res, next) => {
       : []
   );
   // );
+  req.headers = headers;
+  req.rows = formattedRows;
 
-  res.status(200).json(formattedRows);
+  next();
+  // res.status(200).json({formattedRows, headers});
 });
 
 exports.AddReportsToDB = catchAsync(async (req, res, next) => {
-  const {rows, sheetName} = req.body;
-
+  const sheetName = req.params.sheetId;
+  const {headers, rows} = req;
+  const totalIndex = req.totalIndex;
+  console.log(headers);
   let notFound = [];
   const courses = await Course.findAll();
 
@@ -383,13 +398,14 @@ exports.AddReportsToDB = catchAsync(async (req, res, next) => {
 
       if (!user) {
         notFound.push(name);
-        return undefined; // Explicitly return undefined for clarity
+        return undefined;
       } else {
         const course = courses.find(
           c => c.name.trim().toLowerCase() === row[1].trim().toLowerCase()
         );
         const body = {
           mentorId: user.id,
+          total: row[totalIndex],
           sheetName
         };
 
@@ -397,12 +413,15 @@ exports.AddReportsToDB = catchAsync(async (req, res, next) => {
         else body.course = row[1];
 
         body.link = row[2];
+        try {
+          const newRep = await Report.create(body);
 
-        const newRep = await Report.create(body);
-
-        return await newRep.reload();
+          return await newRep.reload();
+        } catch (error) {
+          return undefined;
+        }
       }
     })
   );
-  res.json({notFound, reports});
+  res.json({notFound, reports, headers});
 });
