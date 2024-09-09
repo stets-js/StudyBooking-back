@@ -4,6 +4,8 @@ const authController = require('../controllers/auth.controller');
 const spreadsheetController = require('../controllers/spreadsheet.controller');
 
 const router = express.Router();
+
+router.get('/survey/:id', spreadsheetController.getSurveyAnswers);
 router.get('/activityByCourse', spreadsheetController.getActivityStatsByCourse);
 router.get('/activity', spreadsheetController.getActivityStats);
 router
