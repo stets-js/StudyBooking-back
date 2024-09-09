@@ -17,6 +17,7 @@ const createSheetIfNotExists = require('../utils/spreadsheet/createSheetIfNotExi
 const clearSheet = require('../utils/spreadsheet/clearSheet');
 const uploadDataToGoogleSheet = require('../utils/spreadsheet/uploadData');
 const Report = require('../models/report.model');
+const {Survey, Question, Answer} = require('../models/survey.model');
 
 const spreadsheetId = process.env.SPREADSHEET_ID;
 let sheetId = 3; // !!!
@@ -306,6 +307,60 @@ exports.getActivityStatsByCourse = catchAsync(async (req, res, next) => {
   res.json(results);
 });
 
+exports.getSurveyAnswers = catchAsync(async (req, res, next) => {
+  const spreadsheetId = '1yXL-m63lfL6R3DSrOY73YkwdcJFB1bnKYvYkTDnN0VU';
+  const id = req.params.id;
+  const surveys = await Survey.findAll({
+    where: {id},
+    include: [
+      {
+        model: Question,
+        include: [{model: Answer, include: {model: User, attributes: ['name']}}]
+      }
+    ]
+  });
+
+  const sheetsData = [];
+
+  for (const survey of surveys) {
+    const sheetName = survey.title; // Використовуємо заголовок опитування як ім'я аркуша
+    const rows = [];
+
+    for (const question of survey.Questions) {
+      const answersCountArray = question.answers.map(answer => {
+        const count = question.Answers.filter(ans => ans.response === answer).length;
+        return count;
+      });
+      rows.push([question.text, ...question.answers]);
+      rows.push(['', ...answersCountArray]);
+    }
+
+    for (const question of survey.Questions) {
+      rows.push([question.text]);
+      question.Answers.forEach(answer => {
+        rows.push([answer.User.name, answer.response]);
+      });
+      rows.push(['']);
+    }
+
+    sheetsData.push({sheetName, rows});
+  }
+
+  const sheets = await loginToSheet();
+
+  for (const {sheetName, rows} of sheetsData) {
+    try {
+      await createSheetIfNotExists(sheets, spreadsheetId, sheetName);
+      await clearSheet(sheets, spreadsheetId, sheetName);
+      await uploadDataToGoogleSheet(sheets, spreadsheetId, sheetName, rows);
+    } catch (error) {
+      console.error(`Помилка завантаження даних на аркуш ${sheetName}: ${error.message}`);
+      throw error;
+    }
+  }
+  res.json(surveys);
+});
+
 exports.getAllSheets = catchAsync(async (req, res, next) => {
   const sheets = loginToSheet();
   const spreadsheetId = req.params.id;
@@ -320,21 +375,40 @@ exports.getAllSheets = catchAsync(async (req, res, next) => {
     }
   });
 });
-
+const normalizeTextToUkrainian = text => {
+  return text
+    .replace(/a/g, 'а') // латинська "a" на кириличну "а"
+    .replace(/e/g, 'е') // латинська "e" на кириличну "е"
+    .replace(/o/g, 'о') // латинська "o" на кириличну "о"
+    .replace(/i/g, 'і') // латинська "i" на кириличну "і"
+    .replace(/y/g, 'у') // латинська "y" на кириличну "у"
+    .replace(/c/g, 'с') // латинська "c" на кириличну "с"
+    .replace(/p/g, 'р') // латинська "p" на кириличну "р"
+    .replace(/x/g, 'х') // латинська "x" на кириличну "х"
+    .replace(/m/g, 'м') // латинська "m" на кириличну "м"
+    .replace(/k/g, 'к') // латинська "k" на кириличну "к"
+    .replace(/H/g, 'Н'); // латинська "H" на кириличну "Н"
+};
 const generatePossibleNames = name => {
   // here is magic, possible names
   // first name - FN, last name -LN, middle name - MN
   // FN LN, LN FN, FN (MN) LS - what i need
-  const arr = [name];
+  const arr = [name, normalizeTextToUkrainian(name)];
   const splitted = name.split(' ');
   if (splitted.length > 2) {
     // case when FN LN MN -> FN (MN) LN
-    if (!splitted[1].startsWith('(')) arr.push(`${splitted[0]} (${splitted[2]}) ${splitted[1]}`);
+    if (!splitted[1].startsWith('('))
+      arr.push(`${splitted[0]} (${splitted[2]}) ${splitted[1]}`, `${splitted[0]} ${splitted[1]}`);
   } else {
     arr.push(`${splitted[1]} ${splitted[0]}`);
   }
-  if (name.includes("'") || name.includes('`') || name.includes('‘'))
-    arr.push(name.replace("'", '`'), name.replace('`', "'"), name.replace('‘', "'"));
+  if (name.includes("'") || name.includes('`') || name.includes('‘') || name.includes('’'))
+    arr.push(
+      name.replace("'", '`'),
+      name.replace('`', "'"),
+      name.replace('‘', "'"),
+      name.replace('’', "'")
+    );
   return arr;
 };
 
