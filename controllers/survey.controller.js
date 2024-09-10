@@ -75,9 +75,9 @@ exports.getSurveyWithQuestions = catchAsync(async (req, res) => {
 
 exports.userAnsweredSurvey = catchAsync(async (req, res) => {
   const {id} = req.params;
-
+  const {userId} = req.body;
   const isAnswered = await Answer.findOne({
-    where: {UserId: req.user.id, SurveyId: +id}
+    where: {UserId: userId, SurveyId: +id}
   });
   res.status(200).json({isAnswered: isAnswered ? true : false});
 });
