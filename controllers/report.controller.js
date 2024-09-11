@@ -6,6 +6,7 @@ exports.getAllReports = catchAsync(async (req, res, next) => {
   let document;
   let attributes = {};
   const where = req.whereClause;
+  if (!['undefined', 'null'].includes(req.query.status)) where.status = req.query.status;
   if (req.query.sheet && !['undefined', 'null'].includes(req.query.sheet))
     where.sheetName = req.query.sheet;
   if (!['undefined', 'null'].includes(req.query.course) && req.query.course) {

@@ -5,12 +5,14 @@ const {
   SubgroupMentor,
   Slot,
   Lesson,
-  TeacherCourse
+  TeacherCourse,
+  Role
 } = require('../models/relation');
 const {google} = require('googleapis');
 const catchAsync = require('../utils/catchAsync');
 const {Op, Sequelize} = require('sequelize');
 const sequelize = require('../db');
+const {format} = require('date-fns');
 const getActivityStats = require('../utils/spreadsheet/DataFormating/getActivityStats');
 const getActivityStatsByCourse = require('../utils/spreadsheet/DataFormating/getActivityStatsByCourse');
 const createSheetIfNotExists = require('../utils/spreadsheet/createSheetIfNotExists');
@@ -315,35 +317,48 @@ exports.getSurveyAnswers = catchAsync(async (req, res, next) => {
     include: [
       {
         model: Question,
-        include: [{model: Answer, include: {model: User, attributes: ['name']}}]
+        include: [
+          {
+            model: Answer,
+            include: {
+              model: User,
+              attributes: ['name', 'RoleId'],
+              include: {model: Role, attributes: ['name']}
+            }
+          }
+        ]
       }
     ]
   });
-
   const sheetsData = [];
 
   for (const survey of surveys) {
-    const sheetName = survey.title; // Використовуємо заголовок опитування як ім'я аркуша
-    const rows = [];
-
+    const sheetName = survey.title;
+    const rows = [['ПІБ', 'Роль', 'Відповідь', 'Час']];
+    const statisticRows = [];
     for (const question of survey.Questions) {
       const answersCountArray = question.answers.map(answer => {
         const count = question.Answers.filter(ans => ans.response === answer).length;
         return count;
       });
-      rows.push([question.text, ...question.answers]);
-      rows.push(['', ...answersCountArray]);
+      statisticRows.push([question.text, ...question.answers]);
+      statisticRows.push(['', ...answersCountArray]);
     }
-
     for (const question of survey.Questions) {
       rows.push([question.text]);
       question.Answers.forEach(answer => {
-        rows.push([answer.User.name, answer.response]);
+        rows.push([
+          answer.User.name,
+          answer.User.Role.name,
+          answer.response,
+          format(answer.createdAt, 'MM:hh mm.dd.yyyy')
+        ]);
       });
       rows.push(['']);
     }
 
     sheetsData.push({sheetName, rows});
+    sheetsData.push({sheetName: sheetName + ' statistics', rows: statisticRows});
   }
 
   const sheets = await loginToSheet();
