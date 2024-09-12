@@ -267,14 +267,16 @@ exports.getActivityStats = catchAsync(async (req, res, next) => {
   const sheetName = 'All';
   const rows = [
     [
-      'Виставлені слоти',
+      'Виставлені групові слоти',
+      'Виставлені індивідуальні слоти',
       'Проведені групи',
       'Призначені групи',
       'Проведені індиви',
       'Призначені індиви'
     ],
     [
-      results.openHoursLen,
+      results.openHoursGroupLen,
+      results.openHoursIndivLen,
       results.groupCount,
       results.groupAppointed,
       results.individualCount,

@@ -5,11 +5,20 @@ const {Lesson} = require('../../../models/lesson.model');
 const {SubGroup, SubgroupMentor} = require('../../../models/subgroup.model');
 
 const getActivityStats = async (start, end) => {
-  const openHours = await Slot.count({
+  const openHoursGroup = await Slot.count({
     where: {
       startDate: {
         [Op.between]: [start, end]
-      }
+      },
+      appointmentTypeId: 1
+    }
+  });
+  const openHoursIndivs = await Slot.count({
+    where: {
+      startDate: {
+        [Op.between]: [start, end]
+      },
+      appointmentTypeId: 2
     }
   });
   const groupCount = await Lesson.count({
@@ -51,7 +60,8 @@ const getActivityStats = async (start, end) => {
     group: ['subgroupId']
   });
   return {
-    openHoursLen: openHours,
+    openHoursGroupLen: openHoursGroup,
+    openHoursIndivLen: openHoursIndivs,
     groupCount: groupCount.length,
     individualCount: individualCount.length,
     groupAppointed: groupAppointed,
