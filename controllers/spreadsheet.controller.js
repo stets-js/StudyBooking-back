@@ -254,7 +254,7 @@ exports.addBorders = async (req, res, next) => {
       message: 'added borders!'
     });
   } catch (error) {
-    res.status(400).json(error);
+    return res.status(400).json(error);
   }
 };
 
@@ -266,14 +266,26 @@ exports.getActivityStats = catchAsync(async (req, res, next) => {
   const results = await getActivityStats(start, end);
   const sheetName = 'All';
   const rows = [
-    ['Виставлені слоти', 'Призначені групи', 'Призначені індиви'],
-    [results.openHoursLen, results.groupCount, results.individualCount]
+    [
+      'Виставлені слоти',
+      'Проведені групи',
+      'Призначені групи',
+      'Проведені індиви',
+      'Призначені індиви'
+    ],
+    [
+      results.openHoursLen,
+      results.groupCount,
+      results.groupAppointed,
+      results.individualCount,
+      results.indivAppointed
+    ]
   ];
   try {
     await clearSheet(sheets, spreadsheetId, sheetName);
     await uploadDataToGoogleSheet(sheets, spreadsheetId, sheetName, rows);
   } catch (error) {
-    res.status(500).json({message: 'Квота за хвилину достигнута'});
+    return res.status(500).json({message: 'Квота за хвилину достигнута'});
   }
 
   res.json(results);
