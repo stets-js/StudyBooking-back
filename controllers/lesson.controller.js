@@ -1,5 +1,5 @@
 const {Op} = require('sequelize');
-const {addDays, format} = require('date-fns');
+const {addMinutes, format} = require('date-fns');
 
 const {
   Slot,
@@ -107,16 +107,20 @@ exports.bulkCreate = catchAsync(async (req, res, next) => {
   const start = new Date(req.body.startDate);
   const end = new Date(req.body.endDate);
   let currentDate = start;
+  const endTime = format(
+    addMinutes(new Date(`1970 ${req.body.time[req.body.time.length - 1]}`), 30),
+    'HH:mm'
+  );
   let [schedule, created] = await LessonSchedule.findOrCreate({
     where: {
       weekDay: req.body.weekDay,
       startTime: req.body.time[0],
-      endTime: req.body.time[req.body.time.length - 1]
+      endTime: endTime
     },
     defaults: {
       weekDay: req.body.weekDay,
       startTime: req.body.time[0],
-      endTime: req.body.time[req.body.time.length - 1]
+      endTime: endTime
     }
   });
   while (currentDate <= end) {
