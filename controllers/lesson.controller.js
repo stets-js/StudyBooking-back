@@ -12,7 +12,8 @@ const {
   User,
   Replacement,
   Appointment_Type,
-  Feedback
+  Feedback,
+  TeamLeadMentor
 } = require('../models/relation');
 
 const catchAsync = require('../utils/catchAsync');
@@ -23,17 +24,35 @@ exports.getAllLessons = catchAsync(async (req, res, next) => {
   let document;
   let whereClause = req.whereClause;
   let subgroupWhereClause = {};
+  let UserInclude = {
+    model: User,
+    required: true
+  };
+  if (req.query.teamLeadOnly && req.user.id) {
+    UserInclude.include = [
+      {
+        model: TeamLeadMentor,
+        as: 'MentorTeams',
+        where: {adminId: req.user.id}
+      }
+    ];
+  }
   if (req.query.courseId) {
     subgroupWhereClause = {
       CourseId: +req.query.courseId
     };
+  }
+  if (req.query.replacements) {
+    whereClause.ReplacementId = {[Op.not]: null};
+  } else {
+    whereClause.ReplacementId = null;
   }
   try {
     document = await Lesson.findAll({
       where: whereClause,
       include: [
         LessonSchedule,
-        User,
+        UserInclude,
         LessonTopic,
         Feedback,
         {
@@ -74,6 +93,7 @@ exports.getAllLessons = catchAsync(async (req, res, next) => {
     data: document,
     totalCount,
     subgroupWhereClause,
+    whereClause,
     newOffset: +req.query.offset + +req.query.limit
   });
 });
