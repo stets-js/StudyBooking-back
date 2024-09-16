@@ -167,11 +167,11 @@ exports.sendTelegram = (req, res, next) => {
 exports.addSubgroupsFromZoho = catchAsync(async (req, res, next) => {
   const data = req.body;
 
-  const courseName = data.name;
+  const courseName = data.courseName;
   const translatedCourse = translateCourse(courseName);
-
-  if (!!translatedCourse.id) {
-    await sendTelegramNotification('-1002197881869', `Не вийшло знайти курс з зохо!\n${data}`);
+  console.log(translatedCourse);
+  if (!translatedCourse.id) {
+    // await sendTelegramNotification('-1002197881869', `Не вийшло знайти курс з зохо!\n${data}`);
     return res.status(400).json({message: 'Cant find this course in the system'});
   }
   const subgroupsData = data.subgroups || [];
@@ -180,7 +180,7 @@ exports.addSubgroupsFromZoho = catchAsync(async (req, res, next) => {
   //   course = await Course.create({name: courseName});
   // }
 
-  for (let subgroupData of subgroupsData) {
+  subgroupsData.forEach(async subgroupData => {
     const subgroupName = subgroupData.name;
     const existingSubgroup = await SubGroup.findOne({
       where: {
@@ -198,8 +198,12 @@ exports.addSubgroupsFromZoho = catchAsync(async (req, res, next) => {
         description: subgroupData.description,
         CourseId: translatedCourse.id
       });
+      // await sendTelegramNotification(
+      //   '-1002197881869',
+      //   `Завантажений поток з зохо!\n${subgroupName} - ${translatedCourse.name}`
+      // );
     }
-  }
+  });
 
   res.status(201).json({message: 'Course and subgroups added successfully.'});
 });
