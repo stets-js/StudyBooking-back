@@ -3,6 +3,7 @@ const courseTranslator = {
   'Art JUN': {id: 109, name: 'ART'},
   'Art KIDS': {id: 109, name: 'ART'},
   'Art JUN Andr': {id: 109, name: 'ART'},
+  'Art KIDS Andr': {id: 109, name: 'ART'},
   'design-junior': {id: 118, name: 'DESIGN_JUNIOR'},
   'digital-design': {id: 117, name: 'DIGITAL_DESIGN'},
   english: {id: 110, name: 'INTERNAL'},
