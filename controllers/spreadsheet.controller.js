@@ -322,72 +322,76 @@ exports.getActivityStatsByCourse = catchAsync(async (req, res, next) => {
   });
   res.json(results);
 });
-
 exports.getSurveyAnswers = catchAsync(async (req, res, next) => {
   const spreadsheetId = '1yXL-m63lfL6R3DSrOY73YkwdcJFB1bnKYvYkTDnN0VU';
-  const id = req.params.id;
-  const surveys = await Survey.findAll({
-    where: {id},
+  const survey = await Survey.findOne({
+    where: {id: req.params.id},
     include: [
       {
-        model: Question,
-        include: [
-          {
-            model: Answer,
-            include: {
-              model: User,
-              attributes: ['name', 'RoleId'],
-              include: {model: Role, attributes: ['name']}
-            }
-          }
-        ]
+        model: Question
       }
     ]
   });
-  const sheetsData = [];
+  const questions = survey.Questions;
+  questions.sort((a, b) => a.id - b.id);
 
-  for (const survey of surveys) {
-    const sheetName = survey.title;
-    const rows = [['ПІБ', 'Роль', 'Відповідь', 'Час']];
-    const statisticRows = [];
-    for (const question of survey.Questions) {
-      const answersCountArray = question.answers.map(answer => {
-        const count = question.Answers.filter(ans => ans.response === answer).length;
-        return count;
-      });
-      statisticRows.push([question.text, ...question.answers]);
-      statisticRows.push(['', ...answersCountArray]);
-    }
-    for (const question of survey.Questions) {
-      rows.push([question.text]);
-      question.Answers.forEach(answer => {
-        rows.push([
-          answer.User.name,
-          answer.User.Role.name,
-          answer.response,
-          format(answer.createdAt, 'MM:hh mm.dd.yyyy')
-        ]);
-      });
-      rows.push(['']);
-    }
-
-    sheetsData.push({sheetName, rows});
-    sheetsData.push({sheetName: sheetName + ' statistics', rows: statisticRows});
+  const users = await User.findAll({
+    attributes: ['name', 'RoleId'],
+    include: [
+      {
+        model: Answer,
+        attributes: ['response'],
+        required: true,
+        include: [
+          {
+            model: Question,
+            order: [['id', 'ASC']],
+            include: {
+              model: Survey,
+              attributes: ['title']
+            }
+          }
+        ]
+      },
+      {
+        model: Role,
+        attributes: ['name']
+      }
+    ]
+  });
+  const sheetsData = [
+    {title: survey.title, rows: [['Піб', 'Роль', ...questions.map(el => el.text)]]}
+  ];
+  // return res.json(users);
+  let statistics = [];
+  questions.forEach(question =>
+    statistics.push(
+      [question.text, ...question.answers],
+      ['total', ...question.answers.map(el => '')]
+    )
+  );
+  if (req.query.updateStatistcs)
+    sheetsData.push({title: survey.title + ' statistics', rows: statistics});
+  for (const user of users) {
+    const row = [user.name, user.Role.name, ...user.Answers.map(el => el.response)];
+    sheetsData[0].rows.push(row);
   }
 
   const sheets = await loginToSheet();
 
-  for (const {sheetName, rows} of sheetsData) {
+  // Загружаем данные на Google Sheets
+  sheetsData.forEach(async el => {
     try {
-      await createSheetIfNotExists(sheets, spreadsheetId, sheetName);
-      await clearSheet(sheets, spreadsheetId, sheetName);
-      await uploadDataToGoogleSheet(sheets, spreadsheetId, sheetName, rows);
+      await createSheetIfNotExists(sheets, spreadsheetId, el.title);
+      await clearSheet(sheets, spreadsheetId, el.title);
+      await uploadDataToGoogleSheet(sheets, spreadsheetId, el.title, el.rows);
     } catch (error) {
-      console.error(`Помилка завантаження даних на аркуш ${sheetName}: ${error.message}`);
+      console.error(`Помилка завантаження даних на аркуш ${survey.title}: ${error.message}`);
       throw error;
     }
-  }
-  res.json(surveys);
+  });
+
+  res.json({survey, users});
 });
 
 exports.getAllSheets = catchAsync(async (req, res, next) => {
