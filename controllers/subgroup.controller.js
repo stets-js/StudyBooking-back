@@ -171,7 +171,10 @@ exports.addSubgroupsFromZoho = catchAsync(async (req, res, next) => {
   const translatedCourse = translateCourse(courseName);
   console.log(translatedCourse);
   if (!translatedCourse.id) {
-    await sendTelegramNotification('-1002197881869', `Не вийшло знайти курс з зохо!\n${data}`);
+    await sendTelegramNotification(
+      '-1002197881869',
+      `Не вийшло знайти курс з зохо!\n${JSON.stringify(data)}`
+    );
     return res.status(400).json({message: 'Cant find this course in the system'});
   }
   const subgroupsData = data.subgroups || [];
