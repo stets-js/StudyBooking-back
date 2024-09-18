@@ -184,11 +184,11 @@ exports.addSubgroupsFromZoho = catchAsync(async (req, res, next) => {
     const subgroupName = subgroupData.name;
     const existingSubgroup = await SubGroup.findOne({
       where: {
-        CourseId: translatedCourse.id,
+        // CourseId: translatedCourse.id,
         name: subgroupName
       }
     });
-  
+
     // for (const subgroupData of subgroupsData) {
     //   const subgroupName = subgroupData.name;
     //   const existingSubgroup = await SubGroup.findOne({
