@@ -220,12 +220,14 @@ exports.addSubgroupsFromZoho = catchAsync(async (req, res, next) => {
         `Завантажений поток з зохо!\n${subgroupName} - ${course.name}\n ${msg}`
       );
     } else {
-      existingSubgroup.link = subgroupData.link;
-      await existingSubgroup.save();
-      await sendTelegramNotification(
-        '-1002197881869',
-        `Оновлено поток (лінку на телеграм)!\n${subgroupName} - ${course.name}`
-      );
+      if (existingSubgroup.link !== subgroupData.link) {
+        existingSubgroup.link = subgroupData.link;
+        await existingSubgroup.save();
+        await sendTelegramNotification(
+          '-1002197881869',
+          `Оновлено поток (лінку на телеграм)!\n${subgroupName} - ${course.name}`
+        );
+      }
     }
   });
 
