@@ -10,6 +10,7 @@ const sendTelegramNotification = require('../utils/sendTelegramNotification');
 const {sendDirectMessage} = require('../utils/sendSlackNotification');
 const {generateNotificationMessage} = require('../utils/generateNotificationMessage');
 const translateCourse = require('../utils/zoho/courseTranslator');
+const findCourseBySubgroupName = require('../utils/zoho/subgroupScrapper');
 
 exports.getAllSubGroups = catchAsync(async (req, res, next) => {
   if (req.query.sortBySubgroups)
@@ -166,15 +167,28 @@ exports.sendTelegram = (req, res, next) => {
 
 exports.addSubgroupsFromZoho = catchAsync(async (req, res, next) => {
   const data = req.body;
-
+  let course = -1;
   const courseName = data.courseName;
+  let msg = '';
   const translatedCourse = translateCourse(courseName);
   console.log(translatedCourse);
+  if (translatedCourse.id === 110) {
+    const translatedSubgroup = findCourseBySubgroupName(data.subgroups[0]);
+    if (!translatedSubgroup) {
+      await sendTelegramNotification(
+        '-1002197881869',
+        `Не вийшло знайти курс з зохо!\n${courseName} - ${JSON.stringify(
+          data.subgroups.map(el => el.name)
+        )}`
+      );
+    }
+    msg = 'За допомогою скрапера назви';
+    course = translatedSubgroup;
+  } else {
+    msg = 'За допомогою словника курсів';
+    course = translatedCourse;
+  }
   if (!translatedCourse.id) {
-    await sendTelegramNotification(
-      '-1002197881869',
-      `Не вийшло знайти курс з зохо!\n${(data.courseName, JSON.stringify(data.subgroups))}`
-    );
     return res.status(400).json({message: 'Cant find this course in the system'});
   }
   const subgroupsData = data.subgroups || [];
@@ -192,15 +206,6 @@ exports.addSubgroupsFromZoho = catchAsync(async (req, res, next) => {
       }
     });
 
-    // for (const subgroupData of subgroupsData) {
-    //   const subgroupName = subgroupData.name;
-    //   const existingSubgroup = await SubGroup.findOne({
-    //     where: {
-    //       CourseId: translatedCourse.id,
-    //       name: subgroupName,
-    //     },
-    //   });
-
     if (!existingSubgroup) {
       await SubGroup.create({
         name: subgroupName,
@@ -208,11 +213,18 @@ exports.addSubgroupsFromZoho = catchAsync(async (req, res, next) => {
         endDate: subgroupData.endDate,
         link: subgroupData.link,
         description: subgroupData.description,
-        CourseId: translatedCourse.id
+        CourseId: course.id
       });
       await sendTelegramNotification(
         '-1002197881869',
-        `Завантажений поток з зохо!\n${subgroupName} - ${translatedCourse.name}`
+        `Завантажений поток з зохо!\n${subgroupName} - ${course.name}\n ${msg}`
+      );
+    } else {
+      existingSubgroup.link = subgroupData.link;
+      await existingSubgroup.save();
+      await sendTelegramNotification(
+        '-1002197881869',
+        `Оновлено поток (лінку на телеграм)!\n${subgroupName} - ${course.name}`
       );
     }
   });
