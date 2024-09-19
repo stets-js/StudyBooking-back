@@ -172,7 +172,7 @@ exports.addSubgroupsFromZoho = catchAsync(async (req, res, next) => {
   let msg = '';
   const translatedCourse = translateCourse(courseName);
   console.log(translatedCourse);
-  if (translatedCourse.id === 110) {
+  if (translatedCourse.id === 110 || !translatedCourse.id) {
     const translatedSubgroup = findCourseBySubgroupName(data.subgroups[0]);
     if (!translatedSubgroup) {
       await sendTelegramNotification(
@@ -188,7 +188,7 @@ exports.addSubgroupsFromZoho = catchAsync(async (req, res, next) => {
     msg = 'За допомогою словника курсів';
     course = translatedCourse;
   }
-  if (!translatedCourse.id) {
+  if (!course.id) {
     return res.status(400).json({message: 'Cant find this course in the system'});
   }
   const subgroupsData = data.subgroups || [];
