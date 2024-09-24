@@ -1,21 +1,21 @@
 const {format, sub} = require('date-fns');
 const fs = require('fs');
 const path = require('path');
+const {Sequelize, Op} = require('sequelize');
+const csv = require('csv-parser');
 
 const factory = require('./factory.controller');
 const {SubGroup, SubgroupMentor, User, TeacherType, Course} = require('../models/relation');
+
 const catchAsync = require('../utils/catchAsync');
+const translateCourse = require('../utils/zoho/courseTranslator');
+const findCourseBySubgroupName = require('../utils/zoho/subgroupScrapper');
+const generateNames = require('../utils/zoho/translateSubgroupName');
+
 const sendEmail = require('../utils/email');
 const sendTelegramNotification = require('../utils/sendTelegramNotification');
 const {sendDirectMessage} = require('../utils/sendSlackNotification');
 const {generateNotificationMessage} = require('../utils/generateNotificationMessage');
-const translateCourse = require('../utils/zoho/courseTranslator');
-const findCourseBySubgroupName = require('../utils/zoho/subgroupScrapper');
-const fs = require('fs');
-const csv = require('csv-parser');
-const {Sequelize, Op} = require('sequelize');
-const {SubGroup} = require('../models/subgroup.model');
-const generateNames = require('../utils/zoho/translateSubgroupName');
 
 exports.getAllSubGroups = catchAsync(async (req, res, next) => {
   if (req.query.sortBySubgroups)
