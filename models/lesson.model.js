@@ -3,7 +3,11 @@ const Sequelize = require('sequelize');
 const sequelize = require('../db');
 
 const Lesson = sequelize.define('Lesson', {
-  date: {type: Sequelize.DATEONLY}
+  date: {type: Sequelize.DATEONLY},
+  status: {
+    type: Sequelize.DataTypes.ENUM('replaced', 'canceled', 'completed', 'idle'),
+    defaultValue: 'idle'
+  }
 });
 
 const LessonTopic = sequelize.define('LessonTopic', {

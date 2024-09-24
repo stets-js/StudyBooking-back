@@ -28,6 +28,9 @@ exports.getAllLessons = catchAsync(async (req, res, next) => {
     model: User,
     required: true
   };
+  if (req.query.status) {
+    whereClause = {...whereClause, status: {[Op.in]: JSON.parse(req.query.status)}};
+  }
   if (req.query.teamLeadOnly && req.user.id) {
     UserInclude.include = [
       {
