@@ -178,7 +178,7 @@ exports.addSubgroupsFromZoho = catchAsync(async (req, res, next) => {
   const translatedCourse = translateCourse(courseName);
   console.log(translatedCourse);
   if (translatedCourse.id === 110 || !translatedCourse.id) {
-    const translatedSubgroup = findCourseBySubgroupName(data.subgroups[0]);
+    const translatedSubgroup = findCourseBySubgroupName(data.subgroups[0].name);
     if (!translatedSubgroup) {
       await sendTelegramNotification(
         '-1002197881869',
