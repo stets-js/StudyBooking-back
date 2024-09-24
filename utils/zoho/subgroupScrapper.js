@@ -43,12 +43,13 @@ const courseKeywords = {
 };
 
 function findCourseBySubgroupName(streamName) {
+  console.log(streamName);
   const lowerStreamName = streamName.toLowerCase();
 
   for (const [id, keywords] of Object.entries(courseKeywords)) {
     for (const keyword of keywords) {
       if (lowerStreamName.includes(keyword.toLowerCase())) {
-        return {id: id, courseName: keywords[0]};
+        return {id: id, name: keywords[0]};
       }
     }
   }
