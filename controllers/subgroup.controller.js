@@ -11,6 +11,11 @@ const {sendDirectMessage} = require('../utils/sendSlackNotification');
 const {generateNotificationMessage} = require('../utils/generateNotificationMessage');
 const translateCourse = require('../utils/zoho/courseTranslator');
 const findCourseBySubgroupName = require('../utils/zoho/subgroupScrapper');
+const fs = require('fs');
+const csv = require('csv-parser');
+const {Sequelize, Op} = require('sequelize');
+const {SubGroup} = require('../models/subgroup.model');
+const generateNames = require('../utils/zoho/translateSubgroupName');
 
 exports.getAllSubGroups = catchAsync(async (req, res, next) => {
   if (req.query.sortBySubgroups)
@@ -232,4 +237,57 @@ exports.addSubgroupsFromZoho = catchAsync(async (req, res, next) => {
   });
 
   res.status(201).json({message: 'Course and subgroups added successfully.'});
+});
+
+exports.readCsvZohoSubgroups = catchAsync(async (req, res, next) => {
+  const path = 'course_group.csv';
+  let data = {found: 0, not: 0, course: 0, notCourse: 0, old: 0, notArr: []};
+  const dataArr = [];
+  fs.createReadStream(path)
+    .pipe(csv())
+    .on('data', async row => {
+      const values = Object.values(row)[0].split(';');
+      dataArr.push(values);
+    })
+    .on('end', async () => {
+      await Promise.all(
+        dataArr.map(async values => {
+          if (1) {
+            const endDateStr = values[values.length - 1]; // '05.07.2025'
+            const [day, month, year] = endDateStr.split('.'); // Розділяємо день, місяць і рік
+            const endDate = new Date(`${year}-${month}-${day}`); // Створюємо Date-об'єкт у форматі 'YYYY-MM-DD'
+
+            const currentDate = new Date();
+
+            if (endDate > currentDate) {
+              data.old += 1;
+            } else {
+              // const course = translateCourse(row[0]);
+              // if (!course) {
+              //   data.notCourse += 1;
+              // } else {
+              //   data.course += 1;
+              // }
+
+              // console.log(generateNames(values[1]));
+              const subgroup = await SubGroup.findOne({
+                where: {
+                  [Sequelize.Op.or]: generateNames(values[1])
+                }
+              });
+              if (subgroup) data.found += 1;
+              else {
+                data.not += 1;
+                data.notArr.push(values[1]);
+              }
+            }
+          }
+        })
+      );
+      res.json(data);
+    })
+    .on('error', err => {
+      // Handle errors
+      console.error('Error reading the CSV file', err);
+    });
 });
