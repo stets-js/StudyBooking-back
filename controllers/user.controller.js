@@ -176,8 +176,9 @@ exports.updateUserCourse = catchAsync(async (req, res, next) => {
 });
 
 exports.getFreeUsers = catchAsync(async (req, res, next) => {
-  const {appointmentType, teacherType} = req.query;
+  const {appointmentType, teacherType, date} = req.query;
   let teacherCourseWhere = {courseId: req.params.courseId};
+
   if (+teacherType === 1) {
     teacherCourseWhere.TeacherTypeId = 1;
   } else teacherCourseWhere = {TeacherTypeId: [2, 3], ...teacherCourseWhere};
@@ -188,7 +189,12 @@ exports.getFreeUsers = catchAsync(async (req, res, next) => {
   const availableSlots = await Slot.findAll({
     where: {
       weekDay: req.params.weekDay,
-      '$AppointmentType.name$': appointmentType
+      '$AppointmentType.name$': appointmentType,
+      startDate: {[Op.lte] : date},
+      [Op.or]: [
+        { endDate: { [Op.gte]: date } }, 
+        { endDate: { [Op.is]: null } }   
+      ]
     },
     include: {
       model: User,
