@@ -116,9 +116,11 @@ exports.deleteUser = factory.deleteOne(User);
 exports.updateUser = catchAsync(async (req, res, next) => {
   let id = req.params.id;
 
-  const body = req.body;
-  delete body.password;
-  let updatedDoc = await User.update(body, {where: {id}});
+  const {city, email, telegram, phone, photoUrl, slack, description, name} = req.body;
+  let updatedDoc = await User.update(
+    {city, email, telegram, phone, photoUrl, slack, description, name},
+    {where: {id}}
+  );
 
   res.json({
     data: updatedDoc
@@ -190,11 +192,8 @@ exports.getFreeUsers = catchAsync(async (req, res, next) => {
     where: {
       weekDay: req.params.weekDay,
       '$AppointmentType.name$': appointmentType,
-      startDate: {[Op.lte] : date},
-      [Op.or]: [
-        { endDate: { [Op.gte]: date } }, 
-        { endDate: { [Op.is]: null } }   
-      ]
+      startDate: {[Op.lte]: date},
+      [Op.or]: [{endDate: {[Op.gte]: date}}, {endDate: {[Op.is]: null}}]
     },
     include: {
       model: User,
