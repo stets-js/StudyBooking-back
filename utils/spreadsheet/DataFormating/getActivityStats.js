@@ -26,6 +26,11 @@ const getActivityStats = async (start, end) => {
 
     group: ['subgroupId']
   });
+  const groupKidsCount = await Lesson.count({
+    where: {date: {[Op.between]: [start, end]}, appointmentTypeId: 11},
+
+    group: ['subgroupId']
+  });
   const groupAppointed = await SubgroupMentor.count({
     include: {
       model: SubGroup,
@@ -34,6 +39,20 @@ const getActivityStats = async (start, end) => {
         FROM "Lessons" AS l
         WHERE l."subgroupId" = "SubGroup".id 
         AND l."appointmentTypeId" = 7
+      )`)
+    },
+    where: {
+      createdAt: {[Op.between]: [start, end]}
+    }
+  });
+  const groupKidsAppointed = await SubgroupMentor.count({
+    include: {
+      model: SubGroup,
+      where: literal(`EXISTS (
+        SELECT 1 
+        FROM "Lessons" AS l
+        WHERE l."subgroupId" = "SubGroup".id 
+        AND l."appointmentTypeId" = 11
       )`)
     },
     where: {
@@ -59,13 +78,16 @@ const getActivityStats = async (start, end) => {
 
     group: ['subgroupId']
   });
+
   return {
     openHoursGroupLen: openHoursGroup,
     openHoursIndivLen: openHoursIndivs,
     groupCount: groupCount.length,
     individualCount: individualCount.length,
     groupAppointed: groupAppointed,
-    indivAppointed: indivAppointed
+    indivAppointed: indivAppointed,
+    groupKidsCount: groupKidsCount.length,
+    groupKidsAppointed
   };
 };
 module.exports = getActivityStats;

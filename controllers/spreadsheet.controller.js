@@ -272,7 +272,9 @@ exports.getActivityStats = catchAsync(async (req, res, next) => {
       'Проведені групи',
       'Призначені групи',
       'Проведені індиви',
-      'Призначені індиви'
+      'Призначені індиви',
+      'Проведені kids групи',
+      'Призначені kids групи'
     ],
     [
       results.openHoursGroupLen,
@@ -280,7 +282,9 @@ exports.getActivityStats = catchAsync(async (req, res, next) => {
       results.groupCount,
       results.groupAppointed,
       results.individualCount,
-      results.indivAppointed
+      results.indivAppointed,
+      results.groupKidsCount,
+      results.groupKidsAppointed
     ]
   ];
   try {
@@ -308,8 +312,26 @@ exports.getActivityStatsByCourse = catchAsync(async (req, res, next) => {
   results.forEach(async sheet => {
     const sheetName = sheet.courseName;
     const rows = [
-      ['Откриті слоти', 'Призначені групи', 'Призначені індиви'],
-      [sheet.openHoursLen, sheet.groupCount, sheet.individualCount]
+      [
+        'Виставлені групові слоти',
+        'Виставлені індив слоти',
+        'Проведені групи',
+        'Призначені групи',
+        'Проведені індиви',
+        'Призначені індиви',
+        'Проведені kids групи',
+        'Призначені kids групи'
+      ],
+      [
+        sheet.groupCount,
+        sheet.individualCount,
+        sheet.groupAppointed,
+        sheet.individualCount,
+        sheet.groupKidsAppointed,
+        sheet.groupCount,
+        sheet.groupKidsCount,
+        sheet.individualCount
+      ]
     ];
     console.log(sheet);
     try {
