@@ -1,8 +1,7 @@
-const bot = require('./telegramBot');
+const {sendMessage} = require('../rabbitMQ/producer');
 
-const sendTelegramNotification = async (chatId, message) => {
+const sendTelegramNotification = async (chatId, text) => {
   console.log('trying to send message');
-
-  return await bot.sendMessage(chatId, message);
+  return sendMessage('tg', {chatId, text});
 };
 module.exports = sendTelegramNotification;

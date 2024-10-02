@@ -7,8 +7,11 @@
     "start": "nodemon server.js NODE_ENV=DEPLOY"
   },
   "dependencies": {
+    "@google-apps/meet": "^0.3.0",
+    "@google-cloud/local-auth": "^2.1.0",
     "@slack/bolt": "^3.18.0",
     "@slack/events-api": "^3.0.1",
+    "amqplib": "^0.10.4",
     "bcrypt": "^5.1.1",
     "cookie-parser": "~1.4.4",
     "cors": "^2.8.5",
@@ -19,7 +22,7 @@
     "exceljs": "^4.4.0",
     "express": "~4.16.1",
     "express-rate-limit": "^7.1.5",
-    "googleapis": "^134.0.0",
+    "googleapis": "^144.0.0",
     "http-errors": "~1.6.3",
     "jsonwebtoken": "^9.0.2",
     "kafkajs": "^2.2.4",
@@ -31,6 +34,7 @@
     "pg": "^8.11.3",
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.35.2",
+    "studybooking-back": "file:",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
