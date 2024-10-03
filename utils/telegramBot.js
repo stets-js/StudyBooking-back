@@ -1,48 +1,48 @@
-const TelegramBot = require('node-telegram-bot-api');
+// const TelegramBot = require('node-telegram-bot-api');
 
-const {verifyUser} = require('../controllers/auth.controller');
-const {User} = require('../models/relation');
-// Your Telegram bot token
-const token = '7361130041:AAFm7LGbuOrjtcRl1F7EY47aFfSTgJyBtpg';
-if (process.env.NODE_ENV === 'DEV') return;
+// const {verifyUser} = require('../controllers/auth.controller');
+// const {User} = require('../models/relation');
+// // Your Telegram bot token
+// const token = '7361130041:AAFm7LGbuOrjtcRl1F7EY47aFfSTgJyBtpg';
+// if (process.env.NODE_ENV === 'DEV') return;
 
-const bot = new TelegramBot(token, {polling: true});
+// const bot = new TelegramBot(token, {polling: true});
 
-bot.onText(/\/start/, (msg, match) => {
-  const chatId = msg.chat.id;
-  bot.sendMessage(chatId, 'Привіт! Введіть свою почту з букінга.');
-  bot.once('message', msg => processEmail(msg));
-});
+// bot.onText(/\/start/, (msg, match) => {
+//   const chatId = msg.chat.id;
+//   bot.sendMessage(chatId, 'Привіт! Введіть свою почту з букінга.');
+//   bot.once('message', msg => processEmail(msg));
+// });
 
-function processEmail(msg) {
-  const chatId = msg.chat.id;
-  email = msg.text;
-  bot.sendMessage(chatId, 'Тепер введіть пароль.');
-  bot.once('message', msg => processPassword(msg, email));
-}
+// function processEmail(msg) {
+//   const chatId = msg.chat.id;
+//   email = msg.text;
+//   bot.sendMessage(chatId, 'Тепер введіть пароль.');
+//   bot.once('message', msg => processPassword(msg, email));
+// }
 
-async function processPassword(msg, email) {
-  const chatId = msg.chat.id;
-  const password = msg.text;
-  const user = await verifyUser(email, password);
-  if (!user) {
-    // error
-    bot.sendMessage(chatId, 'Щось не так, перевірте свої данні');
-  } else {
-    processAddChatId(chatId, user);
-  }
-}
+// async function processPassword(msg, email) {
+//   const chatId = msg.chat.id;
+//   const password = msg.text;
+//   const user = await verifyUser(email, password);
+//   if (!user) {
+//     // error
+//     bot.sendMessage(chatId, 'Щось не так, перевірте свої данні');
+//   } else {
+//     processAddChatId(chatId, user);
+//   }
+// }
 
-async function processAddChatId(chatId, user) {
-  bot.sendMessage(chatId, 'Починаю інтеграцію!');
+// async function processAddChatId(chatId, user) {
+//   bot.sendMessage(chatId, 'Починаю інтеграцію!');
 
-  const res = await User.update({telegramChatId: chatId}, {where: {email: user.email}});
-  if (res) {
-    bot.sendMessage(chatId, 'Інтеграція пройшла успішно!');
-  } else {
-    bot.sendMessage(chatId, 'Щось не так, сповістіть команду розробників :(');
-    console.error(response.data);
-  }
-}
+//   const res = await User.update({telegramChatId: chatId}, {where: {email: user.email}});
+//   if (res) {
+//     bot.sendMessage(chatId, 'Інтеграція пройшла успішно!');
+//   } else {
+//     bot.sendMessage(chatId, 'Щось не так, сповістіть команду розробників :(');
+//     console.error(response.data);
+//   }
+// }
 
-module.exports = bot;
+// module.exports = bot;
