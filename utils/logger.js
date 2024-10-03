@@ -14,12 +14,13 @@ const logger = (tokens, req, res) => {
     req.headers.authorization &&
     req.headers.authorization.startsWith('Bearer') &&
     req.headers.authorization.split(' ')[1];
-  body.user = {
-    role: req?.user?.Role?.name,
-    roleId: req?.user?.RoleId,
-    id: req.user.id,
-    email: req.user.email
-  };
+  if (req.user)
+    body.user = {
+      role: req?.user?.Role?.name,
+      roleId: req?.user?.RoleId,
+      id: req.user.id,
+      email: req.user.email
+    };
 
   const status = tokens.status(req, res);
   if (status < 200 || status >= 300) {
