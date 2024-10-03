@@ -8,7 +8,7 @@ const sendMessage = async (type, body) => {
   await channel.assertQueue(queueName, {durable: true});
 
   const message = {
-    type: type, // tg ,slack, gmail
+    type: type, // tg ,slack, email
     body
   };
 
