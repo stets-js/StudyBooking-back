@@ -1,9 +1,8 @@
 const amqp = require('amqplib');
 
-const sendMessage = async (type, body) => {
+const sendMessage = async (queueName, type, body) => {
   const connection = await amqp.connect(process.env.RABBITMQ_URL);
   const channel = await connection.createChannel();
-  const queueName = 'message_queue';
 
   await channel.assertQueue(queueName, {durable: true});
 
