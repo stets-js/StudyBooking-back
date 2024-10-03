@@ -15,8 +15,8 @@ const logger = (tokens, req, res) => {
     req.headers.authorization.startsWith('Bearer') &&
     req.headers.authorization.split(' ')[1];
   body.user = {
-    role: req.user.Role.name,
-    roleId: req.user.RoleId,
+    role: req?.user?.Role?.name,
+    roleId: req?.user?.RoleId,
     id: req.user.id,
     email: req.user.email
   };
