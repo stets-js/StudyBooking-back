@@ -36,6 +36,10 @@ const SubgroupMentor = sequelize.define('SubgroupMentor', {
     type: Sequelize.TEXT
     // allowNull: false
   },
+  status: {
+    type: Sequelize.ENUM('waiting', 'approved'),
+    defaultValue: 'waiting'
+  },
   mentorId: {
     type: Sequelize.DataTypes.INTEGER,
     references: {

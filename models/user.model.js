@@ -17,6 +17,7 @@ const User = sequelize.define('User', {
     //   'https://res.cloudinary.com/hzxyensd5/image/upload/v1715070791/jgxfj4poa4f8goi2toaq.jpg'
   },
   slack: {type: Sequelize.STRING},
+  slackId: {type: Sequelize.STRING},
   telegram: {type: Sequelize.STRING},
   description: {
     type: Sequelize.STRING

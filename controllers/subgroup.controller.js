@@ -16,6 +16,7 @@ const sendEmail = require('../utils/email');
 const sendTelegramNotification = require('../utils/sendTelegramNotification');
 const {sendDirectMessage} = require('../utils/sendSlackNotification');
 const {generateNotificationMessage} = require('../utils/generateNotificationMessage');
+const {sendMessage} = require('../rabbitMQ/producer');
 
 exports.getAllSubGroups = catchAsync(async (req, res, next) => {
   if (req.query.sortBySubgroups)
@@ -108,9 +109,18 @@ exports.addMentorToSubgroup = catchAsync(async (req, res, next) => {
         html: message
       });
       const notificationMessage = generateNotificationMessage(req.body);
-      if (user.telegramChatId && !(process.env.NODE_ENV === 'DEV'))
-        await sendTelegramNotification(user.telegramChatId, notificationMessage);
-      if (user.slack) await sendDirectMessage(user.slack, notificationMessage);
+      if (user.slackId) {
+        sendMessage('slack_queue', 'slack_group_confirm_subgroup', {
+          channelId: 'C07DM1PERK8',
+          text: 'Будеш працювати?\n' + notificationMessage,
+          subgroupId: req.body.subgroupId,
+          userSlackId: user.slackId,
+          userId: user.id
+        });
+      }
+      // if (user.telegramChatId && !(process.env.NODE_ENV === 'DEV'))
+      //   await sendTelegramNotification(user.telegramChatId, notificationMessage);
+      // if (user.slack) await sendDirectMessage(user.slack, notificationMessage);
     }
   } catch (e) {
     console.error(e);
