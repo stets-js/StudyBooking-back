@@ -62,4 +62,4 @@ const handleMessage = async (messageContent, channel, msg) => {
   }
 };
 
-consumeMessages('slack_queue');
+consumeMessages('slack_queue_confirmation');
