@@ -2,11 +2,15 @@ const amqp = require('amqplib');
 const {SubgroupMentor} = require('../models/subgroup.model');
 
 const processConfirmationOfSubgroup = async body => {
-  const {subgroupId, userId} = body;
+  const {subgroupId, adminId, userId} = body;
 
   try {
     await SubgroupMentor.update({status: 'approved'}, {where: {subgroupId, mentorId: userId}});
-
+    sendMessage('slack_queue', 'slack_direct', {
+      // channelId: 'C07DM1PERK8',
+      text: `Користувач <@${userId}> прийняв потік ${subgroupId}`,
+      userId: adminId
+    });
     console.log(`Subgroup mentor ${subgroupId} confirmed.`);
   } catch (error) {
     console.error('Error confirming subgroup mentor:', error);
@@ -14,7 +18,7 @@ const processConfirmationOfSubgroup = async body => {
 };
 
 const processDeclinetionOfSubgroup = async body => {
-  const {subgroupId, userId} = body;
+  const {subgroupId, userId, adminId, reason} = body;
 
   try {
     await SubgroupMentor.destroy({
@@ -24,6 +28,11 @@ const processDeclinetionOfSubgroup = async body => {
       where: {subgroupId, mentorId: userId}
     });
     console.log(`Subgroup mentor ${subgroupId} declined.`);
+    sendMessage('slack_queue', 'slack_direct', {
+      // channelId: 'C07DM1PERK8',
+      text: `Користувач <@${userId}> відмінив потік ${subgroupId} за причиною: ${reason}`,
+      userId: adminId
+    });
   } catch (error) {
     console.error('Error declining subgroup mentor:', error);
   }

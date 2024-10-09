@@ -76,8 +76,20 @@ exports.updateSubGroupAndNext = catchAsync(async (req, res, next) => {
   // for now its updating subgroup + creating new row in SubgroupMentor
   let id = req.params.id;
   const body = req.body;
-  const subgroup = await SubGroup.update(body, {where: {id}});
+  await SubGroup.update(body, {where: {id}});
+  const subgroup = await SubGroup.findOne({
+    where: {id},
+    include: [
+      {
+        model: User,
+        as: 'Admin',
+        attributes: ['slackId']
+      }
+    ]
+  });
+
   req.subgroup = subgroup;
+  req.adminSlackId = subgroup.Admin ? subgroup.Admin.slackId : null;
 
   next();
 });
@@ -115,7 +127,15 @@ exports.addMentorToSubgroup = catchAsync(async (req, res, next) => {
           text: 'Будеш працювати?\n' + notificationMessage,
           subgroupId: req.body.subgroupId,
           userSlackId: user.slackId,
-          userId: user.id
+          userId: user.id,
+          adminId: req.subgroup.Admin.slackId
+        });
+        sendMessage('slack_queue', 'slack_direct', {
+          // channelId: 'C07DM1PERK8',
+          text: `Користувачу <@${user.slackId}> було відправлена конфірмація`,
+          subgroupId: req.body.subgroupId,
+          userSlackId: user.slackId,
+          userId: req.subgroup.Admin.slackId
         });
       }
       // if (user.telegramChatId && !(process.env.NODE_ENV === 'DEV'))
