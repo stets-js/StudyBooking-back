@@ -1,5 +1,6 @@
 const amqp = require('amqplib');
 const {SubgroupMentor} = require('../models/subgroup.model');
+const {Lesson} = require('../models/lesson.model');
 
 const processConfirmationOfSubgroup = async body => {
   const {subgroupId, adminId, userId} = body;
@@ -24,7 +25,7 @@ const processDeclinetionOfSubgroup = async body => {
     await SubgroupMentor.destroy({
       where: {subgroupId, mentorId: userId}
     });
-    await getLessons.destroy({
+    await Lesson.destroy({
       where: {subgroupId, mentorId: userId}
     });
     console.log(`Subgroup mentor ${subgroupId} declined.`);
