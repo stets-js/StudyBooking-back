@@ -1,6 +1,7 @@
 const amqp = require('amqplib');
 const {SubgroupMentor} = require('../models/subgroup.model');
 const {Lesson} = require('../models/lesson.model');
+const {sendMessage} = require('./producer');
 
 const processConfirmationOfSubgroup = async body => {
   const {subgroupId, adminId, userId} = body;
