@@ -78,14 +78,7 @@ exports.updateSubGroupAndNext = catchAsync(async (req, res, next) => {
   const body = req.body;
   await SubGroup.update(body, {where: {id}});
   const subgroup = await SubGroup.findOne({
-    where: {id},
-    include: [
-      {
-        model: User,
-        as: 'Admin',
-        attributes: ['slackId']
-      }
-    ]
+    where: {id}
   });
 
   req.subgroup = subgroup;

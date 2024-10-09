@@ -264,7 +264,7 @@ SubGroup.beforeFind(async options => {
     {
       model: User,
       as: 'Admin',
-      attributes: ['name'],
+      attributes: ['name', 'slackId'],
       foreignKey: 'adminId'
     },
     {
