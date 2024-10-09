@@ -20,7 +20,9 @@ const processDeclinetionOfSubgroup = async body => {
     await SubgroupMentor.destroy({
       where: {subgroupId, mentorId: userId}
     });
-
+    await getLessons.destroy({
+      where: {subgroupId, mentorId: userId}
+    });
     console.log(`Subgroup mentor ${subgroupId} declined.`);
   } catch (error) {
     console.error('Error declining subgroup mentor:', error);
