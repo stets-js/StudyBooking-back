@@ -30,6 +30,7 @@ exports.getAllSubGroups = catchAsync(async (req, res, next) => {
       ]
     ];
   }
+  console.log(status);
   if (status) {
     switch (+status) {
       case 0:
@@ -75,11 +76,12 @@ exports.getAllSubGroups = catchAsync(async (req, res, next) => {
         return next(new AppError('Invalid status value', 400));
     }
   }
-
+  console.log('!!!!!!!!');
+  console.log(req.whereClause);
   const document = await SubGroup.findAll({
     where: req.whereClause,
-    offset: +offset,
-    limit: +limit
+    offset: +offset || undefined,
+    limit: +limit || undefined
   });
 
   const totalCount = await SubGroup.count({
