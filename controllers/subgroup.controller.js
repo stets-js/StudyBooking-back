@@ -19,8 +19,8 @@ const {generateNotificationMessage} = require('../utils/generateNotificationMess
 const {sendMessage} = require('../rabbitMQ/producer');
 
 exports.getAllSubGroups = catchAsync(async (req, res, next) => {
-  if (req.query.sortBySubgroups)
-    // contains soft-tech
+  const {sortBySubgroups, status, offset, limit} = req.query;
+  if (sortBySubgroups) {
     attributes.include = [
       [
         Sequelize.literal(
@@ -29,13 +29,60 @@ exports.getAllSubGroups = catchAsync(async (req, res, next) => {
         'subgroupCount'
       ]
     ];
+  }
+  if (status) {
+    switch (+status) {
+      case 0:
+        // skip
+        break;
+      case 1:
+        // Not appointed subgroups
+        req.whereClause = {
+          ...req.whereClause,
+          [Sequelize.Op.and]: [
+            Sequelize.literal(
+              `NOT EXISTS (SELECT 1 FROM "SubgroupMentors" WHERE "SubgroupMentors"."subgroupId" = "SubGroup"."id")`
+            )
+          ]
+        };
+        break;
+      case 2:
+        // waiting for approving mentors
+        req.whereClause = {
+          ...req.whereClause,
+          [Sequelize.Op.and]: [
+            Sequelize.literal(
+              `EXISTS (SELECT 1 FROM "SubgroupMentors" WHERE "SubgroupMentors"."subgroupId" = "SubGroup"."id" AND "SubgroupMentors"."status" = 'waiting')`
+            )
+          ]
+        };
+        break;
+      case 3:
+        // approved subgroups
+        req.whereClause = {
+          ...req.whereClause,
+          [Sequelize.Op.and]: [
+            Sequelize.literal(
+              `EXISTS (SELECT 1 FROM "SubgroupMentors" WHERE "SubgroupMentors"."subgroupId" = "SubGroup"."id")`
+            ),
+            Sequelize.literal(
+              `NOT EXISTS (SELECT 1 FROM "SubgroupMentors" WHERE "SubgroupMentors"."subgroupId" = "SubGroup"."id" AND "SubgroupMentors"."status" != 'approved')`
+            )
+          ]
+        };
+        break;
+      default:
+        return next(new AppError('Invalid status value', 400));
+    }
+  }
 
   const document = await SubGroup.findAll({
     where: req.whereClause,
-    offset: req.query.offset,
-    limit: req.query.limit
+    offset: +offset,
+    limit: +limit
   });
-  totalCount = await SubGroup.count({
+
+  const totalCount = await SubGroup.count({
     where: req.whereClause
   });
 
@@ -44,7 +91,7 @@ exports.getAllSubGroups = catchAsync(async (req, res, next) => {
     results: document.length,
     data: document,
     totalCount,
-    newOffset: +req.query.offset + +req.query.limit
+    newOffset: +offset + +limit
   });
 });
 
@@ -115,9 +162,18 @@ exports.addMentorToSubgroup = catchAsync(async (req, res, next) => {
       });
       const notificationMessage = generateNotificationMessage(req.body);
       if (user.slackId) {
+        const blocks = generateBlockConfirmation(
+          req.subgroup.name,
+          body.selectedCourseName,
+          req.subgroup.startDate,
+          req.subgroup.endDate,
+          req.schedule,
+          req.adminSlackId
+        );
         sendMessage('slack_queue', 'slack_group_confirm_subgroup', {
           channelId: 'C07DM1PERK8',
           text: 'Будеш працювати?\n' + notificationMessage,
+          blocks: JSON.stringify(blocks),
           subgroupId: req.body.subgroupId,
           userSlackId: user.slackId,
           userId: user.id,
