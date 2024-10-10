@@ -1,16 +1,16 @@
 const amqp = require('amqplib');
-const {SubgroupMentor} = require('../models/subgroup.model');
+const {SubgroupMentor, SubGroup} = require('../models/subgroup.model');
 const {Lesson} = require('../models/lesson.model');
 const {sendMessage} = require('./producer');
 
 const processConfirmationOfSubgroup = async body => {
-  const {subgroupId, adminId, userId} = body;
+  const {subgroupId, userSlackId, adminId, userId} = body;
 
   try {
     await SubgroupMentor.update({status: 'approved'}, {where: {subgroupId, mentorId: userId}});
     sendMessage('slack_queue', 'slack_direct', {
       // channelId: 'C07DM1PERK8',
-      text: `Користувач <@${userId}> прийняв потік ${subgroupId}`,
+      text: `Користувач <@${userSlackId}> прийняв потік ${subgroupId}`,
       userId: adminId
     });
     console.log(`Subgroup mentor ${subgroupId} confirmed.`);
@@ -20,9 +20,11 @@ const processConfirmationOfSubgroup = async body => {
 };
 
 const processDeclinetionOfSubgroup = async body => {
-  const {subgroupId, userId, adminId, reason} = body;
+  const {subgroupId, userId, userSlackId, adminId, reason} = body;
 
   try {
+    const group = await SubGroup.findByPk(subgroupId);
+    const url = `https://study-booking.netlify.app/admin/appointments?excludeUser=${userId}&courseId=${group.CourseId}&subgroupId=${subgroupId}&startDate=${group.startDate}&endDate=${group.endDate}`;
     await SubgroupMentor.destroy({
       where: {subgroupId, mentorId: userId}
     });
@@ -32,7 +34,7 @@ const processDeclinetionOfSubgroup = async body => {
     console.log(`Subgroup mentor ${subgroupId} declined.`);
     sendMessage('slack_queue', 'slack_direct', {
       // channelId: 'C07DM1PERK8',
-      text: `Користувач <@${userId}> відмінив потік ${subgroupId} за причиною: ${reason}`,
+      text: `Користувач <@${userSlackId}> відмінив потік ${subgroupId} за причиною: ${reason}\nЛінка на призначення ${url}`,
       userId: adminId
     });
   } catch (error) {
