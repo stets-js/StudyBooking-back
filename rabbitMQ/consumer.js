@@ -24,7 +24,11 @@ const processDeclinetionOfSubgroup = async body => {
 
   try {
     const group = await SubGroup.findByPk(subgroupId);
-    const url = `https://study-booking.netlify.app/admin/appointments?excludeUser=${userId}&courseId=${group.CourseId}&subgroupId=${subgroupId}&startDate=${group.startDate}&endDate=${group.endDate}`;
+    const url = `https://study-booking.netlify.app/admin/appointments?excludeUser=${userId}&courseId=${
+      group.CourseId
+    }&subgroupId=${subgroupId}&startDate=${JSON.stringify(
+      group.startDate
+    )}&endDate=${JSON.stringify(group.endDate)}`;
     await SubgroupMentor.destroy({
       where: {subgroupId, mentorId: userId}
     });
