@@ -2,7 +2,7 @@ const amqp = require('amqplib');
 const {SubgroupMentor, SubGroup} = require('../models/subgroup.model');
 const {Lesson} = require('../models/lesson.model');
 const {sendMessage} = require('./producer');
-
+const {format} = require('date-fns');
 const processConfirmationOfSubgroup = async body => {
   const {subgroupId, userSlackId, adminId, userId} = body;
 
@@ -26,9 +26,10 @@ const processDeclinetionOfSubgroup = async body => {
     const group = await SubGroup.findByPk(subgroupId);
     const url = `https://study-booking.netlify.app/admin/appointments?excludeUser=${userId}&courseId=${
       group.CourseId
-    }&subgroupId=${subgroupId}&startDate=${JSON.stringify(
-      group.startDate
-    )}&endDate=${JSON.stringify(group.endDate)}`;
+    }&subgroupId=${subgroupId}&startDate=${format(group.startDate, 'yyyy-MM-dd')}&endDate=${format(
+      group.endDate,
+      'yyyy-MM-dd'
+    )}`;
     await SubgroupMentor.destroy({
       where: {subgroupId, mentorId: userId}
     });
