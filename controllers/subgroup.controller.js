@@ -17,6 +17,7 @@ const sendTelegramNotification = require('../utils/sendTelegramNotification');
 const {sendDirectMessage} = require('../utils/sendSlackNotification');
 const {generateNotificationMessage} = require('../utils/generateNotificationMessage');
 const {sendMessage} = require('../rabbitMQ/producer');
+const {generateBlockConfirmation} = require('../utils/slack-block');
 
 exports.getAllSubGroups = catchAsync(async (req, res, next) => {
   const {sortBySubgroups, status, offset, limit} = req.query;
@@ -163,18 +164,22 @@ exports.addMentorToSubgroup = catchAsync(async (req, res, next) => {
         html: message
       });
       const notificationMessage = generateNotificationMessage(req.body);
+
       if (user.slackId) {
+        console.log('here!!!');
         const blocks = generateBlockConfirmation(
           req.subgroup.name,
-          body.selectedCourseName,
+          req.body.selectedCourseName,
           req.subgroup.startDate,
           req.subgroup.endDate,
-          req.schedule,
+          req.body.schedule,
           req.adminSlackId
         );
+        console.log(blocks);
+        console.log(user.slackId);
         sendMessage('slack_queue', 'slack_group_confirm_subgroup', {
           channelId: 'C07DM1PERK8',
-          text: 'Будеш працювати?\n' + notificationMessage,
+          text: 'Будеш працювати?\n',
           blocks: JSON.stringify(blocks),
           subgroupId: req.body.subgroupId,
           userSlackId: user.slackId,
