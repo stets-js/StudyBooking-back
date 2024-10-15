@@ -4,6 +4,7 @@ const {promisify} = require('util');
 const sendEmail = require('../utils/email');
 const catchAsync = require('../utils/catchAsync');
 const {User} = require('../models/relation');
+const {sendMessage} = require('../rabbitMQ/producer');
 
 const timeLeftTillMorning = () => {
   const nowInKiev = moment().tz('Europe/Kiev');
@@ -166,5 +167,6 @@ exports.isSlackSync = catchAsync(async (req, res, next) => {
 exports.syncSlack = catchAsync(async (req, res, next) => {
   req.user.slackId = req.body.slackId;
   await req.user.save();
+  sendMessage('slack_queue', 'slack_direct', {userId: req.user.slackId, text: 'Синхронізовано ✅'});
   res.json({user: req.user});
 });
