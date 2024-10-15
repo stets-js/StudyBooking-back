@@ -157,3 +157,14 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   console.log(user);
   createSendToken(user, 201, res);
 });
+
+exports.isSlackSync = catchAsync(async (req, res, next) => {
+  const user = await User.findOne({where: {slackId: req.query.slackId}});
+  res.json({isSync: user ? true : false});
+});
+
+exports.syncSlack = catchAsync(async (req, res, next) => {
+  req.user.slackId = req.body.slackId;
+  await req.user.save();
+  res.json({user: req.user});
+});

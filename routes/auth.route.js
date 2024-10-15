@@ -15,4 +15,8 @@ router.get(
 router.post('/forgotPassword', authController.forgotPassword);
 router.patch('/resetPassword/:token', authController.resetPassword);
 
+router
+  .route('/slack')
+  .get(authController.isSlackSync)
+  .post(authController.protect, authController.syncSlack);
 module.exports = router;
