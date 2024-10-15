@@ -165,8 +165,12 @@ exports.isSlackSync = catchAsync(async (req, res, next) => {
 });
 
 exports.syncSlack = catchAsync(async (req, res, next) => {
-  req.user.slackId = req.body.slackId;
-  await req.user.save();
-  sendMessage('slack_queue', 'slack_direct', {userId: req.user.slackId, text: 'Синхронізовано ✅'});
+  const user = await User.findByPk(req.user.id);
+  user.slackId = req.body.slackId;
+  await user.save();
+  sendMessage('slack_queue', 'slack_direct', {
+    userId: user.slackId,
+    text: 'Синхронізовано ✅'
+  });
   res.json({user: req.user});
 });
