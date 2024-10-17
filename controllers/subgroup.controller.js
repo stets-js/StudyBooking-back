@@ -260,6 +260,7 @@ exports.addSubgroupsFromZoho = catchAsync(async (req, res, next) => {
   const data = req.body;
   let course = -1;
   const courseName = data.courseName;
+  const productId = data.productID;
   let msg = '';
   const translatedCourse = translateCourse(courseName);
   console.log(translatedCourse);
@@ -290,6 +291,7 @@ exports.addSubgroupsFromZoho = catchAsync(async (req, res, next) => {
 
   subgroupsData.forEach(async subgroupData => {
     const subgroupName = subgroupData.name;
+    const subgroupZohoId = subgroupData.subgroupsID;
     const existingSubgroup = await SubGroup.findOne({
       where: {
         // CourseId: translatedCourse.id,
@@ -304,20 +306,34 @@ exports.addSubgroupsFromZoho = catchAsync(async (req, res, next) => {
         endDate: subgroupData.endDate,
         link: subgroupData.link,
         description: subgroupData.description,
-        CourseId: course.id
+        CourseId: course.id,
+        zohoGroupId: productId,
+        zohoSubgroupId: subgroupZohoId
       });
       await sendTelegramNotification(
         '-1002197881869',
         `Завантажений поток з зохо!\n${subgroupName} - ${course.name}\n ${msg}`
       );
     } else {
+      let updateMessage = `Оновлено поток.\n${subgroupName} - ${course.name}`;
+      let updated = false;
       if (existingSubgroup.link !== subgroupData.link) {
+        updated = true;
         existingSubgroup.link = subgroupData.link;
+        updateMessage += '\n Оновленно телеграм';
+      }
+      if (existingSubgroup.zohoGroupId !== productId) {
+        updated = true;
+        existingSubgroup.zohoGroupId = productId;
+        updateMessage += '\nОновленно айді зохо';
+      }
+      if (existingSubgroup.zohoSubgroupId !== subgroupZohoId) {
+        updated = true;
+        existingSubgroup.zohoSubgroupId = subgroupZohoId;
+      }
+      if (updated) {
         await existingSubgroup.save();
-        await sendTelegramNotification(
-          '-1002197881869',
-          `Оновлено поток (лінку на телеграм)!\n${subgroupName} - ${course.name}`
-        );
+        await sendTelegramNotification('-1002197881869', updateMessage);
       }
     }
   });

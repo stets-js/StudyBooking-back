@@ -28,6 +28,13 @@ const SubGroup = sequelize.define('SubGroup', {
   // },
   description: {
     type: Sequelize.STRING
+  },
+  zohoGroupId: {
+    type: Sequelize.STRING
+  },
+  zohoSubgroupId: {
+    //sugroup is -> 1-2 Підгрупа
+    type: Sequelize.STRING
   }
 });
 
