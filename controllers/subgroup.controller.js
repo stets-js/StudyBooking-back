@@ -20,7 +20,7 @@ const {sendMessage} = require('../rabbitMQ/producer');
 const {generateBlockConfirmation} = require('../utils/slack-block');
 
 exports.getAllSubGroups = catchAsync(async (req, res, next) => {
-  const {sortBySubgroups, status, offset, limit} = req.query;
+  const {sortBySubgroups, status, offset, limit, isZohoSync} = req.query;
   if (sortBySubgroups) {
     attributes.include = [
       [
@@ -77,11 +77,33 @@ exports.getAllSubGroups = catchAsync(async (req, res, next) => {
         return next(new AppError('Invalid status value', 400));
     }
   }
-  console.log('!!!!!!!!');
-  console.log(req.whereClause);
+  if (isZohoSync) {
+    req.whereClause = {
+      ...req.whereClause,
+      zohoGroupId: {[Op.not]: null}
+    };
+  }
+  if (req.query.subgroupStartDate) {
+    const [start, end] = req.query.subgroupStartDate.split(',');
+    req.whereClause = {
+      ...req.whereClause,
+      startDate: {[Op.and]: [{[Op.gte]: start}, {[Op.lte]: end}]}
+    };
+  }
+  const include = isZohoSync
+    ? [
+        {
+          model: User,
+          as: 'mentors',
+          attributes: ['name', 'email'],
+          through: {attributes: []}
+        }
+      ]
+    : [];
   const document = await SubGroup.findAll({
     where: req.whereClause,
     offset: +offset || undefined,
+    include,
     limit: +limit || undefined
   });
 
