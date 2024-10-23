@@ -546,35 +546,35 @@ exports.AddReportsToDB = catchAsync(async (req, res, next) => {
         body.link = row[2];
         try {
           const newRep = await Report.create(body);
-          if (user.slackId) {
-            sendMessage('slack_queue', 'slack_direct', {
-              text: 'Вам був висланий звіт від *Відділу контролі якості*',
-              blocks: [
-                {
-                  type: 'section',
-                  text: {
-                    type: 'mrkdwn',
-                    text: `Переглянути [букінг](https://study-booking.netlify.app/report/)\n
-                     Перегляньте ваш [звіт](${newRep.link}).`
-                  }
-                }
-              ]
-            });
-          }
-          await sendEmail({
-            email: user.email,
-            subject: 'Звіт від Відділу контролі якості ',
-            message: 'Вам був висланий звіт від "Відділу контролі якості"',
-            html: `<div styles="font-family:"Poppins", sans-serif; font-size:20px;>
-            <h3>Вам був висланий звіт від "Відділу контролі якості"!<h3>
-            <a href="https://study-booking.netlify.app/report" target="_blank" rel="noreferrer">
-            Booking
-            </a> <br/>
-            <a href=${newRep.link} target="_blank" rel="noreferrer">
-            Звіт
-            </a>
-            </div>`
-          });
+          // if (user.slackId) {
+          //   sendMessage('slack_queue', 'slack_direct', {
+          //     text: 'Вам був висланий звіт від *Відділу контролі якості*',
+          //     blocks: [
+          //       {
+          //         type: 'section',
+          //         text: {
+          //           type: 'mrkdwn',
+          //           text: `Переглянути [букінг](https://study-booking.netlify.app/report/)\n
+          //            Перегляньте ваш [звіт](${newRep.link}).`
+          //         }
+          //       }
+          //     ]
+          //   });
+          // }
+          // await sendEmail({
+          //   email: user.email,
+          //   subject: 'Звіт від Відділу контролі якості ',
+          //   message: 'Вам був висланий звіт від "Відділу контролі якості"',
+          //   html: `<div styles="font-family:"Poppins", sans-serif; font-size:20px;>
+          //   <h3>Вам був висланий звіт від "Відділу контролі якості"!<h3>
+          //   <a href="https://study-booking.netlify.app/report" target="_blank" rel="noreferrer">
+          //   Booking
+          //   </a> <br/>
+          //   <a href=${newRep.link} target="_blank" rel="noreferrer">
+          //   Звіт
+          //   </a>
+          //   </div>`
+          // });
           return await newRep.reload();
         } catch (error) {
           return undefined;
