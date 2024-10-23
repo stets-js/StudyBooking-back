@@ -1,12 +1,29 @@
 const {Sequelize, Op} = require('sequelize');
-const {Course, TeacherCourse} = require('../models/relation');
+const {Course, TeacherCourse, User} = require('../models/relation');
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./factory.controller');
 
 exports.getAllCourses = catchAsync(async (req, res, next) => {
-  const document = await Course.findAll({
-    where: req.whereClause
-  });
+  const {userCourses, mentorId} = req.query;
+  console.log(req.whereClause);
+  delete req.whereClause.mentorId;
+  let document;
+  if (userCourses && mentorId) {
+    document = await Course.findAll({
+      include: [
+        {
+          model: User,
+          as: 'teachers',
+          where: {id: mentorId},
+          attributes: []
+        }
+      ],
+      where: req.whereClause
+    });
+  } else
+    document = await Course.findAll({
+      where: req.whereClause
+    });
 
   return res.json({
     status: 'success',
