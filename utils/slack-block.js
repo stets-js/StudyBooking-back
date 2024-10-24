@@ -1,3 +1,5 @@
+const {format} = require('date-fns');
+
 const generateBlockConfirmation = (
   subgroupName,
   courseName,
@@ -39,11 +41,11 @@ const generateBlockConfirmation = (
       fields: [
         {
           type: 'mrkdwn',
-          text: `*Дата початку:*\n${startDate}`
+          text: `*Дата початку:*\n${format(startDate, 'dd.MM.yyyy')}`
         },
         {
           type: 'mrkdwn',
-          text: `*Кінцева дата:*\n${endDate}`
+          text: `*Кінцева дата:*\n${format(endDate, 'dd.MM.yyyy')}`
         },
 
         {
